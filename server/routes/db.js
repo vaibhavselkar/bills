@@ -30,23 +30,25 @@ router.post("/", async (req, res) => {
 
 // GET: Fetch all bills
 router.get("/", async (req, res) => {
-    try {
-        const { billId } = req.query;
+  try {
+    const bills = await Bill.find().sort({ createdAt: -1 });
+    res.json(bills);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
 
-        if (billId) {
-            const bill = await Bill.findById(billId);
-            if (!bill) {
-                return res.status(404).json({ message: "Bill not found" });
-            }
-            return res.status(200).json({ message: "Bill found", bill });
-        }
-
-        // If no billId is provided, return all bills
-        const bills = await Bill.find().sort({ createdAt: -1 });
-        res.json(bills);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error", error: error.message });
+// GET: Fetch bill by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const bill = await Bill.findById(req.params.id);
+    if (!bill) {
+      return res.status(404).json({ message: "Bill not found" });
     }
+    res.status(200).json(bill);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
 });
 
 // DELETE: Delete a bill

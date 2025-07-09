@@ -12,7 +12,7 @@ const Home = () => {
       </header>
 
       <nav className="nav-bar">
-        <button onClick={() => navigate('/')}>Home</button>
+        <button onClick={() => navigate('/')}>Dashboard</button>
         <button onClick={() => navigate('/bill')}>Bill</button>
         <button onClick={() => navigate('/view')}>Admin</button>
         <button onClick={() => navigate('/admin-login')}>Login</button>

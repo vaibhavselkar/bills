@@ -7,6 +7,9 @@ import AdminLogin from './components/AdminLogin';
 import './styles/AdminLogin.css';
 import Home from './components/Home';
 import './styles/Home.css';
+import Invoice from './components/Invoice.js';
+import './styles/Invoice.css';
+
 
 function App() {
   return (
@@ -16,6 +19,8 @@ function App() {
         <Route path="/bill" element={<BillForm />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/view" element={<ViewBills />} />
+        <Route path="/invoice/:id" element={<Invoice />} />
+        
       </Routes>
     </Router>
   );

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';//1
 
 const productData = {
   Frames: {
@@ -29,6 +30,7 @@ const BillForm = () => {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [products, setProducts] = useState([defaultProductRow]);
   const [toast, setToast] = useState({ message: '', type: '' });
+  const navigate = useNavigate();//2
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -81,6 +83,7 @@ const BillForm = () => {
     return products.reduce((sum, row) => sum + (parseFloat(row.total) || 0), 0).toFixed(2);
   };
 
+
   const handleSubmit = async () => {
     if (!customerName) {
       showToast('Please enter customer name', 'error');
@@ -116,7 +119,16 @@ const BillForm = () => {
       });
 
       const data = await res.json();
+      console.log("Saved Bill Response:", data);
+
       if (res.ok) {
+        // Save to localStorage
+        localStorage.setItem('lastBill', JSON.stringify(data));
+        // Navigate using plain HTML
+        //window.location.href = '/invoice/:id';
+        navigate(`/invoice/${data.bill._id}`);
+
+
         showToast('Bill saved successfully!');
         setCustomerName('');
         setMobileNumber('');
@@ -130,6 +142,29 @@ const BillForm = () => {
     }
   };
 
+/*
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Bill saved successfully!');
+      // Ask user if they want to print
+      const shouldPrint = window.confirm("Bill saved! Do you want to print?");
+      if (shouldPrint) {
+        window.print();
+      }
+
+      // Reset form after printing or skipping
+      setCustomerName('');
+      setMobileNumber('');
+      setProducts([defaultProductRow]);
+      setPaymentMethod('Cash');
+    } else {
+      throw new Error(data.message || 'Error saving bill');
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+};
+*/
   return (
     <div className="bill-container">
       {toast.message && (
@@ -226,17 +261,17 @@ const BillForm = () => {
       <div className="total-amount">Total Amount: ₹{getGrandTotal()}</div>
 
       <div className="buttons">
-        <button onClick={handleSubmit}>Save Bill</button>
-        <button onClick={() => window.location.href = '/view'}>Go to Admin Page</button>
-        <button onClick={() => window.print()}>Print</button>
+        <button id="saveBillBtn" onClick={handleSubmit}>Save</button>        
+        <button id="backBtn" onClick={() => window.location.href = '/'}>Dashboard</button>
       </div>
+
 
       <div className="footer">
         Sanghamitra Business Incubator<br />
         Website: <a href="https://sanghamitra.store" target="_blank" rel="noreferrer">sanghamitra.store</a><br />
         Contact: +919234567890
       </div>
-    </div>
+  </div>
   );
 };
 
