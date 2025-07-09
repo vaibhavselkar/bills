@@ -125,7 +125,6 @@ const BillForm = () => {
         // Save to localStorage
         localStorage.setItem('lastBill', JSON.stringify(data));
         // Navigate using plain HTML
-        //window.location.href = '/invoice/:id';
         navigate(`/invoice/${data.bill._id}`);
 
 
@@ -142,29 +141,7 @@ const BillForm = () => {
     }
   };
 
-/*
-    const data = await res.json();
-    if (res.ok) {
-      showToast('Bill saved successfully!');
-      // Ask user if they want to print
-      const shouldPrint = window.confirm("Bill saved! Do you want to print?");
-      if (shouldPrint) {
-        window.print();
-      }
 
-      // Reset form after printing or skipping
-      setCustomerName('');
-      setMobileNumber('');
-      setProducts([defaultProductRow]);
-      setPaymentMethod('Cash');
-    } else {
-      throw new Error(data.message || 'Error saving bill');
-    }
-  } catch (err) {
-    showToast('Error: ' + err.message, 'error');
-  }
-};
-*/
   return (
     <div className="bill-container">
       {toast.message && (
