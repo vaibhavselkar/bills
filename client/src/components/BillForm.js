@@ -120,7 +120,6 @@ const BillForm = () => {
         // Save to localStorage
         localStorage.setItem('lastBill', JSON.stringify(data));
         // Navigate using plain HTML
-        //window.location.href = '/invoice/:id';
         navigate(`/invoice/${data.bill._id}`);
 
 

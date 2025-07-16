@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET: Fetch bill by ID
-router.get("/:id", async (req, res) => {
+router.get("/bill/:id", async (req, res) => {
   try {
     const bill = await Bill.findById(req.params.id);
     if (!bill) {
