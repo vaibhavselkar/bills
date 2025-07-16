@@ -39,6 +39,18 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+router.get('/products', async (req, res) => {
+  try {
+    const data = await ProductModel.find(); // or however you're storing products
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 // GET: Fetch bill by ID
 router.get("/bill/:id", async (req, res) => {
   try {
