@@ -2,79 +2,32 @@ import React, { useState, useEffect } from 'react';
 
 const ProductManagement = () => {
   const [category, setCategory] = useState('');
-  const [product, setProduct] = useState('');
+  const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [productData, setProductData] = useState({});
-
-  // ✅ Fetch products from backend
-  useEffect(() => {
-    fetchProductData();
-  }, []);
-
-  const fetchProductData = async () => {
-    try {
-      const res = await fetch('https://billing-app-server.vercel.app/api/products');
-      const products = await res.json();
-
-      const formatted = {};
-      products.forEach(p => {
-        if (!formatted[p.type]) formatted[p.type] = {};
-        formatted[p.type][p.name] = p.price;
-      });
-
-      setProductData(formatted);
-    } catch (err) {
-      console.error('Error fetching product data:', err);
-    }
-  };
+  const [products, setProducts] = useState([]);
 
   const handleAddProduct = async () => {
-    if (!category || !product || !price) {
-      alert("Please fill all fields");
+    if (!category || !name || !price) {
+      alert('Please fill all fields');
       return;
     }
 
-    const payload = {
-      type: category,
-      name: product,
-      price: parseFloat(price),
-    };
-
     try {
-      const res = await fetch('https://billing-app-server.vercel.app/api/products', {
+      const response = await fetch('http://localhost:8080/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ category, name, price })
       });
-
-      if (res.ok) {
-        setCategory('');
-        setProduct('');
-        setPrice('');
-        fetchProductData(); // refresh data
-      } else {
-        alert("Error adding product");
-      }
+      if (!response.ok) throw new Error('Failed to add product');
+      setCategory('');
+      setName('');
+      setPrice('');
+      fetchProducts();
     } catch (err) {
-      console.error("Error adding product:", err);
+      console.error('Error adding product:', err);
     }
   };
 
-  const handleDelete = async (cat, prod) => {
-    try {
-      const res = await fetch(`https://billing-app-server.vercel.app/api/products/${cat}/${prod}`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        fetchProductData(); // refresh data
-      } else {
-        alert('Error deleting product');
-      }
-    } catch (err) {
-      console.error('Error deleting product:', err);
-    }
-  };
 
   return (
     <div style={{ padding: '20px' }}>
@@ -84,41 +37,24 @@ const ProductManagement = () => {
       </div>
       <button id="backBtn" onClick={() => window.location.href = '/'}>Dashboard</button>
 
-      <input
-        type="text"
-        placeholder="Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Product Name"
-        value={product}
-        onChange={(e) => setProduct(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
+      <input type="text" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
+      <input type="text" placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
       <button onClick={handleAddProduct}>Add Product</button>
 
       <h3>Current Products:</h3>
-      {Object.keys(productData).length === 0 ? (
+      {Object.keys(groupedProducts).length === 0 ? (
         <p>No products available.</p>
       ) : (
-        Object.entries(productData).map(([cat, products]) => (
+        Object.entries(groupedProducts).map(([cat, prods]) => (
           <div key={cat}>
             <h4>{cat}</h4>
             <ul>
-              {Object.entries(products).map(([prod, price]) => (
-                <li key={prod}>
-                  {prod} - ₹{price}
+              {prods.map((p) => (
+                <li key={p._id}>
+                  {p.name} - ₹{p.price}
                   &nbsp;
-                  <button onClick={() => handleDelete(cat, prod)} style={{ color: 'black' }}>
-                    Delete
-                  </button>
+                  <button onClick={() => handleDelete(p._id)}>Delete</button>
                 </li>
               ))}
             </ul>
