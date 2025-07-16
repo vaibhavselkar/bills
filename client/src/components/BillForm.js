@@ -21,26 +21,26 @@ const BillForm = () => {
   const [productData, setProductData] = useState({}); // ✅ New state to hold localStorage data
   // ✅ Load productData from localStorage on mount
   useEffect(() => {
-    const fetchProductData = async () => {
-      try {
-        const res = await fetch("https://billing-app-server.vercel.app/api/products");
-        const data = await res.json();
-  
-        // Convert to format: { Tshirt: { S: 100, M: 120 }, Bag: { Small: 80, Large: 150 } }
-        const formatted = {};
-        data.forEach(p => {
-          if (!formatted[p.type]) formatted[p.type] = {};
-          formatted[p.type][p.name] = p.price;
-        });
-  
-        setProductData(formatted);
-      } catch (err) {
-        console.error("Error loading product data:", err);
-      }
-    };
-  
-    fetchProductData();
-  }, []);
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('https://billing-app-server.vercel.app/api/products');
+      const data = await response.json();
+
+      // Group products by category for dropdowns
+      const grouped = data.reduce((acc, p) => {
+        acc[p.category] = acc[p.category] || [];
+        acc[p.category].push({ name: p.name, price: p.price });
+        return acc;
+      }, {});
+      
+      setProductData(grouped);
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    }
+  };
+
+  fetchProducts();
+}, []);
 
   
   const showToast = (message, type = 'success') => {
