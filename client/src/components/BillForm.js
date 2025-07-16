@@ -1,19 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // ✅ Add useEffect
 import { useNavigate } from 'react-router-dom';//1
 
-const productData = {
-  Frames: {
-    "Adivasi Geographic by Jayesh Lakhama Vayeda": 500,
-    "Anti-caste Bookseller by Nidhin Shobhana": 500,
-    // ...add others
-  },
-  Tshirt: {
-    "Elephant": 200,
-    "Chameleon": 200,
-    // ...
-  },
-  // ...other categories
-};
 
 const defaultProductRow = {
   productType: '',
@@ -31,7 +18,15 @@ const BillForm = () => {
   const [products, setProducts] = useState([defaultProductRow]);
   const [toast, setToast] = useState({ message: '', type: '' });
   const navigate = useNavigate();//2
+  const [productData, setProductData] = useState({}); // ✅ New state to hold localStorage data
+  // ✅ Load productData from localStorage on mount
+  useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem('productData')) || {};
+    setProductData(storedData);
+  }, []);
 
+
+  
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast({ message: '', type: '' }), 3000);
@@ -112,7 +107,7 @@ const BillForm = () => {
     };
 
     try {
-      const res = await fetch('https://billing-app-server.vercel.app/api/', {
+      const res = await fetch('http://localhost:8080/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(billData)
@@ -142,29 +137,6 @@ const BillForm = () => {
     }
   };
 
-/*
-    const data = await res.json();
-    if (res.ok) {
-      showToast('Bill saved successfully!');
-      // Ask user if they want to print
-      const shouldPrint = window.confirm("Bill saved! Do you want to print?");
-      if (shouldPrint) {
-        window.print();
-      }
-
-      // Reset form after printing or skipping
-      setCustomerName('');
-      setMobileNumber('');
-      setProducts([defaultProductRow]);
-      setPaymentMethod('Cash');
-    } else {
-      throw new Error(data.message || 'Error saving bill');
-    }
-  } catch (err) {
-    showToast('Error: ' + err.message, 'error');
-  }
-};
-*/
   return (
     <div className="bill-container">
       {toast.message && (

@@ -79,17 +79,15 @@ button:hover {
 }
 
 @media print {
+  .footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
   button {
-    display: none;
+    display: none !important;
   }
-
-  body {
-    background: none;
-    margin: 0;
-  }
-
-  .invoice-container {
-    box-shadow: none;
-    margin: 0;
-  }
+  
 }

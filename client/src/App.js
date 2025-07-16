@@ -9,6 +9,7 @@ import Home from './components/Home';
 import './styles/Home.css';
 import Invoice from './components/Invoice.js';
 import './styles/Invoice.css';
+import ProductManager from "./components/ProductManager";
 
 
 function App() {
@@ -20,7 +21,7 @@ function App() {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/view" element={<ViewBills />} />
         <Route path="/invoice/:id" element={<Invoice />} />
-        
+        <Route path="/products" element={<ProductManager />} /> {/*use for commenting*/}
       </Routes>
     </Router>
   );

@@ -14,9 +14,10 @@ const Home = () => {
       <nav className="nav-bar">
         <button onClick={() => navigate('/')}>Dashboard</button>
         <button onClick={() => navigate('/bill')}>Bill</button>
-        <button onClick={() => navigate('/view')}>Admin</button>
+        <button onClick={() => navigate('/view')}>ViewBills</button>
         <button onClick={() => navigate('/admin-login')}>Login</button>
         <button onClick={() => alert("Edit Profile coming soon!")}>Edit Profile</button>
+        <button onClick={() => navigate('/products')}>Product Management</button>
       </nav>
 
       <div className="home-body">
