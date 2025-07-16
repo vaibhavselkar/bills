@@ -8,12 +8,7 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: 'https://billing-app-client.vercel.app', // or your React app's URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 app.use(express.json());
 
 
@@ -33,6 +28,10 @@ mongoose.connect(process.env.DATABASE)
     console.error('❌ MongoDB connection error:', err.message);
   });
 
+// Start server
+const PORT = process.env.PORT || 6000;
+app.listen(PORT, () => {
+    console.log(`✅ Server is running on port ${PORT}`);
+});
 
-// Export for Vercel
-module.exports = app;
+

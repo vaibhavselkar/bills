@@ -7,6 +7,7 @@ const Bill = require('../model/bill_schema');
 router.post("/", async (req, res) => {
     try {
         const { customerName, products, totalAmount, paymentMethod } = req.body;
+        console.log("Received data:", req.body); // 🔍 Add this line
 
         // Validate required fields
         if (!customerName || !products || !totalAmount || !paymentMethod) {
