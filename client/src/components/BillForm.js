@@ -107,7 +107,7 @@ const BillForm = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:8080/api/', {
+      const res = await fetch('https://billing-app-server.vercel.app/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(billData)
