@@ -39,18 +39,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-
-router.get('/products', async (req, res) => {
-  try {
-    const data = await ProductModel.find(); // or however you're storing products
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-
 // GET: Fetch bill by ID
 router.get("/bill/:id", async (req, res) => {
   try {
@@ -77,5 +65,33 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
+// POST new product
+router.post('/products', async (req, res) => {
+  try {
+    const { type, name, price } = req.body;
+    const newProduct = new Product({ type, name, price });
+    await newProduct.save();
+    res.json({ success: true, product: newProduct });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET all products
+router.get('/products', async (req, res) => {
+  const allProducts = await Product.find();
+  res.json(allProducts);
+});
+
+// DELETE product
+router.delete('/products/:type/:name', async (req, res) => {
+  const { type, name } = req.params;
+  try {
+    const result = await Product.deleteOne({ type, name });
+    res.json({ success: true, deletedCount: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 module.exports = router;
