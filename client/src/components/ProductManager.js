@@ -13,7 +13,7 @@ const ProductManagement = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/products', {
+      const response = await fetch('https://billing-app-server.vercel.app/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ category, name, price })
