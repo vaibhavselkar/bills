@@ -2,32 +2,55 @@ import React, { useState, useEffect } from 'react';
 
 const ProductManagement = () => {
   const [category, setCategory] = useState('');
-  const [name, setName] = useState('');
+  const [product, setProduct] = useState('');
   const [price, setPrice] = useState('');
-  const [products, setProducts] = useState([]);
+  const [productData, setProductData] = useState({});
 
-  const handleAddProduct = async () => {
-    if (!category || !name || !price) {
-      alert('Please fill all fields');
+  // ✅ Load from localStorage when component mounts
+  useEffect(() => {
+    const savedData = localStorage.getItem('productData');
+    if (savedData) {
+      setProductData(JSON.parse(savedData));
+    }
+  }, []);
+
+  // ✅ Save to localStorage after data is updated
+  const saveToLocalStorage = (data) => {
+    localStorage.setItem('productData', JSON.stringify(data));
+  };
+
+  const handleAddProduct = () => {
+    if (!category || !product || !price) {
+      alert("Please fill all fields");
       return;
     }
 
-    try {
-      const response = await fetch('https://billing-app-server.vercel.app/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, name, price })
-      });
-      if (!response.ok) throw new Error('Failed to add product');
-      setCategory('');
-      setName('');
-      setPrice('');
-      fetchProducts();
-    } catch (err) {
-      console.error('Error adding product:', err);
+    const updatedData = { ...productData };
+
+    if (!updatedData[category]) {
+      updatedData[category] = {};
     }
+    updatedData[category][product] = parseFloat(price);
+
+    setProductData(updatedData);
+    saveToLocalStorage(updatedData);
+
+    setProduct('');
+    setPrice('');
   };
 
+  const handleDelete = (cat, prod) => {
+    const updatedData = { ...productData };
+    delete updatedData[cat][prod];
+
+    // If category becomes empty, delete it too
+    if (Object.keys(updatedData[cat]).length === 0) {
+      delete updatedData[cat];
+    }
+
+    setProductData(updatedData);
+    saveToLocalStorage(updatedData);
+  };
 
   return (
     <div style={{ padding: '20px' }}>
@@ -37,24 +60,42 @@ const ProductManagement = () => {
       </div>
       <button id="backBtn" onClick={() => window.location.href = '/'}>Dashboard</button>
 
-      <input type="text" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
-      <input type="text" placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
-      <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
-      <button onClick={handleAddProduct}>Add Product</button>
+      <input
+        type="text"
+        placeholder="Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Product Name"
+        value={product}
+        onChange={(e) => setProduct(e.target.value)}
+      />
+      <input
+        type="number"
+        placeholder="Price"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+      <button onClick={handleAddProduct}>Add Product</button> 
+
 
       <h3>Current Products:</h3>
-      {Object.keys(groupedProducts).length === 0 ? (
+      {Object.keys(productData).length === 0 ? (
         <p>No products available.</p>
       ) : (
-        Object.entries(groupedProducts).map(([cat, prods]) => (
+        Object.entries(productData).map(([cat, products]) => (
           <div key={cat}>
             <h4>{cat}</h4>
             <ul>
-              {prods.map((p) => (
-                <li key={p._id}>
-                  {p.name} - ₹{p.price}
+              {Object.entries(products).map(([prod, price]) => (
+                <li key={prod}>
+                  {prod} - ₹{price}
                   &nbsp;
-                  <button onClick={() => handleDelete(p._id)}>Delete</button>
+                  <button onClick={() => handleDelete(cat, prod)} style={{ color: 'black' }}>
+                    Delete
+                  </button>
                 </li>
               ))}
             </ul>
