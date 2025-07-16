@@ -6,50 +6,74 @@ const ProductManagement = () => {
   const [price, setPrice] = useState('');
   const [productData, setProductData] = useState({});
 
-  // ✅ Load from localStorage when component mounts
+  // ✅ Fetch products from backend
   useEffect(() => {
-    const savedData = localStorage.getItem('productData');
-    if (savedData) {
-      setProductData(JSON.parse(savedData));
-    }
+    fetchProductData();
   }, []);
 
-  // ✅ Save to localStorage after data is updated
-  const saveToLocalStorage = (data) => {
-    localStorage.setItem('productData', JSON.stringify(data));
+  const fetchProductData = async () => {
+    try {
+      const res = await fetch('https://billing-app-server.vercel.app/api/products');
+      const products = await res.json();
+
+      const formatted = {};
+      products.forEach(p => {
+        if (!formatted[p.type]) formatted[p.type] = {};
+        formatted[p.type][p.name] = p.price;
+      });
+
+      setProductData(formatted);
+    } catch (err) {
+      console.error('Error fetching product data:', err);
+    }
   };
 
-  const handleAddProduct = () => {
+  const handleAddProduct = async () => {
     if (!category || !product || !price) {
       alert("Please fill all fields");
       return;
     }
 
-    const updatedData = { ...productData };
+    const payload = {
+      type: category,
+      name: product,
+      price: parseFloat(price),
+    };
 
-    if (!updatedData[category]) {
-      updatedData[category] = {};
+    try {
+      const res = await fetch('https://billing-app-server.vercel.app/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        setCategory('');
+        setProduct('');
+        setPrice('');
+        fetchProductData(); // refresh data
+      } else {
+        alert("Error adding product");
+      }
+    } catch (err) {
+      console.error("Error adding product:", err);
     }
-    updatedData[category][product] = parseFloat(price);
-
-    setProductData(updatedData);
-    saveToLocalStorage(updatedData);
-
-    setProduct('');
-    setPrice('');
   };
 
-  const handleDelete = (cat, prod) => {
-    const updatedData = { ...productData };
-    delete updatedData[cat][prod];
+  const handleDelete = async (cat, prod) => {
+    try {
+      const res = await fetch(`https://billing-app-server.vercel.app/api/products/${cat}/${prod}`, {
+        method: 'DELETE',
+      });
 
-    // If category becomes empty, delete it too
-    if (Object.keys(updatedData[cat]).length === 0) {
-      delete updatedData[cat];
+      if (res.ok) {
+        fetchProductData(); // refresh data
+      } else {
+        alert('Error deleting product');
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
     }
-
-    setProductData(updatedData);
-    saveToLocalStorage(updatedData);
   };
 
   return (
@@ -78,8 +102,7 @@ const ProductManagement = () => {
         value={price}
         onChange={(e) => setPrice(e.target.value)}
       />
-      <button onClick={handleAddProduct}>Add Product</button> 
-
+      <button onClick={handleAddProduct}>Add Product</button>
 
       <h3>Current Products:</h3>
       {Object.keys(productData).length === 0 ? (
