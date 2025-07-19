@@ -26,7 +26,9 @@ const BillForm = () => {
       .then(data => setProductData(data))
       .catch(err => console.error('Error fetching product data:', err));
   }, []);
+  
 
+  
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast({ message: '', type: '' }), 3000);
@@ -92,7 +94,7 @@ const BillForm = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:8080/api/', {
+      const res = await fetch('https://billing-app-server.vercel.app/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(billData)
