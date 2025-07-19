@@ -9,7 +9,7 @@ const ProductManagement = () => {
   const [editingCategoryIndex, setEditingCategoryIndex] = useState(null);
 
   const fetchProducts = async () => {
-    const res = await fetch('http://localhost:8080/api/products');
+    const res = await fetch('https://billing-app-server.vercel.app/api/products');
     const data = await res.json();
     setProducts(data);
   };
@@ -27,7 +27,7 @@ const ProductManagement = () => {
 
       if (existingProduct) {
         // Add new category to existing product
-        await fetch('http://localhost:8080/api/products/', {
+        await fetch('https://billing-app-server.vercel.app/api/products/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -38,7 +38,7 @@ const ProductManagement = () => {
 
       } else {
         // Create new product with category
-        await fetch(`http://localhost:8080/api/products`, {
+        await fetch(`https://billing-app-server.vercel.app/api/products`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ product: form.product, categories: [{ name: form.category, price: form.price }] })
@@ -46,7 +46,7 @@ const ProductManagement = () => {
       }
     } else {
       // Update category
-      await fetch(`http://localhost:8080/api/products/${editingProductId}/category/${editingCategoryIndex}`, {
+      await fetch(`https://billing-app-server.vercel.app/api/products/${editingProductId}/category/${editingCategoryIndex}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: form.category, price: form.price })
@@ -68,7 +68,7 @@ const ProductManagement = () => {
   };
 
   const handleDelete = async (productId, categoryIndex) => {
-    await fetch(`http://localhost:8080/api/products/${productId}/category/${categoryIndex}`, {
+    await fetch(`https://billing-app-server.vercel.app/api/products/${productId}/category/${categoryIndex}`, {
       method: 'DELETE'
     });
     fetchProducts();
