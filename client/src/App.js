@@ -1,14 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BillForm from './components/BillForm';
-import './styles/BillForm.css'; 
 import ViewBills from './components/ViewBills';
-import './styles/ViewBills.css';
 import AdminLogin from './components/AdminLogin';
-import './styles/AdminLogin.css';
 import Home from './components/Home';
-import './styles/Home.css';
 import Invoice from './components/Invoice.js';
-import './styles/Invoice.css';
 import ProductManager from "./components/ProductManager";
 
 

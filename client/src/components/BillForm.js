@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'; // ✅ Add useEffect
-import { useNavigate } from 'react-router-dom';//1
-
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/BillForm.css'; 
 
 const defaultProductRow = {
   productType: '',
@@ -16,25 +16,25 @@ const BillForm = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [products, setProducts] = useState([defaultProductRow]);
+  const [productData, setProductData] = useState([]);
   const [toast, setToast] = useState({ message: '', type: '' });
-  const navigate = useNavigate();//2
-  const [productData, setProductData] = useState({}); // ✅ New state to hold localStorage data
-  // ✅ Load productData from localStorage on mount
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const storedData = JSON.parse(localStorage.getItem('productData')) || {};
-    setProductData(storedData);
+    fetch('http://localhost:8080/api/products') // Adjust the URL as per your backend
+      .then(res => res.json())
+      .then(data => setProductData(data))
+      .catch(err => console.error('Error fetching product data:', err));
   }, []);
 
-
-  
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast({ message: '', type: '' }), 3000);
   };
 
   const handleProductChange = (index, field, value) => {
-    const updatedProducts = [...products];
-    const row = { ...updatedProducts[index], [field]: value };
+    const updated = [...products];
+    const row = { ...updated[index], [field]: value };
 
     if (field === 'productType') {
       row.product = '';
@@ -43,53 +43,38 @@ const BillForm = () => {
     }
 
     if (field === 'product') {
-      const price = productData[row.productType]?.[value] || 0;
-      row.price = price;
+      const productObj = productData.find(p => p.product === row.productType);
+      const categoryObj = productObj?.categories.find(c => c.name === value);
+      row.price = categoryObj?.price || 0;
     }
 
-    if (['price', 'quantity', 'discount', 'product', 'productType'].includes(field)) {
-      const price = parseFloat(row.price) || 0;
-      const quantity = parseInt(row.quantity) || 0;
-      const discount = parseFloat(row.discount) || 0;
-      const subtotal = price * quantity;
-      const discountedAmount = subtotal * (discount / 100);
-      row.total = subtotal - discountedAmount;
-    }
+    const price = parseFloat(row.price) || 0;
+    const quantity = parseInt(row.quantity) || 0;
+    const discount = parseFloat(row.discount) || 0;
+    const subtotal = price * quantity;
+    const discountedAmount = subtotal * (discount / 100);
+    row.total = subtotal - discountedAmount;
 
-    updatedProducts[index] = row;
-    setProducts(updatedProducts);
+    updated[index] = row;
+    setProducts(updated);
   };
 
-  const addProductRow = () => {
-    setProducts([...products, defaultProductRow]);
-  };
-
+  const addProductRow = () => setProducts([...products, defaultProductRow]);
   const deleteProductRow = (index) => {
-    if (products.length === 1) {
-      showToast('You must have at least one product row.', 'error');
-      return;
-    }
+    if (products.length === 1) return showToast('At least one product required.', 'error');
     const updated = [...products];
     updated.splice(index, 1);
     setProducts(updated);
   };
 
-  const getGrandTotal = () => {
-    return products.reduce((sum, row) => sum + (parseFloat(row.total) || 0), 0).toFixed(2);
-  };
-
+  const getGrandTotal = () =>
+    products.reduce((sum, row) => sum + (parseFloat(row.total) || 0), 0).toFixed(2);
 
   const handleSubmit = async () => {
-    if (!customerName) {
-      showToast('Please enter customer name', 'error');
-      return;
-    }
+    if (!customerName) return showToast('Enter customer name', 'error');
 
     const valid = products.every(p => p.productType && p.product);
-    if (!valid || products.length === 0) {
-      showToast('Please fill all product details', 'error');
-      return;
-    }
+    if (!valid) return showToast('Fill all product details', 'error');
 
     const billData = {
       customerName,
@@ -97,7 +82,7 @@ const BillForm = () => {
       paymentMethod,
       totalAmount: parseFloat(getGrandTotal()),
       products: products.map(p => ({
-        product: p.productType === 'Tshirt' ? 'T-shirts' : p.productType,
+        product: p.productType,
         category: p.product,
         price: p.price,
         quantity: p.quantity,
@@ -114,23 +99,15 @@ const BillForm = () => {
       });
 
       const data = await res.json();
-      console.log("Saved Bill Response:", data);
-
       if (res.ok) {
-        // Save to localStorage
         localStorage.setItem('lastBill', JSON.stringify(data));
-        // Navigate using plain HTML
         navigate(`/invoice/${data.bill._id}`);
-
-
         showToast('Bill saved successfully!');
         setCustomerName('');
         setMobileNumber('');
         setProducts([defaultProductRow]);
         setPaymentMethod('Cash');
-      } else {
-        throw new Error(data.message || 'Error saving bill');
-      }
+      } else throw new Error(data.message || 'Error saving bill');
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
     }
@@ -139,14 +116,12 @@ const BillForm = () => {
   return (
     <div className="bill-container">
       {toast.message && (
-        <div className={`toast ${toast.type === 'error' ? 'error' : ''}`}>
-          {toast.message}
-        </div>
+        <div className={`toast ${toast.type === 'error' ? 'error' : ''}`}>{toast.message}</div>
       )}
 
       <div className="header">
         <h1>SANGHAMITRA BILL</h1>
-        <img src="/sanghamitra logo.jpeg" alt="Sanghamitra Logo" className="logo" />
+        <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
       </div>
 
       <div className="customer-info">
@@ -168,9 +143,9 @@ const BillForm = () => {
         <thead>
           <tr>
             <th>Product Type</th>
-            <th>Product</th>
+            <th>Category</th>
             <th>Price</th>
-            <th>Quantity</th>
+            <th>Qty</th>
             <th>Discount</th>
             <th>Total</th>
             <th>Action</th>
@@ -182,26 +157,25 @@ const BillForm = () => {
               <td>
                 <select value={row.productType} onChange={e => handleProductChange(index, 'productType', e.target.value)}>
                   <option value="">Select Type</option>
-                  {Object.keys(productData).map(type => (
-                    <option key={type} value={type}>{type}</option>
+                  {productData.map(p => (
+                    <option key={p._id} value={p.product}>{p.product}</option>
                   ))}
                 </select>
               </td>
               <td>
                 <select value={row.product} onChange={e => handleProductChange(index, 'product', e.target.value)}>
-                  <option value="">Select Product</option>
-                  {productData[row.productType] &&
-                    Object.keys(productData[row.productType]).map(product => (
-                      <option key={product} value={product}>{product}</option>
-                    ))}
+                  <option value="">Select Category</option>
+                  {productData.find(p => p.product === row.productType)?.categories.map(c => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
                 </select>
               </td>
               <td><input type="number" value={row.price} readOnly /></td>
-              <td><input type="number" value={row.quantity} min="1" onChange={e => handleProductChange(index, 'quantity', e.target.value)} /></td>
+              <td><input type="number" min="1" value={row.quantity} onChange={e => handleProductChange(index, 'quantity', e.target.value)} /></td>
               <td>
                 <select value={row.discount} onChange={e => handleProductChange(index, 'discount', e.target.value)}>
-                  {[0, 10, 20, 30, 40, 50].map(dis => (
-                    <option key={dis} value={dis}>{dis}%</option>
+                  {[0, 10, 20, 30, 40, 50].map(d => (
+                    <option key={d} value={d}>{d}%</option>
                   ))}
                 </select>
               </td>
@@ -215,7 +189,7 @@ const BillForm = () => {
       <button onClick={addProductRow}>Add Product</button>
 
       <div className="payment-method">
-        <p><strong>Payment Method:</strong></p>
+        <label>Payment:</label>
         <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
           <option value="Cash">Cash</option>
           <option value="Online">Online</option>
@@ -224,25 +198,25 @@ const BillForm = () => {
 
       {paymentMethod === 'Online' && (
         <div className="qr-container">
-          <p><strong>Scan QR Code to Pay:</strong></p>
-          <img src="/qr-code.png" alt="QR Code" />
+          <p>Scan QR Code:</p>
+          <img src="/qr-code.png" alt="QR" />
         </div>
       )}
 
-      <div className="total-amount">Total Amount: ₹{getGrandTotal()}</div>
+      <div className="total-amount">Total: ₹{getGrandTotal()}</div>
 
       <div className="buttons">
-        <button id="saveBillBtn" onClick={handleSubmit}>Save</button>        
-        <button id="backBtn" onClick={() => window.location.href = '/'}>Dashboard</button>
+        <button onClick={handleSubmit}>Save</button>
+        <button onClick={() => navigate('/')}>Dashboard</button>
       </div>
-
 
       <div className="footer">
         Sanghamitra Business Incubator<br />
         Website: <a href="https://sanghamitra.store" target="_blank" rel="noreferrer">sanghamitra.store</a><br />
         Contact: +919234567890
       </div>
-  </div>
+
+    </div>
   );
 };
 

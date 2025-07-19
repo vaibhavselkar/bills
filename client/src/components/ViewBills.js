@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import '../styles/ViewBills.css';
 
 const ViewBills = () => {
   const [bills, setBills] = useState([]);
@@ -58,7 +59,7 @@ const ViewBills = () => {
   return (
     <div className="admin-container">
       <div className="header">
-        <button id="backBtn" onClick={() => window.location.href = '/'}>Go Back to Home</button>
+        <button id="backBtn" onClick={() => window.location.href = '/'}>Go Back</button>
         <h1>SANGHAMITRA BILL - Records</h1>
         <img src="/sanghamitra logo.jpeg" alt="Sanghamitra Logo" className="logo" />
       </div>

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const workoutRoutes = require('./routes/db');
+const productRoutes = require('./routes/productRoutes');
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api', workoutRoutes);
+app.use('/api/products', productRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.DATABASE)

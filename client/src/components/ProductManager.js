@@ -1,107 +1,137 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import '../styles/ProductManagement.css';
+
 
 const ProductManagement = () => {
-  const [category, setCategory] = useState('');
-  const [product, setProduct] = useState('');
-  const [price, setPrice] = useState('');
-  const [productData, setProductData] = useState({});
+  const [products, setProducts] = useState([]);
+  const [form, setForm] = useState({ product: '', category: '', price: '' });
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [editingCategoryIndex, setEditingCategoryIndex] = useState(null);
 
-  // ✅ Load from localStorage when component mounts
+  const fetchProducts = async () => {
+    const res = await fetch('http://localhost:8080/api/products');
+    const data = await res.json();
+    setProducts(data);
+  };
+
   useEffect(() => {
-    const savedData = localStorage.getItem('productData');
-    if (savedData) {
-      setProductData(JSON.parse(savedData));
-    }
+    fetchProducts();
   }, []);
 
-  // ✅ Save to localStorage after data is updated
-  const saveToLocalStorage = (data) => {
-    localStorage.setItem('productData', JSON.stringify(data));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!editingProductId) {
+      // New product or category
+      const existingProduct = products.find(p => p.product === form.product);
+
+      if (existingProduct) {
+        // Add new category to existing product
+        await fetch('http://localhost:8080/api/products/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            product: form.product, // Must match existing name to append
+            categories: [{ name: form.category, price: form.price }]
+          })
+        });
+
+      } else {
+        // Create new product with category
+        await fetch(`http://localhost:8080/api/products`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product: form.product, categories: [{ name: form.category, price: form.price }] })
+        });
+      }
+    } else {
+      // Update category
+      await fetch(`http://localhost:8080/api/products/${editingProductId}/category/${editingCategoryIndex}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.category, price: form.price })
+      });
+    }
+
+    setForm({ product: '', category: '', price: '' });
+    setEditingProductId(null);
+    setEditingCategoryIndex(null);
+    fetchProducts();
   };
 
-  const handleAddProduct = () => {
-    if (!category || !product || !price) {
-      alert("Please fill all fields");
-      return;
-    }
-
-    const updatedData = { ...productData };
-
-    if (!updatedData[category]) {
-      updatedData[category] = {};
-    }
-    updatedData[category][product] = parseFloat(price);
-
-    setProductData(updatedData);
-    saveToLocalStorage(updatedData);
-
-    setProduct('');
-    setPrice('');
+  const handleEdit = (productId, categoryIndex) => {
+    const product = products.find(p => p._id === productId);
+    const category = product.categories[categoryIndex];
+    setForm({ product: product.product, category: category.name, price: category.price });
+    setEditingProductId(productId);
+    setEditingCategoryIndex(categoryIndex);
   };
 
-  const handleDelete = (cat, prod) => {
-    const updatedData = { ...productData };
-    delete updatedData[cat][prod];
-
-    // If category becomes empty, delete it too
-    if (Object.keys(updatedData[cat]).length === 0) {
-      delete updatedData[cat];
-    }
-
-    setProductData(updatedData);
-    saveToLocalStorage(updatedData);
+  const handleDelete = async (productId, categoryIndex) => {
+    await fetch(`http://localhost:8080/api/products/${productId}/category/${categoryIndex}`, {
+      method: 'DELETE'
+    });
+    fetchProducts();
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="product-container">
       <div className="header">
-        <h2>🛠️ Product Management</h2>
+        <button id="backBtn" onClick={() => window.location.href = '/'}>Go Back</button>
+        <h1>Product Management</h1>
         <img src="/sanghamitra logo.jpeg" alt="Sanghamitra Logo" className="logo" />
       </div>
-      <button id="backBtn" onClick={() => window.location.href = '/'}>Dashboard</button>
+      <form onSubmit={handleSubmit} className="product-form">
+        <input
+          type="text"
+          placeholder="Product"
+          value={form.product}
+          onChange={(e) => setForm({ ...form, product: e.target.value })}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Category"
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+          required
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value={form.price}
+          onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) })}
+          required
+        />
+        <button type="submit">{editingProductId ? 'Update' : 'Add'} Product</button>
+      </form>
 
-      <input
-        type="text"
-        placeholder="Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Product Name"
-        value={product}
-        onChange={(e) => setProduct(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-      <button onClick={handleAddProduct}>Add Product</button> 
-
-
-      <h3>Current Products:</h3>
-      {Object.keys(productData).length === 0 ? (
-        <p>No products available.</p>
-      ) : (
-        Object.entries(productData).map(([cat, products]) => (
-          <div key={cat}>
-            <h4>{cat}</h4>
-            <ul>
-              {Object.entries(products).map(([prod, price]) => (
-                <li key={prod}>
-                  {prod} - ₹{price}
-                  &nbsp;
-                  <button onClick={() => handleDelete(cat, prod)} style={{ color: 'black' }}>
-                    Delete
-                  </button>
-                </li>
+      {products.map((p) => (
+        <div key={p._id} >
+          <h3>{p.product}</h3>
+          <table className="product-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Price (₹)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {p.categories.map((cat, index) => (
+                <tr key={index}>
+                  <td>{cat.name}</td>
+                  <td>{cat.price}</td>
+                  <td>
+                    <button onClick={() => handleEdit(p._id, index)}>Edit</button>
+                    <button onClick={() => handleDelete(p._id, index)} className="del-btn">Del</button>
+                  </td>
+                </tr>
               ))}
-            </ul>
-          </div>
-        ))
-      )}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 };

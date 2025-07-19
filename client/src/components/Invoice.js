@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import '../styles/Invoice.css';
 
 const Invoice = () => {
   const [bill, setBill] = useState(null);
@@ -8,7 +9,7 @@ const Invoice = () => {
   useEffect(() => {
     const fetchBillById = async () => {
       try {
-        const res = await fetch(`https://billing-app-server.vercel.app/api/bill/${id}`);
+        const res = await fetch(`http://localhost:8080/api/bill/${id}`);
         const data = await res.json();
 
         if (data) {
