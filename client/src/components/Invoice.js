@@ -9,7 +9,7 @@ const Invoice = () => {
   useEffect(() => {
     const fetchBillById = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/bill/${id}`);
+        const res = await fetch(`https://billing-app-server.vercel.app/api/bill/${id}`);
         const data = await res.json();
 
         if (data) {
