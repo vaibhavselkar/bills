@@ -12,12 +12,12 @@ const AdminLogin = () => {
     e.preventDefault();
 
     // Dummy admin credentials
-    const adminUser = 'admin';
+    const adminUser = 'admin';  //Token-Based Authentication
     const adminPass = '1234';
 
     if (username === adminUser && password === adminPass) {
       localStorage.setItem('adminAuthenticated', true);
-      navigate('/view');
+      navigate('/dashboard');
     } else {
       setError('Invalid username or password');
     }

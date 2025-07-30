@@ -31,7 +31,9 @@ const Invoice = () => {
     <div className="invoice-container">
       {/* Same invoice structure */}
       <div className="invoice-header">
-        <h1>SANGHAMITRA BILL</h1>
+        <button id="backBtn" onClick={() => window.location.href = '/'}>📊 Home</button>
+        <h1>SANGHAMITRA </h1>
+        <h2>Customer Invoice</h2>
         <img src="/sanghamitra logo.jpeg" alt="Logo" className="invoice-logo" />
       </div>
 
@@ -39,10 +41,8 @@ const Invoice = () => {
         <p><strong>Customer Name:</strong> {bill.customerName}</p>
         <p><strong>Date:</strong> {new Date(bill.date).toLocaleString()}</p>
         <p><strong>Payment Method:</strong> {bill.paymentMethod}</p>
-        <p><strong>Total Amount:</strong> ₹{bill.totalAmount?.toFixed(2)}</p>
       </div>
-
-      <h3>Products</h3>
+      
       <table className="product-table">
         <thead>
           <tr>
@@ -65,9 +65,12 @@ const Invoice = () => {
               <td>{p.total?.toFixed(2) || '-'}</td>
             </tr>
           ))}
+          <tr>
+            <td colSpan="5" style={{ textAlign: 'center', fontWeight: 'bold' }}>Total Amount</td>
+            <td><strong>₹{bill.totalAmount?.toFixed(2)}</strong></td>
+          </tr>
         </tbody>
       </table>
-
       <div className="footer">
         Sanghamitra Business Incubator<br />
         Website: <a href="https://sanghamitra.store" target="_blank" rel="noreferrer">sanghamitra.store</a><br />

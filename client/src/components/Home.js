@@ -7,24 +7,24 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="home-container">
-      <header className="header">
-        <div className="brand">Sanghamitra Business Incubator</div>
-      </header>
+    <div className="home-layout">
+        <aside className="sidebar">
+          <img src="/sanghamitra logo.jpeg" alt="Sanghamitra Logo" style={{ width: '80px', height: 'auto', display: 'block', margin: '0 auto' }} />
 
-      <nav className="nav-bar">
-        <button onClick={() => navigate('/')}>Dashboard</button>
-        <button onClick={() => navigate('/bill')}>Bill</button>
-        <button onClick={() => navigate('/view')}>ViewBills</button>
-        <button onClick={() => navigate('/admin-login')}>Login</button>
-        <button onClick={() => alert("Edit Profile coming soon!")}>Edit Profile</button>
-        <button onClick={() => navigate('/products')}>Product Management</button>
-      </nav>
+          <button onClick={() => navigate('/')}>📊 Home</button>
+          <button onClick={() => navigate('/bill')}>🧾 Bill</button>
+          <button onClick={() => navigate('/view')}>👁️ ViewBills</button>
+          <button onClick={() => navigate('/analytics')}>📈 Analytics</button>
+          <button onClick={() => navigate('/products')}>📦 Product Management</button>
+          <button onClick={() => navigate('/dashboard')}>🛡️Admin Dashboard</button>
+          <button onClick={() => navigate('/admin-login')}>🔐 Login</button>
+        </aside>
 
-      <div className="home-body">
-        <h1>Welcome to Sanghamitra Billing App</h1>
-        <p>Select an option from above to continue.</p>
-      </div>
+      <main className="main-content">
+        <header className="header">
+          <h1>Sanghamitra Business Incubator</h1>
+        </header>
+      </main>
     </div>
   );
 };

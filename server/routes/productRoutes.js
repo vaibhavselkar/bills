@@ -37,6 +37,27 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PUT /api/products/:productId
+router.put('/:productId', async (req, res) => {
+  try {
+    const { product } = req.body;
+    const updated = await Product.findByIdAndUpdate(
+      req.params.productId,
+      { product },
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ message: 'Product not found' });
+
+    res.json({ message: 'Product name updated', product: updated });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update product name' });
+  }
+});
+
+
+
+
 // ✅ Update a category by index
 router.put('/:productId/category/:index', async (req, res) => {
   const { productId, index } = req.params;

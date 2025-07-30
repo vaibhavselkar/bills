@@ -17,7 +17,6 @@
 
 .product-form button {
   padding: 10px 20px;
-  background-color: #56b423;
   color: white;
   border: none;
   border-radius: 5px;
@@ -29,27 +28,25 @@
 }
 
 .del-btn {
-  background-color: #e63946;
-  color: white;
+  background-color: white;
+  color: rgb(205, 25, 25);
   margin-left: 10px;
 }
 .product-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  table-layout: fixed; /* Force equal column widths */
 }
 
 .product-table th,
 .product-table td {
   border: 1px solid #ccc;
-  padding: 10px;
   text-align: center;
   word-wrap: break-word;
 }
 
 .product-table th {
-  background-color: #003366;
+  background-color: #104f8d;
   color: white;
 }
 

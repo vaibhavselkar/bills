@@ -1,47 +1,60 @@
-.home-container {
+/* src/styles/Home.css */
+
+.home-layout {
+  display: flex;
+  height: 100vh;
   font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
-  background: #f4f4f4;
-  padding: 0;
-  margin: 0;
 }
 
-.header {
-  display: flex;
-  padding: 20px;
+.sidebar {
+  width: 220px;
   background-color: #003366;
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.nav-bar {
+  padding: 20px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 15px;
-  margin: 30px 0;
 }
 
-.nav-bar button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #56b423;
-  color: white;
+.sidebar button {
+  background-color: #003366;
+  color: #ffff;
   border: none;
+  padding: 12px;
   border-radius: 5px;
   cursor: pointer;
+  text-align: left;
+  font-size: 16px;
+  transition: background 0.3s;
 }
 
-.nav-bar button:hover {
-  background-color: #4a9e1d;
+
+.sidebar button:hover {
+  background-color: #c6ccd2;
 }
 
-.home-body h1 {
-  color: #003366;
+.main-content {
+  flex: 1;
+  padding: 40px;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #15196a;
 }
 
 .home-body {
-  text-align: center;
-  margin-top: 50px;
-  color: #003366;
+  margin-top: 60px;
+}
+
+.home-body h2 {
+  font-size: 24px;
+  color: #15196a;
+}
+
+.home-body p {
+  font-size: 16px;
+  color: #333;
 }

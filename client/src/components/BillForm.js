@@ -94,7 +94,7 @@ const BillForm = () => {
     };
 
     try {
-      const res = await fetch('https://billing-app-server.vercel.app/api/', {
+      const res = await fetch('http://localhost:8080/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(billData)
@@ -122,7 +122,8 @@ const BillForm = () => {
       )}
 
       <div className="header">
-        <h1>SANGHAMITRA BILL</h1>
+        <a href="/">🏠 Home</a>
+        <h1>SANGHAMITRA</h1>
         <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
       </div>
 
@@ -209,7 +210,7 @@ const BillForm = () => {
 
       <div className="buttons">
         <button onClick={handleSubmit}>Save</button>
-        <button onClick={() => navigate('/')}>Dashboard</button>
+        <button onClick={() => navigate('/')}>📊 Home</button>
       </div>
 
       <div className="footer">

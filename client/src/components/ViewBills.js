@@ -12,7 +12,7 @@ const ViewBills = () => {
 
   const fetchBills = async () => {
     try {
-      const response = await fetch('https://billing-app-server.vercel.app/api/');
+      const response = await fetch('http://localhost:8080/api/');
       const data = await response.json();
       const sorted = data.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
       setBills(sorted);
@@ -25,7 +25,7 @@ const ViewBills = () => {
   const deleteBill = async (id) => {
     if (!window.confirm('Are you sure you want to delete this bill?')) return;
     try {
-      const response = await fetch(`https://billing-app-server.vercel.app/api/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/${id}`, {
         method: 'DELETE'
       });
       const result = await response.json();
@@ -59,7 +59,7 @@ const ViewBills = () => {
   return (
     <div className="admin-container">
       <div className="header">
-        <button id="backBtn" onClick={() => window.location.href = '/'}>Go Back</button>
+        <button id="backBtn" onClick={() => window.location.href = '/dashboard'}>Go Back</button>
         <h1>SANGHAMITRA BILL - Records</h1>
         <img src="/sanghamitra logo.jpeg" alt="Sanghamitra Logo" className="logo" />
       </div>
