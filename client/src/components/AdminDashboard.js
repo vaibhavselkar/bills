@@ -12,7 +12,7 @@ const Dashboard = () => {
   
 
   useEffect(() => {
-    fetch('https://billing-app-server.vercel.app/api/')
+    fetch('http://localhost:8080/api/')
       .then(res => res.json())
       .then(data => {
         setBillData(data);
@@ -78,21 +78,33 @@ const Dashboard = () => {
     value: parseFloat(value.toFixed(2))
   }));
 
-  const COLORS = ['#56b423', '#003366', '#ffc658', '#ff8042', '#00C49F', '#FFBB28', '#0088FE'];
+  const COLORS = ['#45722dff', '#003366', '#b69044ff', '#b66035ff', '#368f7fff', '#8a6e31ff', '#235d8fff'];
 
 
+  const currentPath = window.location.pathname;
 
   return (
+    <div className="dashboard">
+      {/* Top Navigation */}
+      <nav className="navbar">
+        <div className="logo-section">
+          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
+          <span className="username">Sanghamitra Admin</span>
+        </div>
+        <ul className="nav-links">
+          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
+        </ul>
+      </nav>
+
     <div className="dashboard-layout">
       <aside className="sidebar">
-        <h3>Sanghamitra Admin</h3>
         <nav>
-          <a href="/dashboard" className="active">📈 Dashboard</a>
-          <a href="/">🏠 Home</a>
-          <a href="/tables">🧾 Tables</a>
-          <a href="/view">📄 View Bills</a>
-          <a href="/analytics">📊 Analytics</a>
-          <a href="/products">📦 Products</a>
+          <a href="/dashboard" className={currentPath === "/dashboard" ? "active" : ""}>📈 Dashboard</a>
+          <a href="/user-dashboard" className={currentPath === "/user-dashboard" ? "active" : ""}>🏠 Home</a>
+          <a href="/tables" className={currentPath === "/tables" ? "active" : ""}>🧾 Tables</a>
+          <a href="/view" className={currentPath === "/view" ? "active" : ""}>📄 View Bills</a>
+          <a href="/analytics" className={currentPath === "/analytics" ? "active" : ""}>📊 Analytics</a>
+          <a href="/products" className={currentPath === "/products" ? "active" : ""}>📦 Products</a>
         </nav>
       </aside>
 
@@ -110,7 +122,7 @@ const Dashboard = () => {
             <div className="stat-label">Sales</div>
           </div>
           <div className="stat-card">
-            <div className="icon">💲</div>
+            <div className="icon">₹</div>
             <div className="stat-value">₹{revenue[selected].toFixed(2)}</div>
             <div className="stat-label">Revenue</div>
           </div>
@@ -140,7 +152,7 @@ const Dashboard = () => {
                       { name: 'Cash', value: paymentBreakdown.cash },
                       { name: 'Online', value: paymentBreakdown.online }
                     ].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-₹{index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -155,11 +167,12 @@ const Dashboard = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="value" fill="#56b423" />
+                  <Bar dataKey="value" fill="#352261ff" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
       </main>
+    </div>
     </div>
   );
 };

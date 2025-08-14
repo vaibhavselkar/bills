@@ -21,7 +21,7 @@ const BillForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('https://billing-app-server.vercel.app/api/products') // Adjust the URL as per your backend
+    fetch('http://localhost:8080/api/products') // Adjust the URL as per your backend
       .then(res => res.json())
       .then(data => setProductData(data))
       .catch(err => console.error('Error fetching product data:', err));
@@ -94,7 +94,7 @@ const BillForm = () => {
     };
 
     try {
-      const res = await fetch('https://billing-app-server.vercel.app/api/', {
+      const res = await fetch('http://localhost:8080/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(billData)
@@ -115,15 +115,32 @@ const BillForm = () => {
     }
   };
 
+  const currentPath = window.location.pathname;
+
   return (
+    <div className="dashboard">
+      {/* Top Navigation */}
+      <nav className="navbar">
+        <div className="logo-section">
+          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
+          <span className="username">Olivia Wilson</span>
+        </div>
+         <ul className="nav-links">
+          <li className={currentPath === "/user-dashboard" ? "active" : ""} onClick={() => (window.location.href = "/user-dashboard")}>HOME</li>
+          <li className={currentPath === "/bill" ? "active" : ""} onClick={() => (window.location.href = "/bill")}>BILL</li>
+          <li className={currentPath === "/" ? "active" : ""} onClick={() => (window.location.href = "")}>PRE ORDER</li>
+          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
+        </ul>
+      </nav> 
+
+
     <div className="bill-container">
       {toast.message && (
         <div className={`toast ${toast.type === 'error' ? 'error' : ''}`}>{toast.message}</div>
       )}
 
       <div className="header">
-        <a href="/">🏠 Home</a>
-        <h1>SANGHAMITRA</h1>
+        <h1 style={{ color: 'rgb(50, 18, 110)'}}>SANGHAMITRA BUSINESS INCUBATORS</h1>
       </div>
 
       <div className="customer-info">
@@ -143,7 +160,7 @@ const BillForm = () => {
 
       <table>
         <thead>
-          <tr>
+          <tr >
             <th>Product Type</th>
             <th>Category</th>
             <th>Price</th>
@@ -188,7 +205,7 @@ const BillForm = () => {
         </tbody>
       </table>
 
-      <button onClick={addProductRow}>Add Product</button>
+      <button onClick={addProductRow}>Add</button>
 
       <div className="payment-method">
         <label>Payment:</label>
@@ -209,7 +226,6 @@ const BillForm = () => {
 
       <div className="buttons">
         <button onClick={handleSubmit}>Save</button>
-        <button onClick={() => navigate('/')}>📊 Home</button>
       </div>
 
       <div className="footer">
@@ -219,6 +235,7 @@ const BillForm = () => {
       </div>
 
     </div>
+  </div>
   );
 };
 

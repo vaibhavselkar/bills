@@ -5,11 +5,12 @@ import '../styles/Invoice.css';
 const Invoice = () => {
   const [bill, setBill] = useState(null);
   const { id } = useParams(); // 👈 Get ID from URL
+  const currentPath = window.location.pathname;
 
   useEffect(() => {
     const fetchBillById = async () => {
       try {
-        const res = await fetch(`https://billing-app-server.vercel.app/api/bill/${id}`);
+        const res = await fetch(`http://localhost:8080/api/bill/${id}`);
         const data = await res.json();
 
         if (data) {
@@ -28,12 +29,25 @@ const Invoice = () => {
   if (!bill) return <div>Loading invoice...</div>;
 
   return (
+
+    <div className="dashboard">
+      {/* Top Navigation */}
+      <nav className="navbar">
+        <div className="logo-section">
+          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
+          <span className="username">User Name</span>
+        </div>
+        <ul className="nav-links">
+          <li className={currentPath === "/user-dashboard" ? "active" : ""} onClick={() => (window.location.href = "/user-dashboard")}>HOME</li>
+          <li className={currentPath === "/bill" ? "active" : ""} onClick={() => (window.location.href = "/bill")}>BILL</li>
+          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
+        </ul>
+      </nav>
+
     <div className="invoice-container">
       {/* Same invoice structure */}
       <div className="invoice-header">
-        <button id="backBtn" onClick={() => window.location.href = '/'}>📊 Home</button>
         <h1>SANGHAMITRA </h1>
-        <h2>Customer Invoice</h2>
         <img src="/sanghamitra logo.jpeg" alt="Logo" className="invoice-logo" />
       </div>
 
@@ -80,6 +94,7 @@ const Invoice = () => {
       <div style={{ textAlign: 'center', marginTop: '20px' }}>
         <button onClick={() => window.print()}>Print Invoice</button>
       </div>
+    </div>
     </div>
   );
 };

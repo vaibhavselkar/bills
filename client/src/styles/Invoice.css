@@ -15,14 +15,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #003366;
+  border-bottom: 2px solid #43087a;
   padding-bottom: 15px;
   margin-bottom: 20px;
 }
 
 .invoice-header h1 {
   margin: 0;
-  color: #003366;
+  color: #43087a;
 }
 
 .invoice-logo {
@@ -67,7 +67,7 @@ table th {
 button {
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #56b423;
+  background-color: #003366;
   color: white;
   border: none;
   border-radius: 5px;
@@ -75,7 +75,7 @@ button {
 }
 
 button:hover {
-  background-color: #4a9e1d;
+  background-color: #003366;
 }
 
 @media print {

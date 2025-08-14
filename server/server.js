@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const workoutRoutes = require('./routes/db');
 const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/user');
+
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api', workoutRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/user', userRoutes);
+
 
 // MongoDB connection
 mongoose.connect(process.env.DATABASE)
@@ -30,6 +34,8 @@ mongoose.connect(process.env.DATABASE)
     console.error('❌ MongoDB connection error:', err.message);
   });
 
-
-// Export for Vercelss
-module.exports = app;
+// Start server
+const PORT = process.env.PORT || 6000;
+app.listen(PORT, () => {
+    console.log(`✅ Server is running on port ${PORT}`);
+});
