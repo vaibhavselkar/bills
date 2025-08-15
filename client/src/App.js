@@ -8,7 +8,6 @@ import ProductManager from "./components/ProductManager";
 import Analytics from './components/Analytics';
 import AdminDashboard from './components/AdminDashboard';
 import Tables from './components/Tables';
-import UserDashboard from './components/UserDashboard.js';
 import UserLogin from './components/UserLogin';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';

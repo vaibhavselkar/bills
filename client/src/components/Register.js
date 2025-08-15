@@ -35,7 +35,7 @@ const Register = () => {
 
       if (res.ok) {
         setMessage(data.message);
-        navigate('/login');
+        navigate('/');
       } else {
         setMessage(data.message || 'Registration failed');
       }
@@ -65,7 +65,7 @@ const Register = () => {
          margin: '20px auto' }}>Register</button>
         <p>{message} </p>
         <p style={{ textAlign: 'center' }}>Already have an account?{' '}
-          <span onClick={() => navigate('/login')} style={{ color: 'blue', cursor: 'pointer' }}>
+          <span onClick={() => navigate('/')} style={{ color: 'blue', cursor: 'pointer' }}>
             Login
           </span>
         </p>
