@@ -11,9 +11,7 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: "https://billing-app-client.vercel.app/"
-}));
+app.use(cors());
 app.use(express.json());
 
 
