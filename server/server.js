@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: "https://billing-app-client.vercel.app"
+  origin: "https://billing-app-hi.vercel.app/"
 }));
 app.use(express.json());
 
