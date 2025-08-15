@@ -12,7 +12,7 @@ const Dashboard = () => {
   
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/')
+    fetch('https://billing-app-server.vercel.app/api/')
       .then(res => res.json())
       .then(data => {
         setBillData(data);
