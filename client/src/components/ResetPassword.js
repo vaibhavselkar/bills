@@ -11,7 +11,7 @@ const ResetPassword = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`/api/user/reset-password/${token}`, {
+      const response = await fetch(`https://billing-app-server.vercel.app/api/user/reset-password/${token}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

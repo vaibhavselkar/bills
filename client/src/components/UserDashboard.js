@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+//https://billing-app-server.vercel.app/
 import "../styles/UserDashboard.css";
 
 const UserDashboard = () => {
@@ -20,7 +20,7 @@ const UserDashboard = () => {
         const token = localStorage.getItem("token"); // Get JWT from storage
         if (!token) return;
 
-        const response = await fetch("http://localhost:8080/api/user/me", {
+        const response = await fetch("https://billing-app-server.vercel.app/api/user/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
