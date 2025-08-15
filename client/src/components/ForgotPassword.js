@@ -9,7 +9,7 @@ const ForgotPassword = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://billing-app-server.vercel.app//api/user/forgot-password', {
+      const response = await fetch('https://billing-app-server.vercel.app/api/user/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
