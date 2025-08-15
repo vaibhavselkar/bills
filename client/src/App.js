@@ -8,6 +8,7 @@ import ProductManager from "./components/ProductManager";
 import Analytics from './components/Analytics';
 import AdminDashboard from './components/AdminDashboard';
 import Tables from './components/Tables';
+import UserDashboard from './components/UserDashboard.js';
 
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="/tables" element={<Tables />} />
-
+        <Route path="/user-dashboard" element={<UserDashboard />} />     
       </Routes>
     </Router>
   );

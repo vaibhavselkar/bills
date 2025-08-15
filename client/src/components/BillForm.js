@@ -21,7 +21,7 @@ const BillForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('https://billing-app-server.vercel.app/api/products') // Adjust the URL as per your backend
+    fetch('http://localhost:8080/api/products') // Adjust the URL as per your backend
       .then(res => res.json())
       .then(data => setProductData(data))
       .catch(err => console.error('Error fetching product data:', err));
@@ -94,7 +94,7 @@ const BillForm = () => {
     };
 
     try {
-      const res = await fetch('https://billing-app-server.vercel.app/api/', {
+      const res = await fetch('http://localhost:8080/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(billData)

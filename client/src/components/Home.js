@@ -18,6 +18,7 @@ const Home = () => {
           <button onClick={() => navigate('/products')}>📦 Product Management</button>
           <button onClick={() => navigate('/dashboard')}>🛡️Admin Dashboard</button>
           <button onClick={() => navigate('/admin-login')}>🔐 Login</button>
+          <button onClick={() => navigate('/user-dashboard')}>🔐 Login</button>
         </aside>
 
       <main className="main-content">
