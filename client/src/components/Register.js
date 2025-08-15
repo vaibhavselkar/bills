@@ -23,7 +23,7 @@ const Register = () => {
     setMessage('');
 
     try {
-      const res = await fetch('http://localhost:8080/api/user/register', {
+      const res = await fetch('https://billing-app-server.vercel.app/api/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
