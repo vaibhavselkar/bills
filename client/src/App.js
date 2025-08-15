@@ -9,13 +9,18 @@ import Analytics from './components/Analytics';
 import AdminDashboard from './components/AdminDashboard';
 import Tables from './components/Tables';
 import UserDashboard from './components/UserDashboard.js';
-
+import UserLogin from './components/UserLogin';
+import Register from './components/Register';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+import UserDashboard from './components/UserDashboard';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<UserLogin />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/bill" element={<BillForm />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/view" element={<ViewBills />} />
@@ -24,7 +29,10 @@ function App() {
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="/tables" element={<Tables />} />
-        <Route path="/user-dashboard" element={<UserDashboard />} />     
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
       </Routes>
     </Router>
   );

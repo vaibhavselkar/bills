@@ -28,7 +28,7 @@ h1 {
 
 button {
   padding: 10px 20px;
-  background-color: #56b423;
+  background-color: #003366;
   color: white;
   border: none;
   border-radius: 4px;
@@ -37,15 +37,15 @@ button {
 }
 
 button:hover {
-  background-color: #4a9e1d;
-}
-
-#backBtn {
   background-color: #003366;
 }
 
+#backBtn {
+  background-color: #43087a;
+}
+
 #backBtn:hover {
-  background-color: #002244;
+  background-color: #43087a;
 }
 
 .delete-btn {
@@ -69,7 +69,7 @@ th, td {
 }
 
 th {
-  background-color: #003366;
+  background-color: #43087a;
   color: #fff;
 }
 
@@ -107,7 +107,7 @@ input[type="text"], input[type="date"] {
 .stat-value {
   font-size: 24px;
   font-weight: bold;
-  color: #003366;
+  color: #43087a;
 }
 
 .stat-label {

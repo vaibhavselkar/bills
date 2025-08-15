@@ -43,18 +43,35 @@ const TopSellingAnalytics = () => {
     fetchTopSelling();
   }, []);
 
-  return (
+  const currentPath = window.location.pathname;
 
+  return (
+    <div className="dashboard">
+      {/* Top Navigation */}
+      <nav className="navbar">
+        <div className="logo-section">
+          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
+          <span className="username">Sanghamitra Admin</span>
+        </div>
+        <ul className="nav-links">
+          <li className={currentPath === "/" ? "active" : ""} onClick={() => (window.location.href = "")}>PRE ORDER</li>
+          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
+        </ul>
+      </nav>
     <div className="dashboard-layout">
       <aside className="sidebar">
-        <h3>Sanghamitra Admin</h3>
-        <nav>
-          <a href="/dashboard" className="active">📈 Dashboard</a>
-          <a href="/">🏠 Home</a>
-          <a href="/tables">🧾 Tables</a>
-          <a href="/view">📄 View Bills</a>
-          <a href="/analytics">📊 Analytics</a>
-          <a href="/products">📦 Products</a>
+          {/*<button
+          className={`category ${currentPath === "/dashboard" ? "active" : ""}`}
+          onClick={() => (window.location.href = "/dashboard")}
+          >Dashboard</button> */}
+
+          <nav>
+          <a href="/dashboard" className={currentPath === "/dashboard" ? "active" : ""}>📈 Dashboard</a>
+          <a href="/user-dashboard" className={currentPath === "/user-dashboard" ? "active" : ""}>🏠 Home</a>
+          <a href="/tables" className={currentPath === "/tables" ? "active" : ""}>🧾 Tables</a>
+          <a href="/view" className={currentPath === "/view" ? "active" : ""}>📄 View Bills</a>
+          <a href="/analytics" className={currentPath === "/analytics" ? "active" : ""}>📊 Analytics</a>
+          <a href="/products" className={currentPath === "/products" ? "active" : ""}>📦 Products</a>
         </nav>
       </aside>
 
@@ -96,6 +113,7 @@ const TopSellingAnalytics = () => {
           <Bar dataKey="revenue" fill="#8884d8" name="Revenue ₹" />
         </BarChart>
       </ResponsiveContainer>
+    </div>
     </div>
     </div>
   );

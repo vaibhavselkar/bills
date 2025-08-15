@@ -6,7 +6,7 @@
 
 .sidebar {
   width: 220px;
-  background-color: #f4f4f4;
+  background-color: #f0ebf3;
   padding: 20px;
   border-right: 1px solid #ccc;
 }
@@ -14,28 +14,27 @@
 .sidebar h3 {
   margin-bottom: 20px;
   font-size: 20px;
-  color: #333;
+  color: #54198b;
 }
 
 .sidebar nav a {
   display: block;
   margin: 10px 0;
-  color: #333;
+  color: #111010;
   text-decoration: none;
   padding: 8px;
   border-radius: 4px;
 }
 
-.sidebar nav a:hover,
-.sidebar nav a.active {
-  background-color: #3777b7;
-  color: white;
+.active {
+  color: yellow;
+  font-weight: bold;
 }
 
 .dashboard-main {
   flex: 1;
   padding: 30px;
-  background: #fff;
+  background: #eee;
 }
 
 .time-selector button {
@@ -48,7 +47,7 @@
 }
 
 .time-selector button.active {
-  background: #003366;
+  background: #43087a;
   color: #fff;
 }
 

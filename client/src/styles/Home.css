@@ -8,7 +8,7 @@
 
 .sidebar {
   width: 220px;
-  background-color: #003366;
+  background-color: #43087a;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -16,7 +16,7 @@
 }
 
 .sidebar button {
-  background-color: #003366;
+  background-color: #43087a;
   color: #ffff;
   border: none;
   padding: 12px;

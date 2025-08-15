@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
 
 import {
   BarChart,
@@ -25,7 +24,7 @@ const BillingChart = () => {
   const [billingData, setBillingData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState("Bar");
-  const navigate = useNavigate();
+  const currentPath = window.location.pathname;
 
 
   useEffect(() => {
@@ -66,8 +65,6 @@ const BillingChart = () => {
   };
 
   const productData = getProductData();
-
-  // 🧠 Function to render percentage inside Pie chart
   const renderCustomizedLabel = ({ percent }) => `${(percent * 100).toFixed(1)}%`;
 
   const renderChart = () => {
@@ -199,16 +196,30 @@ const BillingChart = () => {
   if (loading) return <div>Loading chart...</div>;
 
   return (
-    <div className="home-layout">
+    <div className="dashboard">
+      {/* Top Navigation */}
+      <nav className="navbar">
+        <div className="logo-section">
+          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
+          <span className="username">Sanghamitra Admin</span>
+        </div>
+        <ul className="nav-links">
+          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
+        </ul>
+      </nav>
+
+      <div className="dashboard-layout">
       <aside className="sidebar">
-        <button onClick={() => navigate('/')}>📊 Home</button>
-        <button onClick={() => navigate('/bill')}>🧾 Bill</button>
-        <button onClick={() => navigate('/view')}>👁️ ViewBills</button>
-        <button onClick={() => navigate('/analytics')}>📈 Analytics</button>
-        <button onClick={() => navigate('/products')}>📦 Product Management</button>
-        <button onClick={() => navigate('/dashboard')}>🛡️Admin Dashboard</button>
+        <nav>
+          <a href="/dashboard" className={currentPath === "/dashboard" ? "active" : ""}>📈 Dashboard</a>
+          <a href="/user-dashboard" className={currentPath === "/user-dashboard" ? "active" : ""}>🏠 Home</a>
+          <a href="/tables" className={currentPath === "/tables" ? "active" : ""}>🧾 Tables</a>
+          <a href="/view" className={currentPath === "/view" ? "active" : ""}>📄 View Bills</a>
+          <a href="/analytics" className={currentPath === "/analytics" ? "active" : ""}>📊 Analytics</a>
+          <a href="/products" className={currentPath === "/products" ? "active" : ""}>📦 Products</a>
+        </nav>
       </aside>
-    
+
 
     <div style={{ width: "100%", padding: "1rem", maxWidth: "900px", margin: "auto" }}>
       <h2>Billing Summary: Products Sold and Earnings</h2>
@@ -228,6 +239,7 @@ const BillingChart = () => {
       </div>
 
       {renderChart()}
+    </div>
     </div>
     </div>
   );
