@@ -30,7 +30,7 @@ const BillingChart = () => {
   useEffect(() => {
     const fetchBillingData = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/");
+        const response = await fetch("https://billing-app-server.vercel.app/api/");
         const data = await response.json();
         setBillingData(data);
       } catch (err) {
