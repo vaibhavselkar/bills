@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 //import '../styles/UserLogin.css';
+//when logging in, we save the JWT token in localStorage and use it for API requests.
 
 const UserLogin = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +15,7 @@ const UserLogin = () => {
     setError('');
 
     try {
-      const response = await fetch('https://billing-app-server.vercel.app/api/user/login', {
+      const response = await fetch('http://localhost:8080/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

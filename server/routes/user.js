@@ -1,14 +1,13 @@
-// routes/user.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/User');
+const auth = require('../middleware/auth');
 
 //npm install express mongoose bcryptjs jsonwebtoken nodemailer crypto
 //npm install bcryptjs jsonwebtoken
 
-const JWT_SECRET = 'your_jwt_secret_here'; 
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -25,6 +24,8 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
 // POST /api/user/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -59,8 +60,33 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Get logged-in user's profile
+router.get("/me", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // exclude password
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
+// Protected route example
+router.get('/profile', auth, async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  res.json(user);
+});
+
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.find().select("name email createdAt"); // Only return required fields
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // POST /api/user/forgot-password
 router.post('/forgot-password', async (req, res) => {
@@ -71,22 +97,26 @@ router.post('/forgot-password', async (req, res) => {
 
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+  // Link should point to frontend, not backend
   const resetLink = `http://localhost:3000/reset-password/${token}`;
 
-  // Send Email (using nodemailer or any service)
-  await sendEmail(user.email, 'Password Reset', `Click this link: ${resetLink}`);
+  // Normally: send email with resetLink
+  // await sendEmail(user.email, 'Password Reset', `Click this link: ${resetLink}`);
 
-  res.json({ message: 'Reset link sent to email' });
+  // For now, just send it in response
+  res.json({ message: 'Password reset link generated', resetLink });
 });
 
 
-// POST /api/user/reset-password
-router.post('/reset-password', async (req, res) => {
-  const { token, newPassword } = req.body;
+router.post('/reset-password/:token', async (req, res) => {
+  const { newPassword } = req.body;
+  const { token } = req.params;   // ✅ token comes from URL param
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
