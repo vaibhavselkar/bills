@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 //https://billing-app-server.vercel.app/
 import "../styles/UserDashboard.css";
-import "../styles/Home.css";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -14,7 +13,7 @@ const UserDashboard = () => {
           <Navbar />
       <header className="hero">
         <div className="hero-overlay">
-          <h1 style={{ color: 'rgb(50, 18, 110)'}}>Sanghamitra Business Incubators</h1>
+          <h1>Sanghamitra Business Incubators</h1>
         </div>
       </header>
 

@@ -17,11 +17,11 @@ import {
 
 const COLORS = [
   "#8884d8",
-  "#28a745",
+  "#2d773fff",
   "#ffc658",
   "#ff7f50",
   "#a28fd0",
-  "#00c853",
+  "#389c62ff",
   "#ffb74d",
 ];
 
@@ -130,7 +130,7 @@ const BillingChart = () => {
                 <Bar
                   yAxisId="left"
                   dataKey="quantitySold"
-                  fill="#28a745"
+                  fill="#38914dff"
                   name="Quantity Sold"
                 />
                 <Bar
@@ -236,7 +236,7 @@ const BillingChart = () => {
               style={{
                 padding: "0.4rem 1rem",
                 marginRight: "10px",
-                background: selectedRange === "year" ? "#9a21beff" : "#ddd",
+                background: selectedRange === "year" ? "#475087" : "#ddd",
                 color: selectedRange === "year" ? "#fff" : "#000",
                 border: "none",
                 borderRadius: "5px",
@@ -250,7 +250,7 @@ const BillingChart = () => {
               style={{
                 padding: "0.4rem 1rem",
                 marginRight: "10px",
-                background: selectedRange === "month" ? "#9a21beff" : "#ddd",
+                background: selectedRange === "month" ? "#475087" : "#ddd",
                 color: selectedRange === "month" ? "#fff" : "#000",
                 border: "none",
                 borderRadius: "5px",
@@ -262,7 +262,7 @@ const BillingChart = () => {
               onClick={() => setSelectedRange("today")}
               style={{
                 padding: "0.4rem 1rem",
-                background: selectedRange === "today" ? "#9a21beff" : "#ddd",
+                background: selectedRange === "today" ? "#475087" : "#ddd",
                 color: selectedRange === "today" ? "#fff" : "#000",
                 border: "none",
                 borderRadius: "5px",

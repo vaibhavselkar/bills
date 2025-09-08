@@ -14,6 +14,7 @@ import { ForgetPassword, ResetPassword } from "./components/aa";
 import UserDashboard from './components/UserDashboard';
 import Logout from "./components/Logout";
 import UserTable from "./components/UserTable";
+import "./styles/Dashboard.css";
 
 function App() {
   return (
