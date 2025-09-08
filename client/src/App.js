@@ -10,9 +10,11 @@ import AdminDashboard from './components/AdminDashboard';
 import Tables from './components/Tables';
 import UserLogin from './components/UserLogin';
 import Register from './components/Register';
-import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
+import { ForgetPassword, ResetPassword } from "./components/aa";
 import UserDashboard from './components/UserDashboard';
+import Logout from "./components/Logout";
+import UserTable from "./components/UserTable";
+import "./styles/Dashboard.css";
 
 function App() {
   return (
@@ -29,9 +31,11 @@ function App() {
         <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="/tables" element={<Tables />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<ForgetPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/users" element={<UserTable />} />
       </Routes>
     </Router>
   );

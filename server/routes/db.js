@@ -30,14 +30,36 @@ router.post("/", async (req, res) => {
 });
 
 // GET: Fetch all bills
+// router.get("/", async (req, res) => {
+//   try {
+//     const bills = await Bill.find().sort({ createdAt: -1 });
+//     res.json(bills);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server Error", error: error.message });
+//   }
+// });
+
+// GET /api?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
 router.get("/", async (req, res) => {
   try {
-    const bills = await Bill.find().sort({ createdAt: -1 });
+    let { startDate, endDate } = req.query;
+
+    let filter = {};
+    if (startDate && endDate) {
+      filter.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate + "T23:59:59.999Z"),
+      };
+    }
+
+    const bills = await Bill.find(filter);
     res.json(bills);
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+  } catch (err) {
+    console.error("Error fetching dashboard data:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
+
 
 // GET: Fetch bill by ID
 router.get("/bill/:id", async (req, res) => {

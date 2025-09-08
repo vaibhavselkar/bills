@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import '../styles/Tables.css'; // Add styles here if needed
+import Sidebar from "./Sidebar"; // import the navbar
 
 
 const TopSellingAnalytics = () => {
@@ -9,7 +10,7 @@ const TopSellingAnalytics = () => {
   useEffect(() => {
     const fetchTopSelling = async () => {
       try {
-        const res = await fetch('https://billing-app-server.vercel.app/api/products');
+        const res = await fetch('http://localhost:8080/api/products');
         const data = await res.json();
 
         const processed = [];
@@ -43,38 +44,10 @@ const TopSellingAnalytics = () => {
     fetchTopSelling();
   }, []);
 
-  const currentPath = window.location.pathname;
 
   return (
     <div className="dashboard">
-      {/* Top Navigation */}
-      <nav className="navbar">
-        <div className="logo-section">
-          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
-          <span className="username">Sanghamitra Admin</span>
-        </div>
-        <ul className="nav-links">
-          <li className={currentPath === "/" ? "active" : ""} onClick={() => (window.location.href = "")}>PRE ORDER</li>
-          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
-        </ul>
-      </nav>
-    <div className="dashboard-layout">
-      <aside className="sidebar">
-          {/*<button
-          className={`category ${currentPath === "/dashboard" ? "active" : ""}`}
-          onClick={() => (window.location.href = "/dashboard")}
-          >Dashboard</button> */}
-
-          <nav>
-          <a href="/dashboard" className={currentPath === "/dashboard" ? "active" : ""}>📈 Dashboard</a>
-          <a href="/user-dashboard" className={currentPath === "/user-dashboard" ? "active" : ""}>🏠 Home</a>
-          <a href="/tables" className={currentPath === "/tables" ? "active" : ""}>🧾 Tables</a>
-          <a href="/view" className={currentPath === "/view" ? "active" : ""}>📄 View Bills</a>
-          <a href="/analytics" className={currentPath === "/analytics" ? "active" : ""}>📊 Analytics</a>
-          <a href="/products" className={currentPath === "/products" ? "active" : ""}>📦 Products</a>
-        </nav>
-      </aside>
-
+      <Sidebar /> {/* Use Navbar component */}
     
     <div className="top-selling-container">
       <h2>Top 5 Selling Products by Revenue</h2>
@@ -113,7 +86,6 @@ const TopSellingAnalytics = () => {
           <Bar dataKey="revenue" fill="#8884d8" name="Revenue ₹" />
         </BarChart>
       </ResponsiveContainer>
-    </div>
     </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/ProductManagement.css';
+import Sidebar from "./Sidebar"; // import the navbar
+
 //   http://localhost:8080/api
 
 
@@ -10,7 +12,7 @@ const ProductManagement = () => {
   const [editingCategoryIndex, setEditingCategoryIndex] = useState(null);
 
   const fetchProducts = async () => {
-    const res = await fetch('https://billing-app-server.vercel.app/api/products');
+    const res = await fetch('http://localhost:8080/api/products');
     const data = await res.json();
     setProducts(data);
   };
@@ -28,7 +30,7 @@ const ProductManagement = () => {
 
       if (existingProduct) {
         // Add new category to existing product
-        await fetch('https://billing-app-server.vercel.app/api/products/', {
+        await fetch('http://localhost:8080/api/products/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -39,7 +41,7 @@ const ProductManagement = () => {
 
       } else {
         // Create new product with category
-        await fetch(`https://billing-app-server.vercel.app/api/products`, {
+        await fetch(`http://localhost:8080/api/products`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ product: form.product, categories: [{ name: form.category, price: form.price }] })
@@ -48,14 +50,14 @@ const ProductManagement = () => {
     } else {
 
       // 👇 First update the product name
-      await fetch(`https://billing-app-server.vercel.app/api/products/${editingProductId}`, {
+      await fetch(`http://localhost:8080/api/products/${editingProductId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product: form.product })
       });
 
       // Update category
-      await fetch(`https://billing-app-server.vercel.app/api/products/${editingProductId}/category/${editingCategoryIndex}`, {
+      await fetch(`http://localhost:8080/api/products/${editingProductId}/category/${editingCategoryIndex}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: form.category, price: form.price })
@@ -83,7 +85,7 @@ const ProductManagement = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`https://billing-app-server.vercel.app/api/products/${productId}/category/${categoryIndex}`, {
+      const res = await fetch(`http://localhost:8080/api/products/${productId}/category/${categoryIndex}`, {
         method: 'DELETE'
       });
 
@@ -95,43 +97,22 @@ const ProductManagement = () => {
       console.error('Delete failed:', err);
       alert('Failed to delete category');
     }
-    await fetch(`https://billing-app-server.vercel.app/api/products/${productId}/category/${categoryIndex}`, {
+    await fetch(`http://localhost:8080/api/products/${productId}/category/${categoryIndex}`, {
       method: 'DELETE'
     });
     fetchProducts();
   };
 
-  const currentPath = window.location.pathname;
 
   return (
     <div className="dashboard">
       {/* Top Navigation */}
-      <nav className="navbar">
-        <div className="logo-section">
-          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
-          <span className="username">Sanghamitra Admin</span>
-        </div>
-        <ul className="nav-links">
-          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
-        </ul>
-      </nav>
-
-    <div className="dashboard-layout">
-      <aside className="sidebar">
-        <nav>
-          <a href="/dashboard" className={currentPath === "/dashboard" ? "active" : ""}>📈 Dashboard</a>
-          <a href="/user-dashboard" className={currentPath === "/user-dashboard" ? "active" : ""}>🏠 Home</a>
-          <a href="/tables" className={currentPath === "/tables" ? "active" : ""}>🧾 Tables</a>
-          <a href="/view" className={currentPath === "/view" ? "active" : ""}>📄 View Bills</a>
-          <a href="/analytics" className={currentPath === "/analytics" ? "active" : ""}>📊 Analytics</a>
-          <a href="/products" className={currentPath === "/products" ? "active" : ""}>📦 Products</a>
-        </nav>
-      </aside>
+      <Sidebar /> {/* Use Navbar component */}
 
 
       <div className="product-container">
         <div className="header">
-          <h1>Products List</h1>
+          <h1 style={{ color: 'rgb(50, 18, 110)'}}>Products List</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="product-form">
@@ -186,7 +167,6 @@ const ProductManagement = () => {
           </div>
         ))}
       </div>
-    </div>
     </div>
   );
 };

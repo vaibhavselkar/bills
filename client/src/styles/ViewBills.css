@@ -8,17 +8,6 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.logo {
-  height: 80px;
-}
-
 h1 {
   color: hsl(220, 16%, 96%);
   margin: 0;

@@ -34,6 +34,12 @@ mongoose.connect(process.env.DATABASE)
     console.error('❌ MongoDB connection error:', err.message);
   });
 
+/*
+// Start server
+const PORT = process.env.PORT || 6000;
+app.listen(PORT, () => {
+    console.log(`✅ Server is running on port ${PORT}`);*/
+
 
 // Export for Vercelss
 module.exports = app;
