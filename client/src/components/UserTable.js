@@ -8,7 +8,7 @@ const UserTable = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/user/users");
+        const res = await fetch("https://billing-app-server.vercel.app/api/user/users");
         const data = await res.json();
         setUsers(data);
         setLoading(false);
