@@ -10,7 +10,7 @@ const TopSellingAnalytics = () => {
   useEffect(() => {
     const fetchTopSelling = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/products');
+        const res = await fetch('https://billing-app-server.vercel.app/api/products');
         const data = await res.json();
 
         const processed = [];
