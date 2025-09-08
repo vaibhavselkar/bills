@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   // Fetch all data (for Today/Month/Year)
   useEffect(() => {
-    fetch("http://localhost:8080/api/")
+    fetch("https://billing-app-server.vercel.app/api/")
       .then((res) => res.json())
       .then((data) => processDefaultData(data))
       .catch((err) => console.error("Error fetching dashboard data:", err));
@@ -79,7 +79,7 @@ const Dashboard = () => {
   const fetchCustomRange = () => {
     if (!startDate || !endDate) return;
 
-    fetch(`http://localhost:8080/api/?startDate=${startDate}&endDate=${endDate}`)
+    fetch(`https://billing-app-server.vercel.app/api/?startDate=${startDate}&endDate=${endDate}`)
       .then((res) => res.json())
       .then((data) => {
         setBillData(data); // use only custom bills
