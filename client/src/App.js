@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BillForm from './components/BillForm';
 import ViewBills from './components/ViewBills';
-import Home from './components/Home';
 import Invoice from './components/Invoice.js';
 import ProductManager from "./components/ProductManager";
 import Analytics from './components/Analytics';
@@ -23,7 +22,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
         <Route path="/bill" element={<BillForm />} />
         <Route path="/view" element={<ViewBills />} />
         <Route path="/user-bills" element={<UserBill />} />
