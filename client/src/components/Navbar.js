@@ -46,9 +46,7 @@ const Navbar = () => {
       <ul className="nav-links">
         <li className={currentPath === "/user-dashboard" ? "active" : ""} onClick={() => navigate("/user-dashboard")}>HOME</li>
         <li className={currentPath === "/bill" ? "active" : ""} onClick={() => navigate("/bill")}>BILL</li>
-        <li className={currentPath === "/home" ? "active" : ""} onClick={() => navigate("/home")}>PRE ORDER</li>
-        <li className={currentPath === "/users" ? "active" : ""} onClick={() => navigate("/users")}>ABOUT</li>
-        <li className={currentPath === "/dashboard" ? "active" : ""} onClick={() => navigate("/dashboard")}>ADMIN DASHBOARD</li>
+        <li className={currentPath === "/user-bills" ? "active" : ""} onClick={() => navigate("/user-bills")}>VIEW</li>
         <li className={currentPath === "/logout" ? "active" : ""} onClick={() => navigate("/logout")}>Logout</li>
       </ul>
     </nav>

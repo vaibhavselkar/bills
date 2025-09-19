@@ -1,11 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/Dashboard.css";
 
-const Navbar = () => {
+const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [openTables, setOpenTables] = useState(false);
+  const [username, setUsername] = useState("Loading...");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token"); // 👈 read token
+        const response = await fetch("http://localhost:8080/api/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch user info");
+        }
+
+        setUsername(data.name || "Unknown User");
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setUsername("Guest");
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <>
@@ -13,7 +40,7 @@ const Navbar = () => {
       <nav className="navbar">
         <div className="logo-section">
           <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
-          <span className="username">Sanghamitra Admin</span>
+          <span className="username">{username || "Loading..."}</span>
         </div>
         <ul className="nav-links">
           <li
@@ -28,19 +55,31 @@ const Navbar = () => {
       {/* Sidebar */}
       <aside className="sidebar">
         <nav>
-          <a href="/dashboard" className={currentPath === "/dashboard" ? "active" : ""}>
+          <a
+            href="/admin-dashboard"
+            className={currentPath === "/admin-dashboard" ? "active" : ""}
+          >
             📈 Dashboard
           </a>
-          <a href="/user-dashboard" className={currentPath === "/user-dashboard" ? "active" : ""}>
+          <a
+            href="/user-dashboard"
+            className={currentPath === "/user-dashboard" ? "active" : ""}
+          >
             🏠 Home
           </a>
           <a href="/view" className={currentPath === "/view" ? "active" : ""}>
             📄 View Bills
           </a>
-          <a href="/analytics" className={currentPath === "/analytics" ? "active" : ""}>
+          <a
+            href="/admin-analytics"
+            className={currentPath === "/admin-analytics" ? "active" : ""}
+          >
             📊 Analytics
           </a>
-          <a href="/products" className={currentPath === "/products" ? "active" : ""}>
+          <a
+            href="/products"
+            className={currentPath === "/products" ? "active" : ""}
+          >
             📦 Products
           </a>
 
@@ -55,14 +94,17 @@ const Navbar = () => {
 
           {openTables && (
             <div className="dropdown-menu">
-              <a href="/tables" className={currentPath === "/tables" ? "active" : ""}>
+              <a
+                href="/tables"
+                className={currentPath === "/tables" ? "active" : ""}
+              >
                 📦 Selling Data
               </a>
-              <a href="/users" className={currentPath === "/users" ? "active" : ""}>
+              <a
+                href="/users"
+                className={currentPath === "/users" ? "active" : ""}
+              >
                 👤 Users
-              </a>
-              <a href="/tables/bills" className={currentPath === "/tables/bills" ? "active" : ""}>
-                💵 Bills
               </a>
             </div>
           )}
@@ -72,4 +114,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Sidebar;

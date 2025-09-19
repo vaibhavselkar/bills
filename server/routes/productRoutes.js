@@ -2,10 +2,11 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../model/Product');
+const {auth}  = require("../middleware/auth");
 
 // Get all products
 // GET all products with categories
-router.get('/', async (req, res) => {
+router.get('/',  async (req, res) => {
   try {
     const products = await Product.find(); // Your schema
     res.json(products);
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
 
 
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const { product, categories } = req.body; // categories = [{ name, price }]
   if (!product || !Array.isArray(categories)) {
     return res.status(400).json({ error: 'Product and categories are required' });
@@ -38,7 +39,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/products/:productId
-router.put('/:productId', async (req, res) => {
+router.put('/:productId', auth, async (req, res) => {
   try {
     const { product } = req.body;
     const updated = await Product.findByIdAndUpdate(
@@ -59,7 +60,7 @@ router.put('/:productId', async (req, res) => {
 
 
 // ✅ Update a category by index
-router.put('/:productId/category/:index', async (req, res) => {
+router.put('/:productId/category/:index', auth, async (req, res) => {
   const { productId, index } = req.params;
   const { name, price } = req.body;
 
@@ -82,7 +83,7 @@ router.put('/:productId/category/:index', async (req, res) => {
 });
 
 // ✅ Delete a category by index
-router.delete('/:productId/category/:index', async (req, res) => {
+router.delete('/:productId/category/:index', auth, async (req, res) => {
   const { productId, index } = req.params;
 
   try {

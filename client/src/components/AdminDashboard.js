@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar"; // import the navbar
-import "../styles/Dashboard.css";
+//import "../styles/Dashboard.css";
 
 import {
   BarChart,
@@ -28,10 +28,22 @@ const Dashboard = () => {
 
   // Fetch all data (for Today/Month/Year)
   useEffect(() => {
-    fetch("http://localhost:8080/api/")
-      .then((res) => res.json())
-      .then((data) => processDefaultData(data))
-      .catch((err) => console.error("Error fetching dashboard data:", err));
+    const fetchBills = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:8080/api/", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        processDefaultData(data);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      }
+    };
+
+    fetchBills();
   }, []);
 
   // Process Today/Month/Year data

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/ViewBills.css';
-import Sidebar from "./Sidebar"; // import the navbar
+import Navbar from "./Navbar";
 
 const ViewBills = () => {
   const [bills, setBills] = useState([]);
@@ -13,40 +13,23 @@ const ViewBills = () => {
 
   const fetchBills = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/', {
+      const token = localStorage.getItem("token"); 
+      const response = await fetch("http://localhost:8080/api/", {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+            Authorization: `Bearer ${token}`,  // 👈 send token
+        },
+        });
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch bills");
+      }
+        
       const sorted = data.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
       setBills(sorted);
     } catch (error) {
       console.error('Error fetching bills:', error);
       alert('Error fetching bills');
-    }
-  };
-
-  const deleteBill = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this bill?')) return;
-    try {
-      const response = await fetch(`http://localhost:8080/api/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        alert('Bill deleted');
-        fetchBills();
-      } else {
-        throw new Error(result.message);
-      }
-
-    } catch (err) {
-      alert('Error deleting bill');
     }
   };
 
@@ -67,9 +50,8 @@ const ViewBills = () => {
 
   return (
     <div className="dashboard">
-      <Sidebar /> {/* Use Navbar component */}
+    <Navbar />
 
-    
     <div className="admin-container">
       <div className="stats">
         <div className="stat-card"><div className="stat-value">{totalStats.totalBills}</div><div className="stat-label">Total Bills</div></div>
@@ -95,7 +77,6 @@ const ViewBills = () => {
             <th>Items</th>
             <th>Payment Method</th>
             <th>Total Amount</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -126,9 +107,6 @@ const ViewBills = () => {
                 </td>
                 <td>{bill.paymentMethod}</td>
                 <td>₹{bill.totalAmount.toFixed(2)}</td>
-                <td>
-                  <button className="delete-btn" onClick={() => deleteBill(bill._id)}>Delete</button>
-                </td>
               </tr>
             ))
           )}

@@ -95,11 +95,15 @@ const BillForm = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:8080/api/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(billData)
+      const res = await fetch("http://localhost:8080/api/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // 👈 add this
+        },
+        body: JSON.stringify(billData),
       });
+
 
       const data = await res.json();
       if (res.ok) {

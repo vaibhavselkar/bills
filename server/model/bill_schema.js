@@ -16,8 +16,9 @@ const billSchema = new mongoose.Schema({
     products: [productSchema],
     totalAmount: { type: Number, required: true },
     paymentMethod: { type: String, enum: ['Cash', 'Online'], required: true },
-    date: { type: Date, default: Date.now }
-});
+    date: { type: Date, default: Date.now },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true  }
+}, { timestamps: true }); //to track created/updated dates automatically.
 
 // Create and export the model
 module.exports = mongoose.model('Bill', billSchema);

@@ -13,7 +13,7 @@ const UserDashboard = () => {
           <Navbar />
       <header className="hero">
         <div className="hero-overlay">
-          <h1>Sanghamitra Business Incubators</h1>
+          <h1>Sanghamitra Business Incubator</h1>
         </div>
       </header>
 
@@ -22,14 +22,11 @@ const UserDashboard = () => {
             <h3>Create Bill</h3>
             <p>Create and manage new bills</p>
           </div>
-          <div className="dashboard-card" onClick={() => navigate("/view")}>
+          <div className="dashboard-card" onClick={() => navigate("/user-bills")}>
             <h3>View Bills</h3>
             <p>Check all saved bills</p>
           </div>
-          <div className="dashboard-card" onClick={() => navigate("/products")}>
-            <h3>Products</h3>
-            <p>View product categories</p>
-          </div>
+          
           <div className="dashboard-card" onClick={() => navigate("/analytics")}>
             <h3>Analytics</h3>
             <p>View sales analytics & insights</p>

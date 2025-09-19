@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 //import Sidebar from "./Sidebar"; // import the navbar
-import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 
 import {
   BarChart,
@@ -230,7 +230,7 @@ const BillingChart = () => {
 
   return (
     <div className="dashboard">
-       <Navbar /> {/* Use Navbar component */}
+       <Sidebar /> {/* Use Navbar component */}
 
 
         <div

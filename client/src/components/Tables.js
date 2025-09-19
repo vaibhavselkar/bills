@@ -1,94 +1,131 @@
-import React, { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import '../styles/Tables.css'; // Add styles here if needed
-import Sidebar from "./Sidebar"; // import the navbar
+import React, { useEffect, useState } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import Sidebar from "./Sidebar";
 
-
-const TopSellingAnalytics = () => {
-  const [topSelling, setTopSelling] = useState([]);
+const TopProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [showAllRevenue, setShowAllRevenue] = useState(false);
+  const [showAllQuantity, setShowAllQuantity] = useState(false);
 
   useEffect(() => {
-    const fetchTopSelling = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/products');
+        const res = await fetch("http://localhost:8080/api/top-products");
         const data = await res.json();
-
-        const processed = [];
-
-        data.forEach((product) => {
-          const sold = product.__v || 0;
-
-          product.categories.forEach((cat) => {
-            processed.push({
-              name: `${product.product} - ${cat.name}`,
-              product: product.product,
-              category: cat.name,
-              price: cat.price,
-              sold: sold,
-              revenue: cat.price * sold,
-            });
-          });
-        });
-
-        // Sort by revenue and get top 5
-        const topFive = processed
-          .sort((a, b) => b.revenue - a.revenue)
-          .slice(0, 5);
-
-        setTopSelling(topFive);
-      } catch (error) {
-        console.error('Error fetching product data:', error);
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
       }
     };
-
-    fetchTopSelling();
+    fetchData();
   }, []);
 
+  const topRevenue = [...products].sort((a, b) => b.revenue - a.revenue);
+  const displayedRevenue = showAllRevenue ? topRevenue : topRevenue.slice(0, 5);
+
+  const topQuantity = [...products].sort((a, b) => b.totalSold - a.totalSold);
+  const displayedQuantity = showAllQuantity ? topQuantity : topQuantity.slice(0, 5);
 
   return (
-    <div className="dashboard">
-      <Sidebar /> {/* Use Navbar component */}
-    
-    <div className="top-selling-container">
-      <h2>Top 5 Selling Products by Revenue</h2>
+    <div className="dashboard" style={{ padding: "20px" }}>
+      <Sidebar />
 
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Category</th>
-            <th>Price (₹)</th>
-            <th>Sold</th>
-            <th>Revenue (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {topSelling.map((item, index) => (
-            <tr key={index}>
-              <td>{item.product}</td>
-              <td>{item.category}</td>
-              <td>{item.price}</td>
-              <td>{item.sold}</td>
-              <td>{item.revenue}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Flex container for tables */}
+      <div style={{ display: "flex", gap: "40px", flexWrap: "wrap", marginBottom: "50px" }}>
+        {/* Revenue Table */}
+        <div style={{ flex: 1, minWidth: "300px" }}>
+          <h2 style={{ textAlign: "center" }}>Top Selling Products by Revenue</h2>
+          <table style={styles.table}>
+            <thead style={{ background: "#f4f4f4" }}>
+              <tr>
+                <th style={styles.th}>Product</th>
+                <th style={styles.th}>Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedRevenue.map((p, idx) => (
+                <tr key={idx}>
+                  <td style={styles.td}>{p.name}</td>
+                  <td style={styles.td}>₹{p.revenue.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {products.length > 5 && (
+            <div style={{ textAlign: "center", marginTop: "10px" }}>
+              <button style={styles.button} onClick={() => setShowAllRevenue(!showAllRevenue)}>
+                {showAllRevenue ? "Show Top 5" : "Show More"}
+              </button>
+            </div>
+          )}
+        </div>
 
-      <h3 style={{ marginTop: '2rem' }}>Revenue Chart</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={topSelling} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" />
-          <YAxis dataKey="name" type="category" width={150} />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="revenue" fill="#8884d8" name="Revenue ₹" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+        {/* Quantity Table */}
+        <div style={{ flex: 1, minWidth: "300px" }}>
+          <h2 style={{ textAlign: "center" }}>Top Selling Products by Quantity</h2>
+          <table style={styles.table}>
+            <thead style={{ background: "#f4f4f4" }}>
+              <tr>
+                <th style={styles.th}>Product</th>
+                <th style={styles.th}>Sold</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedQuantity.map((p, idx) => (
+                <tr key={idx}>
+                  <td style={styles.td}>{p.name}</td>
+                  <td style={styles.td}>{p.totalSold}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {products.length > 5 && (
+            <div style={{ textAlign: "center", marginTop: "10px" }}>
+              <button style={styles.button} onClick={() => setShowAllQuantity(!showAllQuantity)}>
+                {showAllQuantity ? "Show Top 5" : "Show More"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Flex container for charts */}
+      <div style={{ display: "flex", gap: "40px", flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: "300px" }}>
+          <h3 style={{ textAlign: "center" }}>Revenue Chart</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={displayedRevenue} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="revenue" fill="#007bff" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div style={{ flex: 1, minWidth: "300px" }}>
+          <h3 style={{ textAlign: "center" }}>Quantity Chart</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={displayedQuantity} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="totalSold" fill="#28a745" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default TopSellingAnalytics;
+const styles = {
+  table: { width: "100%", borderCollapse: "collapse", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
+  th: { padding: "12px", border: "1px solid #ddd", textAlign: "left" },
+  td: { padding: "12px", border: "1px solid #ddd" },
+  button: { padding: "8px 16px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" },
+};
+
+export default TopProducts;

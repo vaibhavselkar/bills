@@ -1,48 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/Invoice.css';
+import Navbar from "./Navbar";
 
 const Invoice = () => {
   const [bill, setBill] = useState(null);
   const { id } = useParams(); // 👈 Get ID from URL
-  const currentPath = window.location.pathname;
 
   useEffect(() => {
     const fetchBillById = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/bill/${id}`);
-        const data = await res.json();
+        const token = localStorage.getItem("token"); // get token from login
+        const res = await fetch(`http://localhost:8080/api/bill/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ send JWT
+          },
+        });
 
-        if (data) {
-          setBill(data);
-        } else {
-          console.error('Bill not found');
+        if (!res.ok) {
+          throw new Error("Unauthorized or failed to fetch bill");
         }
+
+        const data = await res.json();
+        setBill(data);
       } catch (err) {
-        console.error('Error fetching bill:', err);
+        console.error("Error fetching bill:", err);
       }
     };
 
     fetchBillById();
   }, [id]);
 
+
   if (!bill) return <div>Loading invoice...</div>;
 
   return (
 
     <div className="dashboard">
-      {/* Top Navigation */}
-      <nav className="navbar">
-        <div className="logo-section">
-          <img src="/sanghamitra logo.jpeg" alt="Logo" className="logo" />
-          <span className="username">User Name</span>
-        </div>
-        <ul className="nav-links">
-          <li className={currentPath === "/user-dashboard" ? "active" : ""} onClick={() => (window.location.href = "/user-dashboard")}>HOME</li>
-          <li className={currentPath === "/bill" ? "active" : ""} onClick={() => (window.location.href = "/bill")}>BILL</li>
-          <li className={currentPath === "/logout" ? "active" : ""} onClick={() => (window.location.href = "/logout")}>Logout</li>
-        </ul>
-      </nav>
+      <Navbar />
 
     <div className="invoice-container">
       {/* Same invoice structure */}

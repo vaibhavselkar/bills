@@ -91,3 +91,16 @@ button:hover {
   }
   
 }
+/* Hide navbar when printing */
+@media print {
+  .dashboard > .navbar, /* assuming Navbar root has class 'navbar' */
+  button {
+    display: none !important;
+  }
+
+  .invoice-container {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+}

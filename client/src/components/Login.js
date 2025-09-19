@@ -1,10 +1,8 @@
-// src/pages/UserLogin.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-//import '../styles/UserLogin.css';
 //when logging in, we save the JWT token in localStorage and use it for API requests.
 
-const UserLogin = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +22,14 @@ const UserLogin = () => {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem('token', data.token); // Save JWT
-        navigate('/user-dashboard'); // Redirect after login
+        localStorage.setItem('role', data.user.role); // 👈 save role too
+
+        // Redirect based on role
+        if (data.user.role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/user-dashboard');
+        }
       } else {
         setError(data.message || 'Login failed.');
       }
@@ -34,12 +39,14 @@ const UserLogin = () => {
   };
 
   return (
-    <div className="login-container"style={{ maxWidth: '400px',
+    <div className="login-container"style={{ 
+        maxWidth: '400px',
         margin: 'auto',
         padding: '30px',
         boxShadow: '0px 0px 10px #ccc',
         borderRadius: '8px' }} >
-      <h2 style={{ textAlign: 'center' }}>User Login</h2>
+      
+      <h2 style={{ textAlign: 'center' }}>Login</h2>
       <form onSubmit={handleLogin}>
         <input
           type="email"
@@ -97,4 +104,4 @@ const UserLogin = () => {
   );
 };
 
-export default UserLogin;
+export default Login;
