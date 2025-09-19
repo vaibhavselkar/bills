@@ -3,27 +3,11 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/User');
-const auth = require('../middleware/auth');
+const Bill = require('../model/bill_schema');
+const { auth } = require("../middleware/auth");
 
 //npm install express mongoose bcryptjs jsonwebtoken nodemailer crypto
 //npm install bcryptjs jsonwebtoken
-
-
-router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'Email already registered' });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({ name, email, password: hashedPassword });
-    await user.save();
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 
 // POST /api/user/login
@@ -42,7 +26,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET || 'mysecret',
       { expiresIn: '2h' }
     );
@@ -53,12 +37,31 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role  // 👈 send role
       },
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+router.post('/register', async (req, res) => {
+  const { name, email, password, role } = req.body;
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: 'Email already registered' });
+
+    const user = new User({ name, email, password, role: role || "user" });
+    await user.save();
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
 
 // Get logged-in user's profile
 router.get("/me", auth, async (req, res) => {
@@ -72,14 +75,7 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
-
-// Protected route example
-router.get('/profile', auth, async (req, res) => {
-  const user = await User.findById(req.user.id).select('-password');
-  res.json(user);
-});
-
-router.get("/users", async (req, res) => {
+router.get("/users", auth, async (req, res) => {
   try {
     const users = await User.find().select("name email createdAt"); // Only return required fields
     res.json(users);
@@ -87,6 +83,24 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+
+// Get bills of a specific user (admin only)
+router.get("/:userId", auth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const { userId } = req.params;
+    const bills = await Bill.find({ user: userId }).populate("user", "name email role");
+    res.json(bills);
+  } catch (err) {
+    console.error("Error fetching user bills:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 // POST /api/user/forgot-password
 router.post('/forgot-password', async (req, res) => {
