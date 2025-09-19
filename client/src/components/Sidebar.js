@@ -12,7 +12,7 @@ const Sidebar = () => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token"); // 👈 read token
-        const response = await fetch("http://localhost:8080/api/user/me", {
+        const response = await fetch("https://billing-app-server.vercel.app/api/user/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
