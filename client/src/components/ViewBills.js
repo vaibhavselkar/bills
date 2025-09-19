@@ -13,7 +13,7 @@ const ViewBills = () => {
 
   const fetchBills = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/', {
+      const response = await fetch('https://billing-app-server.vercel.app/api/', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -30,7 +30,7 @@ const ViewBills = () => {
   const deleteBill = async (id) => {
     if (!window.confirm('Are you sure you want to delete this bill?')) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/${id}`, {
+      const response = await fetch(`https://billing-app-server.vercel.app/api/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

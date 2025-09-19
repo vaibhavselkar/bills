@@ -31,7 +31,7 @@ const Dashboard = () => {
     const fetchBills = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8080/api/", {
+        const res = await fetch("https://billing-app-server.vercel.app/api/", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -91,7 +91,7 @@ const Dashboard = () => {
   const fetchCustomRange = () => {
     if (!startDate || !endDate) return;
 
-    fetch(`http://localhost:8080/api/?startDate=${startDate}&endDate=${endDate}`)
+    fetch(`https://billing-app-server.vercel.app/api/?startDate=${startDate}&endDate=${endDate}`)
       .then((res) => res.json())
       .then((data) => {
         setBillData(data); // use only custom bills

@@ -9,7 +9,7 @@ export const ForgetPassword = () => {
   const handleForgetSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8080/api/user/forgot-password", {
+      const res = await fetch("https://billing-app-server.vercel.app/api/user/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -57,7 +57,7 @@ export const ResetPassword = () => {
   const handleResetSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://localhost:8080/api/user/reset-password/${token}`, {
+      const res = await fetch(`https://billing-app-server.vercel.app/api/user/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newPassword }),

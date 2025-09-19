@@ -10,7 +10,7 @@ const TopProducts = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/top-products");
+        const res = await fetch("https://billing-app-server.vercel.app/api/top-products");
         const data = await res.json();
         setProducts(data);
       } catch (err) {
