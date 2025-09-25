@@ -1,23 +1,21 @@
-/* Invoice.css */
 
 .invoice-container {
-  max-width: 800px;
-  margin: 40px auto;
+  max-width: 600px;
+  margin: 20px auto;
   background: #ffffff;
-  padding: 30px;
-  border-radius: 10px;
-  font-family: 'Poppins', sans-serif;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  color: #333;
+  padding: 16px;
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* Header */
 .invoice-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #43087a;
-  padding-bottom: 15px;
-  margin-bottom: 20px;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .invoice-header h1 {
@@ -26,81 +24,66 @@
 }
 
 .invoice-logo {
-  height: 70px;
-  width: auto;
+  height: 40px;
+}
+.invoice-title {
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
-.invoice-details p {
+/* Customer Info */
+.invoice-info {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+/* Product rows */
+.invoice-products {
+  border-top: 2px solid #ddd;
+  border-bottom: 2px solid #ddd;
+  margin: 10px 0;
+  padding: 8px 0;
+}
+.invoice-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 4px 0;
+}
+.invoice-head {
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+.col-product, .col-qty, .col-price, .col-total {
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+/* Totals */
+.invoice-summary {
+  margin-top: 12px;
+  text-align: right;
+}
+.invoice-summary p {
   margin: 4px 0;
-  font-size: 16px;
+  font-size: 0.95rem;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-table th,
-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-  font-size: 15px;
-}
-
-table th {
-  background-color: #003366;
-  color: #fff;
-}
-
-/*background-color: #003366;*/
-
-
-.footer {
-  text-align: center;
-  margin-top: 30px;
-  font-size: 13px;
-  color: #555;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #003366;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #003366;
-}
-
-@media print {
-  .footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
-
-  button {
-    display: none !important;
-  }
-  
-}
-/* Hide navbar when printing */
-@media print {
-  .dashboard > .navbar, /* assuming Navbar root has class 'navbar' */
-  button {
-    display: none !important;
-  }
-
+/* Responsive design */
+@media (max-width: 500px) {
   .invoice-container {
-    margin: 0;
-    padding: 0;
-    width: 100%;
+    padding: 12px;
+  }
+  .invoice-title {
+    font-size: 1.1rem;
+  }
+  .invoice-row {
+    grid-template-columns: 1.5fr 1fr 1fr 1fr; /* compact on mobile */
+    font-size: 0.8rem;
+  }
+  .invoice-summary {
+    font-size: 0.85rem;
   }
 }
