@@ -72,9 +72,15 @@
 }
 
 /* Responsive design */
-@media (max-width: 500px) {
-  .invoice-container {
-    padding: 12px;
+
+ /* Print-specific settings */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
 
   .dashboard > .navbar,
@@ -82,15 +88,17 @@
     display: none !important;
   }
 
-  .invoice-title {
-    font-size: 1.1rem;
+  .invoice-container {
+    width: 280px;   /* width of thermal roll (58mm or 80mm) */
+    margin: 0 auto;
+    padding: 10px;
+    box-shadow: none;
+    border-radius: 0;
+    page-break-inside: avoid;
   }
-  .invoice-row {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr; /* compact on mobile */
-    font-size: 0.8rem;
-  }
-  .invoice-summary {
-    font-size: 0.85rem;
+
+  @page {
+    size: auto;       /* let browser decide based on content */
+    margin: 0mm;      /* remove default page margins */
   }
 }
-
