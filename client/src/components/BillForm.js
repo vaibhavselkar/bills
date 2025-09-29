@@ -22,7 +22,7 @@ const BillForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('https://billing-app-server.vercel.app/api/products') // Adjust the URL as per your backend
+    fetch("https://billing-app-server.vercel.app/api/products") // Adjust the URL as per your backend
       .then(res => res.json())
       .then(data => setProductData(data))
       .catch(err => console.error('Error fetching product data:', err));
@@ -51,6 +51,12 @@ const BillForm = () => {
       row.price = categoryObj?.price || 0;
     }
 
+    // if price is manually edited
+    if (field === 'price') {
+      row.price = parseFloat(value) || 0;
+    }
+
+
     const price = parseFloat(row.price) || 0;
     const quantity = parseInt(row.quantity) || 0;
     const discount = parseFloat(row.discount) || 0;
@@ -75,6 +81,11 @@ const BillForm = () => {
 
   const handleSubmit = async () => {
     if (!customerName) return showToast('Enter customer name', 'error');
+
+    if (!/^\d{10}$/.test(mobileNumber)) {
+      return showToast('Enter a valid 10-digit mobile number', 'error');
+    }
+
 
     const valid = products.every(p => p.productType && p.product);
     if (!valid) return showToast('Fill all product details', 'error');
@@ -180,7 +191,7 @@ const BillForm = () => {
                   ))}
                 </select>
               </td>
-              <td><input type="number" value={row.price} readOnly /></td>
+              <td><input type="number" value={row.price} onChange={e => handleProductChange(index, 'price', e.target.value)}/></td>
               <td><input type="number" min="1" value={row.quantity} onChange={e => handleProductChange(index, 'quantity', e.target.value)} /></td>
               <td>
                 <select value={row.discount} onChange={e => handleProductChange(index, 'discount', e.target.value)}>
