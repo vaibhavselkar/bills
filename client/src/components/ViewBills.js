@@ -27,28 +27,7 @@ const ViewBills = () => {
     }
   };
 
-  const deleteBill = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this bill?')) return;
-    try {
-      const response = await fetch(`https://billing-app-server.vercel.app/api/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        alert('Bill deleted');
-        fetchBills();
-      } else {
-        throw new Error(result.message);
-      }
-
-    } catch (err) {
-      alert('Error deleting bill');
-    }
-  };
+  
 
   const filteredBills = bills.filter(bill => {
     const nameMatch = bill.customerName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -95,7 +74,7 @@ const ViewBills = () => {
             <th>Items</th>
             <th>Payment Method</th>
             <th>Total Amount</th>
-            <th>Actions</th>
+            <th>Mobile Number</th> {/* 👈 New Column */}
           </tr>
         </thead>
         <tbody>
@@ -126,9 +105,7 @@ const ViewBills = () => {
                 </td>
                 <td>{bill.paymentMethod}</td>
                 <td>₹{bill.totalAmount.toFixed(2)}</td>
-                <td>
-                  <button className="delete-btn" onClick={() => deleteBill(bill._id)}>Delete</button>
-                </td>
+                <td>{bill.mobileNumber || 'N/A'}</td> {/* 👈 Show mobile from DB */}
               </tr>
             ))
           )}
