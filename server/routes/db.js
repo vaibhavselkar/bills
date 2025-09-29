@@ -6,7 +6,7 @@ const {auth}  = require("../middleware/auth");
 // POST: Create a new bill (linked to logged-in user)
 router.post("/", auth, async (req, res) => {
   try {
-    const { customerName, products, totalAmount, paymentMethod } = req.body;
+    const { customerName, mobileNumber, products, totalAmount, paymentMethod } = req.body;
 
     if (!customerName || !products || !totalAmount || !paymentMethod) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -15,6 +15,7 @@ router.post("/", auth, async (req, res) => {
     // Attach logged-in user ID
     const newBill = new Bill({
       customerName,
+      mobileNumber,
       products,
       totalAmount,
       paymentMethod,
@@ -113,3 +114,4 @@ router.get("/top-products", async (req, res) => {
 });
 
 module.exports = router;
+
