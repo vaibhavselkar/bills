@@ -13,6 +13,7 @@ const productSchema = new mongoose.Schema({
 // Define bill schema
 const billSchema = new mongoose.Schema({
     customerName: { type: String, required: true },
+    mobileNumber: { type: String, required: true },  // 👈 added field
     products: [productSchema],
     totalAmount: { type: Number, required: true },
     paymentMethod: { type: String, enum: ['Cash', 'Online'], required: true },
@@ -22,4 +23,5 @@ const billSchema = new mongoose.Schema({
 
 // Create and export the model
 module.exports = mongoose.model('Bill', billSchema);
+
 
