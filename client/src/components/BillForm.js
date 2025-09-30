@@ -82,9 +82,10 @@ const BillForm = () => {
   const handleSubmit = async () => {
     if (!customerName) return showToast('Enter customer name', 'error');
 
-    if (!/^\d{10}$/.test(mobileNumber)) {
+    if (mobileNumber && !/^\d{10}$/.test(mobileNumber)) {
       return showToast('Enter a valid 10-digit mobile number', 'error');
     }
+
 
 
     const valid = products.every(p => p.productType && p.product);
