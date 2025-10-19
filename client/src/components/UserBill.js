@@ -48,6 +48,45 @@ const ViewBills = () => {
     onlineAmount: filteredBills.filter(b => b.paymentMethod === 'Online').reduce((sum, b) => sum + (b.totalAmount || 0), 0)
   };
 
+  const downloadCSV = () => {
+    if (filteredBills.length === 0) {
+      alert("No data to download");
+      return;
+    }
+  
+    const headers = [
+      "Date",
+      "Customer Name",
+      "Items",
+      "Payment Method",
+      "Total Amount"
+    ];
+  
+    const rows = filteredBills.map(bill => [
+      new Date(bill.date || bill.createdAt).toLocaleString('en-IN'),
+      bill.customerName,
+      bill.products.map(p => `${p.product} (${p.category}) x${p.quantity}`).join("; "),
+      bill.paymentMethod,
+      bill.totalAmount
+    ]);
+  
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(r => r.map(v => `"${v}"`).join(","))
+    ].join("\n");
+  
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `customer_data_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
   return (
     <div className="dashboard">
     <Navbar />
@@ -61,12 +100,13 @@ const ViewBills = () => {
       </div>
 
       <div className="controls">
-        <div className="search-container">
-          <input type="text" placeholder="Search by customer name..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-          <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} />
-          <button onClick={() => { setSearchTerm(''); setDateFilter(''); }}>Reset</button>
-        </div>
-        <button onClick={fetchBills}>Refresh Data</button>
+          <div className="search-container">
+            <input type="text" placeholder="Search by customer name..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} />
+            <button onClick={() => { setSearchTerm(''); setDateFilter(''); }}>Reset</button>
+          </div>
+          <button onClick={fetchBills}>Refresh Data</button>
+          <button onClick={downloadCSV} style={{ background: "#4CAF50", color: "#fff" }}>Download CSV</button>
       </div>
 
       <table>
