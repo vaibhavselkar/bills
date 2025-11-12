@@ -1,104 +1,274 @@
+/* Invoice.css */
 
-.invoice-container {
-  max-width: 600px;
-  margin: 20px auto;
-  background: #ffffff;
-  padding: 16px;
-  border-radius: 12px;
-  font-family: "Poppins", sans-serif;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+/* Global print settings */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .invoice-container,
+  .invoice-container * {
+    visibility: visible;
+  }
+  
+  .invoice-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Hide navigation and buttons when printing */
+  .navbar,
+  button {
+    display: none !important;
+  }
+  
+  /* Ensure proper page breaks */
+  .invoice-container {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    page-break-before: avoid;
+  }
 }
 
-/* Header */
+/* Dashboard layout */
+.dashboard {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Invoice container - Centered and single page */
+.invoice-container {
+  max-width: 800px;
+  width: 100%;
+  margin: 20px auto;
+  padding: 30px;
+  background: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-sizing: border-box;
+  
+  /* Ensure it doesn't overflow to second page */
+  min-height: auto;
+  overflow: hidden;
+}
+
+/* Invoice header */
 .invoice-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #333;
 }
 
 .invoice-header h1 {
   margin: 0;
-  color: #43087a;
+  color: #333;
+  font-size: 2.5em;
+  font-weight: bold;
 }
 
 .invoice-logo {
-  height: 40px;
-}
-.invoice-title {
-  font-size: 1.4rem;
-  font-weight: 600;
+  width: 100px;
+  height: auto;
+  max-height: 80px;
+  object-fit: contain;
 }
 
-/* Customer Info */
-.invoice-info {
-  font-size: 0.9rem;
-  margin-bottom: 12px;
+/* Invoice details */
+.invoice-details {
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid #007bff;
+}
+
+.invoice-details p {
+  margin: 8px 0;
+  font-size: 1.1em;
+}
+
+/* Product table */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+  font-size: 0.95em;
+}
+
+.product-table th {
+  background: #343a40;
+  color: white;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: bold;
+  border: 1px solid #dee2e6;
+}
+
+.product-table td {
+  padding: 10px 8px;
+  border: 1px solid #dee2e6;
   text-align: left;
 }
 
-/* Product rows */
-.invoice-products {
-  border-top: 2px solid #ddd;
-  border-bottom: 2px solid #ddd;
-  margin: 10px 0;
-  padding: 8px 0;
-}
-.invoice-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  padding: 4px 0;
-}
-.invoice-head {
-  font-weight: 600;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-}
-.col-product, .col-qty, .col-price, .col-total {
-  text-align: left;
-  font-size: 0.9rem;
+.product-table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
 }
 
-/* Totals */
-.invoice-summary {
-  margin-top: 12px;
-  text-align: right;
+.product-table tbody tr:hover {
+  background-color: #e9ecef;
 }
-.invoice-summary p {
-  margin: 4px 0;
-  font-size: 0.95rem;
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #333;
+  color: #666;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Print button styling */
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* Toggle buttons */
+.dashboard > div:first-of-type {
+  margin: 20px 0;
+}
+
+.dashboard > div:first-of-type button {
+  background: #6c757d;
+  margin: 0 5px;
+}
+
+.dashboard > div:first-of-type button:hover {
+  background: #545b62;
+}
+
+/* Dmart invoice specific styles */
+.dmart-invoice {
+  max-width: 320px !important;
+  padding: 20px !important;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dmart-invoice h2 {
+  font-size: 1.2em;
+  margin: 5px 0;
+}
+
+.dmart-invoice h3 {
+  font-size: 1.1em;
+  margin: 5px 0;
+}
+
+.dmart-invoice p {
+  margin: 3px 0;
+  font-size: 0.9em;
 }
 
 /* Responsive design */
+@media (max-width: 768px) {
+  .invoice-container {
+    margin: 10px;
+    padding: 20px;
+    max-width: calc(100% - 20px);
+  }
+  
+  .invoice-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .invoice-header h1 {
+    font-size: 2em;
+  }
+  
+  .product-table {
+    font-size: 0.85em;
+  }
+  
+  .product-table th,
+  .product-table td {
+    padding: 8px 5px;
+  }
+}
 
- /* Print-specific settings */
+@media (max-width: 480px) {
+  .invoice-container {
+    padding: 15px;
+    margin: 5px;
+  }
+  
+  .invoice-header h1 {
+    font-size: 1.6em;
+  }
+  
+  .product-table {
+    font-size: 0.8em;
+  }
+  
+  .dmart-invoice {
+    max-width: 300px !important;
+    padding: 15px !important;
+  }
+}
+
+/* Ensure no page breaks within critical elements */
 @media print {
+  .invoice-header,
+  .invoice-details,
+  .product-table,
+  .footer {
+    page-break-inside: avoid;
+  }
+  
+  .product-table {
+    page-break-before: avoid;
+    page-break-after: avoid;
+  }
+  
+  /* Reduce margins for print */
+  @page {
+    margin: 0.5cm;
+  }
+  
   body {
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .dashboard > .navbar,
-  button {
-    display: none !important;
-  }
-
-  .invoice-container {
-    width: 280px;   /* width of thermal roll (58mm or 80mm) */
-    margin: 0 auto;
-    padding: 10px;
-    box-shadow: none;
-    border-radius: 0;
-    page-break-inside: avoid;
-  }
-
-  @page {
-    size: auto;       /* let browser decide based on content */
-    margin: 0mm;      /* remove default page margins */
   }
 }
