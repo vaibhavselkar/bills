@@ -1,274 +1,225 @@
-/* Invoice.css */
-
-/* Global print settings */
+/* Thermal Printer Friendly Styles */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  
-  .invoice-container,
-  .invoice-container * {
-    visibility: visible;
-  }
-  
-  .invoice-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Hide navigation and buttons when printing */
-  .navbar,
-  button {
+  .no-print {
     display: none !important;
   }
   
-  /* Ensure proper page breaks */
-  .invoice-container {
-    page-break-inside: avoid;
-    page-break-after: avoid;
-    page-break-before: avoid;
-  }
-}
-
-/* Dashboard layout */
-.dashboard {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Invoice container - Centered and single page */
-.invoice-container {
-  max-width: 800px;
-  width: 100%;
-  margin: 20px auto;
-  padding: 30px;
-  background: white;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  box-sizing: border-box;
-  
-  /* Ensure it doesn't overflow to second page */
-  min-height: auto;
-  overflow: hidden;
-}
-
-/* Invoice header */
-.invoice-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #333;
-}
-
-.invoice-header h1 {
-  margin: 0;
-  color: #333;
-  font-size: 2.5em;
-  font-weight: bold;
-}
-
-.invoice-logo {
-  width: 100px;
-  height: auto;
-  max-height: 80px;
-  object-fit: contain;
-}
-
-/* Invoice details */
-.invoice-details {
-  margin-bottom: 25px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 5px;
-  border-left: 4px solid #007bff;
-}
-
-.invoice-details p {
-  margin: 8px 0;
-  font-size: 1.1em;
-}
-
-/* Product table */
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 25px;
-  font-size: 0.95em;
-}
-
-.product-table th {
-  background: #343a40;
-  color: white;
-  padding: 12px 8px;
-  text-align: left;
-  font-weight: bold;
-  border: 1px solid #dee2e6;
-}
-
-.product-table td {
-  padding: 10px 8px;
-  border: 1px solid #dee2e6;
-  text-align: left;
-}
-
-.product-table tbody tr:nth-child(even) {
-  background-color: #f8f9fa;
-}
-
-.product-table tbody tr:hover {
-  background-color: #e9ecef;
-}
-
-/* Footer */
-.footer {
-  text-align: center;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 2px solid #333;
-  color: #666;
-  font-size: 0.9em;
-  line-height: 1.5;
-}
-
-.footer a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.footer a:hover {
-  text-decoration: underline;
-}
-
-/* Print button styling */
-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #0056b3;
-}
-
-/* Toggle buttons */
-.dashboard > div:first-of-type {
-  margin: 20px 0;
-}
-
-.dashboard > div:first-of-type button {
-  background: #6c757d;
-  margin: 0 5px;
-}
-
-.dashboard > div:first-of-type button:hover {
-  background: #545b62;
-}
-
-/* Dmart invoice specific styles */
-.dmart-invoice {
-  max-width: 320px !important;
-  padding: 20px !important;
-  font-family: 'Courier New', monospace;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.dmart-invoice h2 {
-  font-size: 1.2em;
-  margin: 5px 0;
-}
-
-.dmart-invoice h3 {
-  font-size: 1.1em;
-  margin: 5px 0;
-}
-
-.dmart-invoice p {
-  margin: 3px 0;
-  font-size: 0.9em;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .invoice-container {
-    margin: 10px;
-    padding: 20px;
-    max-width: calc(100% - 20px);
+  .dashboard {
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
-  .invoice-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 15px;
+  .navbar {
+    display: none !important;
   }
   
-  .invoice-header h1 {
-    font-size: 2em;
+  .invoice-page {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
   }
   
-  .product-table {
-    font-size: 0.85em;
-  }
-  
-  .product-table th,
-  .product-table td {
-    padding: 8px 5px;
-  }
-}
-
-@media (max-width: 480px) {
-  .invoice-container {
-    padding: 15px;
-    margin: 5px;
-  }
-  
-  .invoice-header h1 {
-    font-size: 1.6em;
-  }
-  
-  .product-table {
-    font-size: 0.8em;
-  }
-  
-  .dmart-invoice {
-    max-width: 300px !important;
-    padding: 15px !important;
-  }
-}
-
-/* Ensure no page breaks within critical elements */
-@media print {
-  .invoice-header,
-  .invoice-details,
-  .product-table,
-  .footer {
-    page-break-inside: avoid;
-  }
-  
-  .product-table {
-    page-break-before: avoid;
-    page-break-after: avoid;
-  }
-  
-  /* Reduce margins for print */
-  @page {
-    margin: 0.5cm;
+  .thermal-invoice {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 5px !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
   }
   
   body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+    font-family: 'Courier New', monospace !important;
+  }
+  
+  /* Hide links in print */
+  a {
+    text-decoration: none !important;
+    color: black !important;
+  }
+}
+
+/* Screen Styles */
+.invoice-page {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.invoice-container {
+  max-width: 600px;
+  width: 100%;
+}
+
+.thermal-invoice {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.3;
+  color: black;
+  background: white;
+  padding: 15px;
+  border: 1px solid #ddd;
+  margin: 0 auto;
+}
+
+/* Print Button */
+.print-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.print-button:hover {
+  background: #0056b3;
+}
+
+/* Invoice Header */
+.invoice-header {
+  text-align: center;
+  margin-bottom: 15px;
+  border-bottom: 2px dashed #000;
+  padding-bottom: 10px;
+}
+
+.logo {
+  width: 60px;
+  height: auto;
+  margin-bottom: 5px;
+}
+
+.company-name {
+  margin: 5px 0;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.invoice-info {
+  margin: 3px 0;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.invoice-title {
+  margin: 8px 0 5px 0;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Products Table */
+.products-table {
+  margin: 10px 0;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 5px;
+  padding: 3px 0;
+  border-bottom: 1px dotted black;
+  font-weight: bold;
+}
+
+.header-row {
+  font-weight: bold;
+  border-bottom: 2px solid #000;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+
+.col-product {
+  text-align: left;
+  word-break: break-word;
+}
+
+.col-qty {
+  text-align: center;
+}
+
+.col-price {
+  text-align: center;
+}
+
+.col-total {
+  text-align: right;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 2px dashed #000;
+  margin: 10px 0;
+}
+
+/* Totals Section */
+.totals-section {
+  margin: 10px 0;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin: 3px 0;
+  padding: 2px 0;
+}
+
+.total-row:first-child {
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  padding: 5px 0;
+  font-size: 15px;
+}
+
+/* Footer */
+.invoice-footer {
+  text-align: center;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 2px dashed #000;
+}
+
+.thank-you {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.company-info {
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: bold;
+}
+
+/* Thermal printer specific optimizations */
+@media print {
+  @page {
     margin: 0;
-    padding: 0;
+    size: 80mm auto;
+  }
+  
+  .thermal-invoice {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* Ensure text is black and background white */
+  * {
+    color: black !important;
+    background: transparent !important;
+    background-color: white !important;
+  }
+  
+  /* Optimize for thermal paper */
+  .table-row {
+    break-inside: avoid;
   }
 }
