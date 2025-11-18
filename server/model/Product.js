@@ -42,6 +42,7 @@ productSchema.pre("save", function (next) {
   next();
 });
 
+
 // 🔥 AUTO-CALCULATE CATEGORY STOCK FROM SUBCATEGORIES
 categorySchema.pre('save', function(next) {
   if (this.subcategories && this.subcategories.length > 0) {
