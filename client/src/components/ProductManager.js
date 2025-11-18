@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/ProductManagement.css';
-
+   
 const ProductManagement = () => {
   // State management
   const [products, setProducts] = useState([]);
