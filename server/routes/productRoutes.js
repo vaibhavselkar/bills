@@ -2,112 +2,417 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../model/Product');
-const {auth}  = require("../middleware/auth");
 
-// Get all products
-// GET all products with categories
-router.get('/',  async (req, res) => {
+
+// GET /api/products - Fetch all products with sorting and filtering
+router.get('/', async (req, res) => {
   try {
-    const products = await Product.find(); // Your schema
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch products' });
+    const { search, sortBy, sortOrder = 'asc' } = req.query;
+    
+    let query = {};
+    
+    // Search functionality
+    if (search) {
+      query.product = { $regex: search, $options: 'i' };
+    }
+    
+    // Sort functionality
+    let sortOptions = {};
+    if (sortBy) {
+      sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    } else {
+      sortOptions.createdAt = -1; // Default sort by newest first
+    }
+    
+    const products = await Product.find(query)
+      .sort(sortOptions)
+      .lean();
+    
+    res.json({
+      success: true,
+      data: products,
+      count: products.length
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching products',
+      error: error.message
+    });
   }
 });
 
-
-
-router.post('/', auth, async (req, res) => {
-  const { product, categories } = req.body; // categories = [{ name, price }]
-  if (!product || !Array.isArray(categories)) {
-    return res.status(400).json({ error: 'Product and categories are required' });
-  }
-
-  let existingProduct = await Product.findOne({ product });
-
-  if (existingProduct) {
-    // Append new categories to the existing one
-    existingProduct.categories.push(...categories);
-    await existingProduct.save();
-    res.status(200).json({ message: 'Category added to existing product', product: existingProduct });
-  } else {
-    // Create a new product with categories
-    const newProduct = new Product({ product, categories });
-    await newProduct.save();
-    res.status(201).json({ message: 'New product created', product: newProduct });
+// GET /api/products/:id - Get single product by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).lean();
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: product
+    });
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product',
+      error: error.message
+    });
   }
 });
 
-// PUT /api/products/:productId
-router.put('/:productId', auth, async (req, res) => {
+// POST /api/products - Create new product
+router.post('/', async (req, res) => {
   try {
-    const { product } = req.body;
-    const updated = await Product.findByIdAndUpdate(
-      req.params.productId,
-      { product },
-      { new: true }
+    const { product, categories } = req.body;
+    
+    // Validation
+    if (!product || !product.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product name is required'
+      });
+    }
+    
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one category is required'
+      });
+    }
+    
+    // Validate categories
+    for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
+      
+      if (!category.name || !category.name.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: `Category name is required for category ${i + 1}`
+        });
+      }
+      
+      if (!category.price || category.price < 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Valid price is required for category "${category.name}"`
+        });
+      }
+      
+      // Validate subcategories if they exist
+      if (category.subcategories && Array.isArray(category.subcategories)) {
+        for (let j = 0; j < category.subcategories.length; j++) {
+          const subcategory = category.subcategories[j];
+          
+          if (!subcategory.sku || !subcategory.sku.trim()) {
+            return res.status(400).json({
+              success: false,
+              message: `SKU is required for subcategory ${j + 1} in category "${category.name}"`
+            });
+          }
+          
+          // Check for duplicate SKUs within the same category
+          const skuSet = new Set();
+          for (const subcat of category.subcategories) {
+            if (skuSet.has(subcat.sku)) {
+              return res.status(400).json({
+                success: false,
+                message: `Duplicate SKU "${subcat.sku}" found in category "${category.name}"`
+              });
+            }
+            skuSet.add(subcat.sku);
+          }
+        }
+      }
+    }
+    
+    // Check if product already exists
+    const existingProduct = await Product.findOne({ 
+      product: { $regex: new RegExp(`^${product.trim()}$`, 'i') } 
+    });
+    
+    if (existingProduct) {
+      return res.status(409).json({
+        success: false,
+        message: 'Product with this name already exists'
+      });
+    }
+    
+    const newProduct = new Product({
+      product: product.trim(),
+      categories: categories.map(cat => ({
+        name: cat.name.trim(),
+        price: parseFloat(cat.price),
+        stock: parseInt(cat.stock) || 0,
+        subcategories: (cat.subcategories || []).map(subcat => ({
+          design: subcat.design?.trim() || '',
+          color: subcat.color?.trim() || '',
+          size: subcat.size?.trim() || '',
+          sku: subcat.sku.trim(),
+          stock: parseInt(subcat.stock) || 0
+        }))
+      }))
+    });
+    
+    const savedProduct = await newProduct.save();
+    
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: savedProduct
+    });
+    
+  } catch (error) {
+    console.error('Error creating product:', error);
+    
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'Product with this name already exists'
+      });
+    }
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: errors
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error creating product',
+      error: error.message
+    });
+  }
+});
+
+// PUT /api/products/:id - Update product
+router.put('/:id', async (req, res) => {
+  try {
+    const { product, categories } = req.body;
+    
+    // Validation
+    if (!product || !product.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product name is required'
+      });
+    }
+    
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one category is required'
+      });
+    }
+    
+    // Validate categories (same as POST)
+    for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
+      
+      if (!category.name || !category.name.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: `Category name is required for category ${i + 1}`
+        });
+      }
+      
+      if (!category.price || category.price < 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Valid price is required for category "${category.name}"`
+        });
+      }
+      
+      // Validate subcategories if they exist
+      if (category.subcategories && Array.isArray(category.subcategories)) {
+        for (let j = 0; j < category.subcategories.length; j++) {
+          const subcategory = category.subcategories[j];
+          
+          if (!subcategory.sku || !subcategory.sku.trim()) {
+            return res.status(400).json({
+              success: false,
+              message: `SKU is required for subcategory ${j + 1} in category "${category.name}"`
+            });
+          }
+        }
+      }
+    }
+    
+    // Check if product name already exists (excluding current product)
+    const existingProduct = await Product.findOne({
+      product: { $regex: new RegExp(`^${product.trim()}$`, 'i') },
+      _id: { $ne: req.params.id }
+    });
+    
+    if (existingProduct) {
+      return res.status(409).json({
+        success: false,
+        message: 'Another product with this name already exists'
+      });
+    }
+    
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        product: product.trim(),
+        categories: categories.map(cat => ({
+          name: cat.name.trim(),
+          price: parseFloat(cat.price),
+          stock: parseInt(cat.stock) || 0,
+          subcategories: (cat.subcategories || []).map(subcat => ({
+            design: subcat.design?.trim() || '',
+            color: subcat.color?.trim() || '',
+            size: subcat.size?.trim() || '',
+            sku: subcat.sku.trim(),
+            stock: parseInt(subcat.stock) || 0
+          }))
+        }))
+      },
+      { new: true, runValidators: true }
     );
-
-    if (!updated) return res.status(404).json({ message: 'Product not found' });
-
-    res.json({ message: 'Product name updated', product: updated });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update product name' });
+    
+    if (!updatedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Product updated successfully',
+      data: updatedProduct
+    });
+    
+  } catch (error) {
+    console.error('Error updating product:', error);
+    
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID'
+      });
+    }
+    
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'Another product with this name already exists'
+      });
+    }
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: errors
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error updating product',
+      error: error.message
+    });
   }
 });
 
-
-
-
-// ✅ Update a category by index
-router.put('/:productId/category/:index', auth, async (req, res) => {
-  const { productId, index } = req.params;
-  const { name, price } = req.body;
-
+// DELETE /api/products/:id - Delete product
+router.delete('/:id', async (req, res) => {
   try {
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-
-    if (!product.categories[index]) {
-      return res.status(404).json({ message: 'Category index not found' });
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+    
+    if (!deletedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
     }
-
-    product.categories[index].name = name;
-    product.categories[index].price = price;
-    await product.save();
-
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to update category', error: err.message });
+    
+    res.json({
+      success: true,
+      message: 'Product deleted successfully',
+      data: deletedProduct
+    });
+    
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting product',
+      error: error.message
+    });
   }
 });
 
-// ✅ Delete a category by index
-router.delete('/:productId/category/:index', auth, async (req, res) => {
-  const { productId, index } = req.params;
-
+// PATCH /api/products/:id/categories - Add category to existing product
+router.patch('/:id/categories', async (req, res) => {
   try {
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-
-    if (!product.categories[index]) {
-      return res.status(404).json({ message: 'Category index not found' });
+    const { category } = req.body;
+    
+    if (!category || !category.name || !category.price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category name and price are required'
+      });
     }
-
-    product.categories.splice(index, 1);
-
-    // If no categories left, delete product
-    if (product.categories.length === 0) {
-      await Product.findByIdAndDelete(productId);
-      return res.json({ message: 'Product deleted because it had no more categories' });
+    
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $push: { categories: category } },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
     }
-
-    await product.save();
-    res.json({ message: 'Category deleted', product });
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to delete category', error: err.message });
+    
+    res.json({
+      success: true,
+      message: 'Category added successfully',
+      data: updatedProduct
+    });
+    
+  } catch (error) {
+    console.error('Error adding category:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error adding category',
+      error: error.message
+    });
   }
 });
-
 
 module.exports = router;
