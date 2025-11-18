@@ -9,7 +9,7 @@ import AdminDashboard from './components/AdminDashboard';
 import Tables from './components/TopSells.js';
 import Login from './components/Login.js';
 import Register from './components/Register';
-import { ForgetPassword, ResetPassword } from "./components/aa";
+import { ForgetPassword, ResetPassword } from "./components/ForgetResetPassword";
 import UserDashboard from './components/UserDashboard';
 import Logout from "./components/Logout";
 import UserTable from "./components/UserTable";
