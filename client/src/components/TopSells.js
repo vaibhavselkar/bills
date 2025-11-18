@@ -7,6 +7,7 @@ const TopProducts = () => {
   const [showAllRevenue, setShowAllRevenue] = useState(false);
   const [showAllQuantity, setShowAllQuantity] = useState(false);
 
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
