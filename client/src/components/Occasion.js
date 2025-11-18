@@ -7,7 +7,7 @@ const Occasion = () => {
 
   // 🟣 Fetch current active occasion
   useEffect(() => {
-    fetch("http://localhost:8080/api/get-occasion")
+    fetch("https://billing-app-server.vercel.app/api/get-occasion")
       .then((res) => res.json())
       .then((data) => setCurrentOccasion(data?.activeOccasion || ""))
       .catch((err) => console.error("Error fetching current occasion:", err));
@@ -17,7 +17,7 @@ const Occasion = () => {
 
   const fetchOccasionSummary = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/occasion-summary");
+      const res = await fetch("https://billing-app-server.vercel.app/api/occasion-summary");
       const data = await res.json();
       setOccasionSummary(data);
     } catch (err) {
@@ -27,7 +27,7 @@ const Occasion = () => {
 
   const handleSetOccasion = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/set-occasion", {
+      const res = await fetch("https://billing-app-server.vercel.app/api/set-occasion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ occasion }),
@@ -48,7 +48,7 @@ const Occasion = () => {
 
   const handleClearOccasion = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/clear-occasion", {
+      const res = await fetch("https://billing-app-server.vercel.app/api/clear-occasion", {
         method: "POST",
       });
       if (res.ok) {
