@@ -43,6 +43,7 @@ function App() {
         <Route path="top-sells" element={<Tables />} /> 
         <Route path="/admin-dashboard" element={<AdminDashboard />} />       
         <Route path="/users" element={<UserTable />} />
+          
       </Routes>
     </Router>
   );
