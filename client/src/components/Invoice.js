@@ -176,15 +176,15 @@ const Invoice = () => {
         }
 
         .thermal-invoice {
-          font-family: 'Courier New', monospace, 'Arial Narrow';
-          font-size: 13px;
-          line-height: 1.2;
+          font-family: 'Courier New', monospace;
+          font-size: 12px;
+          line-height: 1.1;
           color: #000;
           background: #fff;
-          padding: 15px;
-          border: 2px solid #333;
+          padding: 10px;
+          border: 1px solid #333;
           margin: 0 auto;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         /* Print Button */
@@ -192,12 +192,11 @@ const Invoice = () => {
           background: #333;
           color: white;
           border: none;
-          padding: 12px 24px;
-          border-radius: 4px;
+          padding: 10px 20px;
+          border-radius: 3px;
           cursor: pointer;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: bold;
-          border: 2px solid #000;
         }
 
         .print-button:hover {
@@ -207,57 +206,57 @@ const Invoice = () => {
         /* Header Styles */
         .invoice-header {
           text-align: center;
-          margin-bottom: 12px;
-          padding-bottom: 8px;
+          margin-bottom: 8px;
+          padding-bottom: 6px;
         }
 
         .company-logo {
-          margin-bottom: 8px;
+          margin-bottom: 6px;
         }
 
         .logo-text {
-          font-size: 20px;
+          font-size: 16px;
           font-weight: 900;
-          letter-spacing: 1px;
+          letter-spacing: 0.5px;
           text-transform: uppercase;
           margin-bottom: 2px;
           color: #000;
         }
 
         .tagline {
-          font-size: 11px;
+          font-size: 10px;
           font-weight: bold;
           color: #333;
-          margin-bottom: 4px;
+          margin-bottom: 3px;
         }
 
         .header-info {
-          margin-top: 6px;
+          margin-top: 4px;
         }
 
         .invoice-type {
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 900;
           text-transform: uppercase;
-          margin-bottom: 3px;
+          margin-bottom: 2px;
           color: #000;
         }
 
         .date-time {
-          font-size: 11px;
+          font-size: 10px;
           font-weight: bold;
           color: #333;
         }
 
         /* Section Styles */
         .section {
-          margin: 8px 0;
+          margin: 6px 0;
         }
 
         .section-row {
           display: flex;
           justify-content: space-between;
-          margin: 3px 0;
+          margin: 2px 0;
           font-weight: bold;
         }
 
@@ -272,12 +271,12 @@ const Invoice = () => {
 
         /* Divider Styles */
         .divider {
-          margin: 8px 0;
+          margin: 6px 0;
           border: none;
         }
 
         .divider.thick {
-          border-top: 3px solid #000;
+          border-top: 2px solid #000;
         }
 
         .divider.thin {
@@ -288,11 +287,11 @@ const Invoice = () => {
         .table-header {
           display: grid;
           grid-template-columns: 2fr 0.6fr 1fr 1fr;
-          gap: 4px;
+          gap: 3px;
           font-weight: 900;
           text-transform: uppercase;
-          font-size: 11px;
-          margin-bottom: 4px;
+          font-size: 10px;
+          margin-bottom: 3px;
         }
 
         .col-item { text-align: left; }
@@ -302,15 +301,15 @@ const Invoice = () => {
 
         /* Products List */
         .products-list {
-          margin: 6px 0;
+          margin: 4px 0;
         }
 
         .product-row {
           display: grid;
           grid-template-columns: 2fr 0.6fr 1fr 1fr;
-          gap: 4px;
-          margin: 4px 0;
-          padding: 3px 0;
+          gap: 3px;
+          margin: 3px 0;
+          padding: 2px 0;
           border-bottom: 1px dotted #666;
           font-weight: bold;
         }
@@ -318,105 +317,86 @@ const Invoice = () => {
         .product-name {
           font-weight: 900;
           color: #000;
+          font-size: 11px;
         }
 
         .product-category {
-          font-size: 10px;
+          font-size: 9px;
           color: #666;
           font-weight: normal;
         }
 
         /* Totals Section */
         .totals-section {
-          margin: 10px 0;
+          margin: 8px 0;
         }
 
         .total-row {
           display: flex;
           justify-content: space-between;
-          margin: 4px 0;
+          margin: 3px 0;
           font-weight: bold;
         }
 
         .main-total {
           font-weight: 900;
-          font-size: 14px;
-          border-top: 2px solid #000;
-          border-bottom: 2px solid #000;
-          padding: 6px 0;
-          margin: 8px 0;
+          font-size: 12px;
+          border-top: 1px solid #000;
+          border-bottom: 1px solid #000;
+          padding: 4px 0;
+          margin: 6px 0;
         }
 
         /* Payment Summary */
         .payment-summary {
-          margin: 10px 0;
+          margin: 8px 0;
         }
 
         .summary-row {
           display: flex;
           justify-content: space-between;
-          margin: 4px 0;
+          margin: 3px 0;
           font-weight: bold;
         }
 
         .grand-total {
           font-weight: 900;
-          font-size: 15px;
-          border-top: 2px solid #000;
-          border-bottom: 2px solid #000;
-          padding: 8px 0;
-          margin: 10px 0;
+          font-size: 13px;
+          border-top: 1px solid #000;
+          border-bottom: 1px solid #000;
+          padding: 5px 0;
+          margin: 8px 0;
         }
 
         /* Footer */
         .invoice-footer {
           text-align: center;
-          margin-top: 15px;
-          padding-top: 10px;
+          margin-top: 12px;
+          padding-top: 8px;
         }
 
         .thank-you {
           font-weight: 900;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
           font-style: italic;
-          font-size: 12px;
+          font-size: 11px;
         }
 
         .company-info {
-          font-size: 10px;
-          line-height: 1.3;
+          font-size: 9px;
+          line-height: 1.2;
           font-weight: bold;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
           color: #333;
         }
 
         .return-policy {
-          font-size: 9px;
+          font-size: 8px;
           font-weight: bold;
           color: #666;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
           border: 1px solid #999;
-          padding: 3px;
-        }
-
-        .barcode-section {
-          margin-top: 12px;
-          padding: 8px;
-          border: 2px solid #000;
-        }
-
-        .barcode-placeholder {
-          font-family: 'Courier New', monospace;
-          font-size: 16px;
-          font-weight: 900;
-          letter-spacing: 2px;
-          margin-bottom: 4px;
-        }
-
-        .barcode-text {
-          font-size: 10px;
-          font-weight: bold;
-          color: #333;
+          padding: 2px;
         }
 
         /* Thermal Printer Friendly Styles */
@@ -459,10 +439,11 @@ const Invoice = () => {
           .thermal-invoice {
             width: 58mm !important;
             max-width: 58mm !important;
+            min-width: 58mm !important;
             margin: 0 auto !important;
-            padding: 8px !important;
-            font-size: 11px !important;
-            line-height: 1.1 !important;
+            padding: 5px !important;
+            font-size: 10px !important;
+            line-height: 1 !important;
             border: none !important;
             box-shadow: none !important;
             background: white !important;
@@ -471,23 +452,52 @@ const Invoice = () => {
             font-weight: bold !important;
           }
 
-          /* Enhance darkness for print */
+          /* Reset all colors for print */
           .thermal-invoice * {
             color: black !important;
             background: transparent !important;
             font-weight: bold !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
           }
 
-          .logo-text,
-          .invoice-type,
+          /* Optimize for thermal printer */
+          .logo-text {
+            font-size: 14px !important;
+            font-weight: 900 !important;
+          }
+
+          .invoice-type {
+            font-size: 12px !important;
+          }
+
+          .product-name {
+            font-size: 10px !important;
+          }
+
           .main-total,
           .grand-total {
+            font-size: 11px !important;
             font-weight: 900 !important;
+          }
+
+          /* Remove any spacing issues */
+          .divider {
+            margin: 4px 0 !important;
+          }
+
+          .divider.thick {
+            border-top: 2px solid #000 !important;
+          }
+
+          .divider.thin {
+            border-top: 1px solid #000 !important;
           }
 
           @page {
             margin: 0;
             size: 58mm auto;
+            padding: 0;
           }
           
           body {
@@ -496,6 +506,12 @@ const Invoice = () => {
             background: white !important;
             color: black !important;
             font-family: 'Courier New', monospace !important;
+            width: 58mm !important;
+            min-width: 58mm !important;
+          }
+
+          html {
+            background: white !important;
           }
         }
       `}</style>
