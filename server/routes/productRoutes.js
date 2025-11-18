@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../model/Product');
 
-
 // GET /api/products - Fetch all products with sorting and filtering
 router.get('/', async (req, res) => {
   try {
