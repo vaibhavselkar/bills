@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/ViewBills.css';
 import Sidebar from "./Sidebar"; // import the navbar
-
 const ViewBills = () => {
   const [bills, setBills] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
