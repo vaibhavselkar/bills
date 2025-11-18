@@ -19,7 +19,7 @@ const TopProducts = () => {
     };
     fetchData();
   }, []);
-
+  
   const topRevenue = [...products].sort((a, b) => b.revenue - a.revenue);
   const displayedRevenue = showAllRevenue ? topRevenue : topRevenue.slice(0, 5);
 
