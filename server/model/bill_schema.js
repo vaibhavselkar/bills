@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 // Define product schema (for each product row in the bill)
 const productSchema = new mongoose.Schema({
 
-
     productId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Product',
@@ -49,4 +48,5 @@ const billSchema = new mongoose.Schema({
 
 // Create and export the model
 module.exports = mongoose.model('Bill', billSchema);
+
 
