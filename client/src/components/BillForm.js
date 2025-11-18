@@ -10,6 +10,7 @@ const BillForm = () => {
   const [productData, setProductData] = useState([]);
   const [toast, setToast] = useState({ message: '', type: '' });
   const [activeOccasion, setActiveOccasion] = useState('');
+
   
   // Product selection states
   const [selectedProduct, setSelectedProduct] = useState('');
