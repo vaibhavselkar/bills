@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "./Sidebar"; // import the navbar
-//import "../styles/Dashboard.css";
-
+import Sidebar from "./Sidebar";
 import {
   BarChart,
   Bar,
@@ -21,10 +19,21 @@ const Dashboard = () => {
   const [customers, setCustomers] = useState({ today: 0, month: 0, year: 0, custom: 0 });
   const [selected, setSelected] = useState("year");
   const [billData, setBillData] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // For custom date filter
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Close sidebar when an item is clicked
+  const handleSidebarItemClick = () => {
+    setIsSidebarOpen(false);
+  };
 
   // Fetch all data (for Today/Month/Year)
   useEffect(() => {
@@ -161,15 +170,40 @@ const Dashboard = () => {
     "#235d8fff",
   ];
 
-  return (
-    <div className="dashboard">
-      <Sidebar /> {/* Use Navbar component */}
+  // Main content styles that adjust based on sidebar state
+  const mainContentStyles = {
+    marginTop: "70px", // Fixed navbar height
+    marginLeft: isSidebarOpen ? "280px" : "0",
+    transition: "margin-left 0.3s ease",
+    padding: "30px",
+    minHeight: "calc(100vh - 70px)",
+    background: "linear-gradient(135deg, #2E8B57 0%, #20B2AA 100%)",
+  };
 
-        <main className="dashboard-main">
-          <h2>Dashboard</h2>
+  // Content container inside main
+  const contentContainerStyles = {
+    background: "rgba(255, 255, 255, 0.95)",
+    borderRadius: "15px",
+    padding: "30px",
+    boxShadow: "0 8px 25px rgba(0, 0, 0, 0.1)",
+    backdropFilter: "blur(10px)",
+    minHeight: "calc(100vh - 130px)"
+  };
+
+  return (
+    <div style={{ minHeight: "100vh" }}>
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onToggle={toggleSidebar}
+        onItemClick={handleSidebarItemClick}
+      />
+      
+      <main style={mainContentStyles}>
+        <div style={contentContainerStyles}>
+          <h2 style={{ marginBottom: "20px", color: "#333" }}>Dashboard</h2>
 
           {/* Time Selector */}
-          <div className="time-selector">
+          <div className="time-selector" style={{ marginBottom: "20px" }}>
             <button onClick={() => setSelected("year")} className={selected === "year" ? "active" : ""}>
               This Year
             </button>
@@ -185,16 +219,18 @@ const Dashboard = () => {
           </div>
 
           {/* Custom Date Picker */}
-          <div className="custom-date-filter">
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-            <button onClick={fetchCustomRange} disabled={!startDate || !endDate}>
-              Apply
-            </button>
-          </div>
+          {selected === "custom" && (
+            <div className="custom-date-filter" style={{ marginBottom: "20px" }}>
+              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              <button onClick={fetchCustomRange} disabled={!startDate || !endDate}>
+                Apply
+              </button>
+            </div>
+          )}
 
           {/* Stats */}
-          <div className="stats">
+          <div className="stats" style={{ marginBottom: "30px" }}>
             <div className="stat-card">
               <div className="icon">🛒</div>
               <div className="stat-value">{sales[selected]}</div>
@@ -251,7 +287,8 @@ const Dashboard = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </main>
+        </div>
+      </main>
     </div>
   );
 };
