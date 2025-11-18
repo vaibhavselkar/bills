@@ -7,7 +7,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
   const currentPath = location.pathname;
   const [openTables, setOpenTables] = useState(false);
   const [username, setUsername] = useState("Loading...");
-
+    
   useEffect(() => {
     const fetchUser = async () => {
       try {
