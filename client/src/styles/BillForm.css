@@ -1,95 +1,419 @@
-body {
-  font-family: 'Poppins', sans-serif;
-  background: #f5f5f5;
-}
-
-
 .bill-container {
-  width: 650px;
-  margin: 20px auto;
-  padding: 30px;
-  background-color: #ffffff;
-  border-radius: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8f9fa;
+  min-height: 100vh;
 }
 
-
-
-.total-amount {
-  font-size: 18px;
-  font-weight: bold;
-  text-align: right;
-  margin-bottom: 20px;
-}
-
-.buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-button {
-  background-color: #43087a; /* Or your preferred shade */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-button:hover {
-  background-color: #6a0dad; /* Slightly darker purple for hover */
-}
-
-table thead th {
-  background-color: rgb(44, 20, 90);
-  color: white;
-  padding: 8px;
-  text-align: center;
-}
-
-input, select {
-  padding: 8px;
-  width: 95%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-input:focus, select:focus {
-  border-color: #007BFF;
-}
-
-.qr-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.qr-container img {
-  width: 120px;
-  height: auto;
-}
-
-.footer {
-  margin-top: 30px;
-  font-size: 12px;
-  color: #070707;
-  text-align: center;
-}
-
-.delete-btn {
-  color: #d75d69;
-}
-
+/* Toast Notifications */
 .toast {
   position: fixed;
   top: 20px;
   right: 20px;
+  padding: 12px 20px;
+  background: #4CAF50;
   color: white;
-  padding: 15px 25px;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 1000;
 }
 
 .toast.error {
-  background-color: #f1e5e6;
+  background: #f44336;
+}
+
+/* Occasion Banner */
+.occasion-banner {
+  background: #f8f3ff;
+  border: 2px solid #a679ff;
+  color: #4b0082;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  color: #32126e;
+  font-size: 2.2rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Customer Info */
+.customer-info {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.input-group {
+  flex: 1;
+  min-width: 250px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: #32126e;
+}
+
+/* Product Selection Section */
+.product-selection-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+.product-selection-section h3 {
+  margin-bottom: 25px;
+  color: #32126e;
+  font-size: 1.4rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+/* Selection Groups */
+.selection-group {
+  margin-bottom: 25px;
+}
+
+.selection-group label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+/* Button Groups */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selection-btn {
+  padding: 12px 20px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.selection-btn:hover {
+  border-color: #32126e;
+  background: #f8f9ff;
+  transform: translateY(-2px);
+}
+
+.selection-btn.active {
+  background: #32126e;
+  color: white;
+  border-color: #32126e;
+}
+
+/* Price Quantity Section */
+.price-quantity-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 25px 0;
+}
+
+.input-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.input-row .input-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+.input-row .input-group label {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.input-row .input-group input,
+.input-row .input-group select {
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* Add to Bill Button */
+.add-to-bill-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+
+.add-to-bill-btn:hover {
+  background: #218838;
+}
+
+/* Bill Items Section */
+.bill-items-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+.bill-items-section h3 {
+  margin-bottom: 20px;
+  color: #32126e;
+  font-size: 1.4rem;
+}
+
+.bill-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.bill-items-table th {
+  background: #32126e;
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.bill-items-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
+/* Payment Section */
+.payment-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+.payment-method {
+  margin-bottom: 20px;
+}
+
+.payment-method label {
+  font-weight: 600;
+  margin-right: 15px;
+  color: #333;
+}
+
+.payment-method select {
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.qr-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.qr-code {
+  max-width: 200px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
+}
+
+.grand-total {
+  font-size: 1.5rem;
+  text-align: center;
+  color: #32126e;
+  font-weight: 700;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.save-btn {
+  background: #32126e;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 150px;
+}
+
+.save-btn:hover {
+  background: #4a1f9c;
+}
+
+.back-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 150px;
+}
+
+.back-btn:hover {
+  background: #5a6268;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  border-top: 1px solid #ddd;
+  margin-top: 30px;
+  line-height: 1.6;
+}
+
+.footer a {
+  color: #32126e;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bill-container {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .customer-info {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .button-group {
+    gap: 8px;
+  }
+  
+  .selection-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .input-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .bill-items-table {
+    font-size: 14px;
+  }
+  
+  .bill-items-table th,
+  .bill-items-table td {
+    padding: 8px 10px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .save-btn,
+  .back-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-selection-section,
+  .bill-items-section,
+  .payment-section {
+    padding: 15px;
+  }
+  
+  .selection-btn {
+    flex: 1;
+    min-width: calc(50% - 8px);
+  }
 }
