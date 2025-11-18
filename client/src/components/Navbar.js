@@ -8,6 +8,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
+  
   // Fetch logged-in user details
   useEffect(() => {
     const fetchUserData = async () => {
