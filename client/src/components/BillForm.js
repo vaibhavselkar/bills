@@ -38,7 +38,7 @@ const BillForm = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:8080/api/products", {
+        const response = await fetch("https://bills-weld.vercel.app/api/products", {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -79,7 +79,7 @@ const BillForm = () => {
     const fetchOccasion = async () => {
       try {
         const token = getAuthToken();
-        const response = await fetch("http://localhost:8080/api/get-occasion", {
+        const response = await fetch("https://bills-weld.vercel.app/api/get-occasion", {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -236,7 +236,7 @@ const BillForm = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/", { 
+      const res = await fetch("https://bills-weld.vercel.app/api/", { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
