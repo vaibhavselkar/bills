@@ -48,10 +48,10 @@ const Invoice = () => {
 
           {/* Thermal Invoice */}
           <div className="thermal-invoice">
+            {/* Header */}
             <div className="invoice-header">
               <div className="logo-text">SANGHAMITRA</div>
               <div className="tagline">Business Incubator</div>
-              <div className="invoice-type">TAX INVOICE</div>
               <div className="date-time">
                 {new Date(bill.date).toLocaleDateString('en-GB')}{" "}
                 {new Date(bill.date).toLocaleTimeString('en-IN', {
@@ -62,13 +62,15 @@ const Invoice = () => {
               </div>
             </div>
 
+            {/* Customer Info - same line */}
             <div className="customer-section">
-              <div className="customer-label">Customer:</div>
-              <div className="customer-name">{bill.customerName}</div>
+              <span className="customer-label">Customer:</span>
+              <span className="customer-name"> {bill.customerName}</span>
             </div>
 
             <div className="divider-line">═══════════════════════════════════</div>
 
+            {/* Table Header */}
             <div className="table-header">
               <div className="th-item">ITEM</div>
               <div className="th-qty">QTY</div>
@@ -78,6 +80,7 @@ const Invoice = () => {
 
             <div className="divider-line">───────────────────────────────────</div>
 
+            {/* Products */}
             <div className="products-list">
               {bill.products.map((p, i) => (
                 <div key={i} className="product-row">
@@ -94,7 +97,7 @@ const Invoice = () => {
 
             <div className="divider-line">═══════════════════════════════════</div>
 
-            {/* Total Row (Items + Qty same line) */}
+            {/* Totals in same line */}
             <div className="summary-row single-line">
               <span>Total Items: {totalItems}</span>
               <span>Total Qty: {totalQty}</span>
@@ -110,20 +113,17 @@ const Invoice = () => {
 
             <div className="divider-line">═══════════════════════════════════</div>
 
-            {/* Footer with QR beside business details */}
+            {/* Footer with QR beside contact */}
             <div className="invoice-footer">
               <div className="thank-you">Thank you for your business!</div>
-
               <div className="footer-row">
                 <div className="company-details">
                   <div><b>Sanghamitra Business Incubator</b></div>
                   <div><b>Contact:</b> +91 9234567890</div>
                   <div><b>sanghamitra.store</b></div>
                 </div>
-
-                {/* QR Code Image (saved in frontend assets or state) */}
                 <img
-                  src="/sanghamitra_qr.png" // replace with your actual local QR path (e.g., public/qr.png)
+                  src="/sanghamitra_qr.png" // path in public/qr.png
                   alt="QR Code"
                   className="qr-code"
                 />
@@ -134,7 +134,7 @@ const Invoice = () => {
       </div>
 
       <style jsx>{`
-        /* Screen Styles */
+        /* Layout */
         .invoice-page {
           display: flex;
           justify-content: center;
@@ -158,9 +158,10 @@ const Invoice = () => {
           box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
+        /* Header */
         .invoice-header {
           text-align: center;
-          margin-bottom: 12px;
+          margin-bottom: 8px;
         }
 
         .logo-text {
@@ -171,12 +172,7 @@ const Invoice = () => {
         .tagline {
           font-size: 12px;
           font-weight: 700;
-        }
-
-        .invoice-type {
-          font-size: 16px;
-          font-weight: 900;
-          margin: 5px 0;
+          margin-bottom: 5px;
         }
 
         .date-time {
@@ -184,43 +180,50 @@ const Invoice = () => {
           font-weight: 700;
         }
 
+        /* Customer */
         .customer-section {
-          text-align: left;
-          margin: 10px 0;
+          font-size: 14px;
+          font-weight: 800;
+          margin: 8px 0;
+          display: flex;
+          justify-content: flex-start;
         }
 
         .customer-label {
-          font-size: 13px;
-          font-weight: 700;
+          font-weight: 900;
         }
 
         .customer-name {
-          font-size: 15px;
           font-weight: 900;
         }
 
+        /* Divider */
         .divider-line {
           text-align: center;
           font-size: 12px;
-          margin: 8px 0;
+          margin: 6px 0;
+        }
+
+        /* Table Alignment */
+        .table-header,
+        .product-row {
+          display: grid;
+          grid-template-columns: 2.4fr 0.8fr 1.2fr 1.2fr;
+          text-align: center;
+          align-items: center;
         }
 
         .table-header {
-          display: grid;
-          grid-template-columns: 2.5fr 0.8fr 1.2fr 1.2fr;
-          font-weight: 900;
           font-size: 13px;
-          text-align: center;
+          font-weight: 900;
         }
 
-        .th-item { text-align: left; }
+        .th-item {
+          text-align: left;
+        }
 
-        .product-row {
-          display: grid;
-          grid-template-columns: 2.5fr 0.8fr 1.2fr 1.2fr;
-          font-size: 13px;
-          font-weight: 700;
-          margin: 5px 0;
+        .product-info {
+          text-align: left;
         }
 
         .product-name {
@@ -229,11 +232,19 @@ const Invoice = () => {
         }
 
         .product-category {
-          font-size: 11px;
-          font-weight: 800;
+          font-size: 12px;
+          font-weight: 900;
           color: #333;
         }
 
+        .product-qty,
+        .product-price,
+        .product-total {
+          font-weight: 800;
+          font-size: 13px;
+        }
+
+        /* Totals */
         .summary-row.single-line {
           display: flex;
           justify-content: space-between;
@@ -243,7 +254,7 @@ const Invoice = () => {
 
         .total-amount-section {
           text-align: right;
-          margin-top: 10px;
+          margin-top: 8px;
         }
 
         .total-label {
@@ -256,9 +267,15 @@ const Invoice = () => {
           font-weight: 900;
         }
 
+        /* Footer */
         .invoice-footer {
           text-align: center;
           margin-top: 15px;
+        }
+
+        .thank-you {
+          font-weight: 900;
+          font-size: 13px;
         }
 
         .footer-row {
@@ -282,12 +299,7 @@ const Invoice = () => {
           margin-left: 10px;
         }
 
-        .thank-you {
-          font-weight: 900;
-          font-size: 13px;
-        }
-
-        /* Print Styles for Thermal Printer */
+        /* Print */
         @media print {
           body * { visibility: hidden; }
           .invoice-page, .invoice-page * { visibility: visible; }
@@ -326,7 +338,6 @@ const Invoice = () => {
           }
 
           .logo-text { font-size: 18px !important; }
-          .invoice-type { font-size: 13px !important; }
           .product-name { font-size: 12px !important; }
           .product-category { font-weight: 900 !important; }
           .total-value { font-size: 15px !important; }
