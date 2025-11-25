@@ -23,7 +23,7 @@ export const ForgetPassword = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080/api/user/forgot-password', {
+      const res = await fetch('https://bills-weld.vercel.app/api/user/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -66,7 +66,7 @@ export const ForgetPassword = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080/api/user/reset-password', {
+      const res = await fetch('https://bills-weld.vercel.app/api/user/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword })
