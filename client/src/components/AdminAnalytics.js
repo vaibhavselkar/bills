@@ -46,7 +46,7 @@ const BillingChart = () => {
     const fetchBillingData = async () => {
       try {
         const token = localStorage.getItem("token"); // token saved on login
-        const response = await fetch("http://localhost:8080/api/", {
+        const response = await fetch("https://bills-weld.vercel.app/api/", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
