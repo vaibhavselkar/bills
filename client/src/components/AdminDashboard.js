@@ -41,7 +41,7 @@ const Dashboard = () => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8080/api/user/me", {
+        const res = await fetch("https://bills-weld.vercel.app/api/user/me", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -61,7 +61,7 @@ const Dashboard = () => {
     const fetchBills = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8080/api/", {
+        const res = await fetch("https://bills-weld.vercel.app/api/", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -119,7 +119,7 @@ const Dashboard = () => {
   const fetchCustomRange = () => {
     if (!startDate || !endDate) return;
 
-    fetch(`http://localhost:8080/api/?startDate=${startDate}&endDate=${endDate}`)
+    fetch(`https://bills-weld.vercel.app/api/?startDate=${startDate}&endDate=${endDate}`)
       .then((res) => res.json())
       .then((data) => {
         setBillData(data);
