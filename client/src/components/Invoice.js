@@ -30,7 +30,8 @@ const Invoice = () => {
 
   const handlePrint = () => window.print();
 
-  if (!bill) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading invoice...</div>;
+  if (!bill)
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading invoice...</div>;
 
   const totalQty = bill.products.reduce((sum, p) => sum + (p.quantity || 0), 0);
   const totalItems = bill.products.length;
@@ -53,7 +54,11 @@ const Invoice = () => {
               <div className="invoice-type">TAX INVOICE</div>
               <div className="date-time">
                 {new Date(bill.date).toLocaleDateString('en-GB')}{" "}
-                {new Date(bill.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                {new Date(bill.date).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
               </div>
             </div>
 
@@ -78,7 +83,7 @@ const Invoice = () => {
                 <div key={i} className="product-row">
                   <div className="product-info">
                     <div className="product-name">{p.product}</div>
-                    <div className="product-category">{p.category}</div>
+                    <div className="product-category"><b>{p.category}</b></div>
                   </div>
                   <div className="product-qty">{p.quantity}</div>
                   <div className="product-price">₹{p.price?.toFixed(2)}</div>
@@ -89,13 +94,15 @@ const Invoice = () => {
 
             <div className="divider-line">═══════════════════════════════════</div>
 
-            <div className="summary-section">
-              <div className="summary-row"><span>Total Items:</span><span>{totalItems}</span></div>
-              <div className="summary-row"><span>Total Qty:</span><span>{totalQty}</span></div>
+            {/* Total Row (Items + Qty same line) */}
+            <div className="summary-row single-line">
+              <span>Total Items: {totalItems}</span>
+              <span>Total Qty: {totalQty}</span>
             </div>
 
             <div className="divider-line">───────────────────────────────────</div>
 
+            {/* Total Amount */}
             <div className="total-amount-section">
               <div className="total-label">TOTAL AMOUNT:</div>
               <div className="total-value">₹{bill.totalAmount?.toFixed(2)}</div>
@@ -103,28 +110,31 @@ const Invoice = () => {
 
             <div className="divider-line">═══════════════════════════════════</div>
 
-            <div className="grand-total-section">
-              <div className="grand-label">GRAND TOTAL:</div>
-              <div className="grand-value">₹{bill.totalAmount?.toFixed(2)}</div>
-            </div>
-
-            <div className="divider-line">═══════════════════════════════════</div>
-
+            {/* Footer with QR beside business details */}
             <div className="invoice-footer">
               <div className="thank-you">Thank you for your business!</div>
-              <div className="company-details">
-                <div>Sanghamitra Business Incubator</div>
-                <div>Contact: +91 9234567890</div>
-                <div>sanghamitra.store</div>
+
+              <div className="footer-row">
+                <div className="company-details">
+                  <div><b>Sanghamitra Business Incubator</b></div>
+                  <div><b>Contact:</b> +91 9234567890</div>
+                  <div><b>sanghamitra.store</b></div>
+                </div>
+
+                {/* QR Code Image (saved in frontend assets or state) */}
+                <img
+                  src="/sanghamitra_qr.png" // replace with your actual local QR path (e.g., public/qr.png)
+                  alt="QR Code"
+                  className="qr-code"
+                />
               </div>
-              <div className="footer-note">Goods sold are not returnable</div>
             </div>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        /* MAIN LAYOUT */
+        /* Screen Styles */
         .invoice-page {
           display: flex;
           justify-content: center;
@@ -220,29 +230,28 @@ const Invoice = () => {
 
         .product-category {
           font-size: 11px;
-          color: #555;
+          font-weight: 800;
+          color: #333;
         }
 
-        .summary-section,
-        .total-amount-section,
-        .grand-total-section {
+        .summary-row.single-line {
+          display: flex;
+          justify-content: space-between;
+          font-size: 14px;
+          font-weight: 800;
+        }
+
+        .total-amount-section {
           text-align: right;
           margin-top: 10px;
         }
 
-        .summary-row {
-          display: flex;
-          justify-content: space-between;
-          font-size: 13px;
-          font-weight: 700;
-        }
-
-        .total-label, .grand-label {
+        .total-label {
           font-size: 16px;
           font-weight: 900;
         }
 
-        .total-value, .grand-value {
+        .total-value {
           font-size: 18px;
           font-weight: 900;
         }
@@ -252,26 +261,33 @@ const Invoice = () => {
           margin-top: 15px;
         }
 
-        .thank-you {
-          font-weight: 900;
-          margin-bottom: 8px;
+        .footer-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 10px;
         }
 
         .company-details {
+          text-align: left;
           font-size: 12px;
           font-weight: 700;
+          flex: 1;
         }
 
-        .footer-note {
-          font-size: 11px;
-          font-weight: 700;
-          border: 1px solid #000;
-          padding: 4px;
-          display: inline-block;
-          margin-top: 6px;
+        .qr-code {
+          width: 2cm;
+          height: 2cm;
+          object-fit: contain;
+          margin-left: 10px;
         }
 
-        /* PRINT STYLES */
+        .thank-you {
+          font-weight: 900;
+          font-size: 13px;
+        }
+
+        /* Print Styles for Thermal Printer */
         @media print {
           body * { visibility: hidden; }
           .invoice-page, .invoice-page * { visibility: visible; }
@@ -286,13 +302,12 @@ const Invoice = () => {
             width: 80mm;
             margin: 0;
             padding: 0;
+            background: white;
           }
 
           .invoice-page {
-            position: fixed;
-            left: 0;
-            top: 0;
             width: 80mm;
+            padding: 0;
           }
 
           .thermal-invoice {
@@ -305,11 +320,16 @@ const Invoice = () => {
             line-height: 1.3;
           }
 
+          .qr-code {
+            width: 2cm;
+            height: 2cm;
+          }
+
           .logo-text { font-size: 18px !important; }
-          .tagline { font-size: 10px !important; }
           .invoice-type { font-size: 13px !important; }
           .product-name { font-size: 12px !important; }
-          .total-value, .grand-value { font-size: 15px !important; }
+          .product-category { font-weight: 900 !important; }
+          .total-value { font-size: 15px !important; }
         }
       `}</style>
     </>
