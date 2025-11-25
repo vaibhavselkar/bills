@@ -5,6 +5,15 @@ const ViewBills = () => {
   const [bills, setBills] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSidebarItemClick = () => {
+    setIsSidebarOpen(false);
+  };
 
   useEffect(() => {
     fetchBills();
@@ -12,7 +21,7 @@ const ViewBills = () => {
 
   const fetchBills = async () => {
     try {
-      const response = await fetch('https://billing-app-server.vercel.app/api/', {
+      const response = await fetch('http://localhost:8080/api/', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -45,8 +54,20 @@ const ViewBills = () => {
 
   return (
     <div className="dashboard">
-      <Sidebar /> {/* Use Navbar component */}
-
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onToggle={toggleSidebar}
+        onItemClick={handleSidebarItemClick}
+      />
+      
+      <main style={{
+        marginTop: "70px",
+        marginLeft: isSidebarOpen ? "280px" : "0",
+        transition: "margin-left 0.3s ease",
+        padding: "30px",
+        minHeight: "calc(100vh - 70px)"
+      }}>
+      
     
     <div className="admin-container">
       <div className="stats">
@@ -111,6 +132,7 @@ const ViewBills = () => {
         </tbody>
       </table>
     </div>
+    </main>
     </div>
   );
 };

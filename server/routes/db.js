@@ -217,29 +217,55 @@ router.get("/top-products", async (req, res) => {
   }
 });
 
-
-// 🟢 Set or update current active occasion
-router.post("/set-occasion", async (req, res) => {
+// 🟢 Set or update current active occasion (with auth and tenantId)
+router.post("/set-occasion", auth, async (req, res) => {
   try {
-    const { occasion } = req.body; // <-- changed from activeOccasion
+    const { occasion } = req.body;
 
-    let occasionDoc = await Occasion.findOne();
-    if (!occasionDoc) occasionDoc = new Occasion();
+    if (!occasion || !occasion.trim()) {
+      return res.status(400).json({ message: "Occasion name is required" });
+    }
 
-    occasionDoc.activeOccasion = occasion;
+    let occasionDoc = await Occasion.findOne({ 
+      tenantId: req.user.tenantId // 🔥 Find by tenant
+    });
+
+    if (!occasionDoc) {
+      // Create new occasion document for this tenant
+      occasionDoc = new Occasion({
+        tenantId: req.user.tenantId,
+        activeOccasion: occasion.trim(),
+        createdBy: {
+          userId: req.user._id,
+          name: req.user.name,
+          email: req.user.email
+        }
+      });
+    } else {
+      // Update existing occasion
+      occasionDoc.activeOccasion = occasion.trim();
+      occasionDoc.updatedAt = new Date();
+    }
+
     await occasionDoc.save();
 
-    res.json({ message: "Occasion updated successfully", activeOccasion: occasion });
+    res.json({ 
+      message: "Occasion updated successfully", 
+      activeOccasion: occasion.trim() 
+    });
   } catch (error) {
     console.error("Error setting occasion:", error);
     res.status(500).json({ message: "Failed to set occasion" });
   }
 });
 
-// 🟣 Get current active occasion
-router.get("/get-occasion", async (req, res) => {
+// 🟣 Get current active occasion (with auth and tenantId)
+router.get("/get-occasion", auth, async (req, res) => {
   try {
-    const occasion = await Occasion.findOne();
+    const occasion = await Occasion.findOne({ 
+      tenantId: req.user.tenantId // 🔥 Get for user's tenant
+    });
+    
     res.json(occasion || { activeOccasion: "" });
   } catch (error) {
     console.error("Error fetching occasion:", error);
@@ -247,13 +273,31 @@ router.get("/get-occasion", async (req, res) => {
   }
 });
 
-// 🔴 Clear occasion (you’re calling this from React)
-router.post("/clear-occasion", async (req, res) => {
+// 🔴 Clear occasion (with auth and tenantId)
+router.post("/clear-occasion", auth, async (req, res) => {
   try {
-    let occasionDoc = await Occasion.findOne();
-    if (!occasionDoc) occasionDoc = new Occasion();
-    occasionDoc.activeOccasion = "";
+    let occasionDoc = await Occasion.findOne({ 
+      tenantId: req.user.tenantId // 🔥 Find by tenant
+    });
+
+    if (!occasionDoc) {
+      // Create empty occasion document if doesn't exist
+      occasionDoc = new Occasion({
+        tenantId: req.user.tenantId,
+        activeOccasion: "",
+        createdBy: {
+          userId: req.user._id,
+          name: req.user.name,
+          email: req.user.email
+        }
+      });
+    } else {
+      occasionDoc.activeOccasion = "";
+      occasionDoc.updatedAt = new Date();
+    }
+
     await occasionDoc.save();
+    
     res.json({ message: "Occasion cleared" });
   } catch (error) {
     console.error("Error clearing occasion:", error);
@@ -261,22 +305,51 @@ router.post("/clear-occasion", async (req, res) => {
   }
 });
 
-
-// 🟢 Get all occasions with their bill counts and users
-router.get("/occasion-summary", async (req, res) => {
+// 🟢 Get all occasions with their bill counts and users (tenant-specific)
+router.get("/occasion-summary", auth, async (req, res) => {
   try {
+    // Build base filter for bills with occasions
+    let matchFilter = { 
+      occasion: { $ne: "" } 
+    };
+
+    // If user is not admin, only show their own bills
+    if (req.user.role !== "admin") {
+      matchFilter.user = req.user._id;
+    }
+
     // Get all distinct occasions from bills
     const occasions = await Bill.aggregate([
       {
-        $match: { occasion: { $ne: "" } }, // only bills with an occasion
+        $match: matchFilter
+      },
+      {
+        $lookup: {
+          from: "users", // Join with users collection
+          localField: "user",
+          foreignField: "_id",
+          as: "userDetails"
+        }
+      },
+      {
+        $unwind: "$userDetails"
+      },
+      {
+        $match: {
+          "userDetails.tenantId": req.user.tenantId // 🔥 Filter by tenant
+        }
       },
       {
         $group: {
           _id: "$occasion",
           totalBills: { $sum: 1 },
-          users: { $addToSet: "$user" }, // collect unique users
-        },
+          totalRevenue: { $sum: "$totalAmount" },
+          users: { $addToSet: "$user" } // collect unique users
+        }
       },
+      {
+        $sort: { totalBills: -1 } // Sort by most bills
+      }
     ]);
 
     // Populate user details (name, email)
@@ -288,7 +361,6 @@ router.get("/occasion-summary", async (req, res) => {
 
     res.json(populated);
   } catch (error) {
-    console.error("Error fetching occasion summary:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

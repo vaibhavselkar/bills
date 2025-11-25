@@ -12,7 +12,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("https://billing-app-server.vercel.app/api/user/me", {
+        const response = await fetch("http://localhost:8080/api/user/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -37,6 +37,13 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
   const handleNavigation = (path) => {
     navigate(path);
     onItemClick(); // Close sidebar after clicking an item
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/");
+    onItemClick();
   };
 
   // Fixed navbar styles
@@ -168,6 +175,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
       border: isActive ? "1px solid rgba(46, 139, 87, 0.2)" : "1px solid transparent",
       fontWeight: isActive ? "600" : "500",
       fontSize: "0.95rem",
+      cursor: "pointer",
       "&:hover": {
         background: isActive ? "rgba(46, 139, 87, 0.15)" : "rgba(0, 0, 0, 0.03)"
       }
@@ -292,6 +300,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
               <span>📄</span>
               <span>View Bills</span>
             </a>
+
             <a
               href="/admin-analytics"
               style={getLinkStyles("/admin-analytics")}
@@ -303,6 +312,19 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
               <span>📊</span>
               <span>Analytics</span>
             </a>
+
+            <a
+              href="/bill"
+              style={getLinkStyles("/bill")}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigation("/bill");
+              }}
+            >
+              <span>🧾</span>
+              <span>Create Bill</span>
+            </a>
+
             <a
               href="/products"
               style={getLinkStyles("/products")}
@@ -323,7 +345,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
               style={dropdownLinkStyles}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <span>🧾</span>
+                <span>📋</span>
                 <span>Tables</span>
               </div>
               <span>{openTables ? "▲" : "▼"}</span>
@@ -332,14 +354,14 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
             {openTables && (
               <div style={dropdownMenuStyles}>
                 <a
-                  href="/tables"
-                  style={getLinkStyles("/tables")}
+                  href="/top-sells"
+                  style={getLinkStyles("/top-sells")}
                   onClick={(e) => {
                     e.preventDefault();
-                    handleNavigation("/tables");
+                    handleNavigation("/top-sells");
                   }}
                 >
-                  <span>📦</span>
+                  <span>💰</span>
                   <span>Selling Data</span>
                 </a>
                 <a
@@ -356,51 +378,27 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
               </div>
             )}
 
-            {/* Additional menu items to demonstrate scrolling */}
             <a
-              href="/settings"
-              style={getLinkStyles("/settings")}
+              href="/occasion"
+              style={getLinkStyles("/occasion")}
               onClick={(e) => {
                 e.preventDefault();
-                handleNavigation("/settings");
+                handleNavigation("/occasion");
               }}
             >
-              <span>⚙️</span>
-              <span>Settings</span>
+              <span>🎉</span>
+              <span>Occasion</span>
             </a>
-            <a
-              href="/reports"
-              style={getLinkStyles("/reports")}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigation("/reports");
-              }}
+
+            <div style={sectionHeaderStyles}>ACCOUNT</div>
+
+            <div
+              style={getLinkStyles("/logout")}
+              onClick={handleLogout}
             >
-              <span>📋</span>
-              <span>Reports</span>
-            </a>
-            <a
-              href="/backup"
-              style={getLinkStyles("/backup")}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigation("/backup");
-              }}
-            >
-              <span>💾</span>
-              <span>Backup</span>
-            </a>
-            <a
-              href="/help"
-              style={getLinkStyles("/help")}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigation("/help");
-              }}
-            >
-              <span>❓</span>
-              <span>Help & Support</span>
-            </a>
+              <span>🚪</span>
+              <span>Logout</span>
+            </div>
           </nav>
 
           {/* Sidebar Footer */}
@@ -430,8 +428,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
 
       {/* Global scrollbar styles */}
       <style>
-        {`
-          /* Custom scrollbar for Webkit browsers */
+      {`
           .sidebar-content::-webkit-scrollbar {
             width: 6px;
           }
@@ -441,16 +438,20 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
           }
           .sidebar-content::-webkit-scrollbar-thumb {
             background: rgba(46, 139, 87, 0.3);
-            border-radius: 3px;
+            borderRadius: 3px;
           }
           .sidebar-content::-webkit-scrollbar-thumb:hover {
             background: rgba(46, 139, 87, 0.5);
           }
-
-          /* Custom scrollbar for Firefox */
           .sidebar-content {
             scrollbar-width: thin;
             scrollbar-color: rgba(46, 139, 87, 0.3) transparent;
+          }
+
+          @media (max-width: 767px) {
+            .user-info-text {
+              display: none;
+            }
           }
         `}
       </style>
@@ -459,4 +460,3 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
 };
 
 export default Sidebar;
-

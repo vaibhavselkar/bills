@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// App.js
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import BillForm from './components/BillForm';
 import ViewBills from './components/ViewBills';
 import Invoice from './components/Invoice.js';
@@ -17,33 +18,225 @@ import UserBill from "./components/UserBill";
 import EachUserBill from "./components/EachUserBill";
 import Occasion from './components/Occasion';
 
+// Check if user is authenticated
+const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
+
+// Get user role
+const getUserRole = () => {
+  return localStorage.getItem('role');
+};
+
+// Protected Route - requires authentication
+const ProtectedRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
+// Admin Route - requires admin role
+const AdminRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
+  
+  if (getUserRole() !== 'admin') {
+    return <Navigate to="/user-dashboard" replace />;
+  }
+  
+  return children;
+};
+
+// User Route - requires user role
+const UserRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
+  
+  if (getUserRole() !== 'user') {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+  
+  return children;
+};
+
+// Public Route - redirect if already logged in
+const PublicRoute = ({ children }) => {
+  if (isAuthenticated()) {
+    const role = getUserRole();
+    return <Navigate to={role === 'admin' ? '/admin-dashboard' : '/user-dashboard'} replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes without sidebar */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgetPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/invoice/:id" element={<Invoice />} />
+        {/* ========== PUBLIC ROUTES ========== */}
+        <Route 
+          path="/" 
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          } 
+        />
+        
+        <Route 
+          path="/register" 
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          } 
+        />
+        
+        <Route 
+          path="/forgot-password" 
+          element={
+            <PublicRoute>
+              <ForgetPassword />
+            </PublicRoute>
+          } 
+        />
+        
+        <Route 
+          path="/reset-password/:token" 
+          element={
+            <PublicRoute>
+              <ResetPassword />
+            </PublicRoute>
+          } 
+        />
 
-        {/* User routes without sidebar */}
-        <Route path="/user-dashboard" element={<UserDashboard />} />
-        <Route path="/bill" element={<BillForm />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/user-bills" element={<UserBill />} />
-        <Route path="/each-bills/:userId" element={<EachUserBill />} />
-        <Route path="/occasion" element={<Occasion />} />
-        <Route path="/products" element={<ProductManager />} />
-    
-        <Route path="/view" element={<ViewBills />} />
-        <Route path="/admin-analytics" element={<AdminAnalytics />} />
-        <Route path="top-sells" element={<Tables />} /> 
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />       
-        <Route path="/users" element={<UserTable />} />
-          
+        {/* ========== LOGOUT ROUTE ========== */}
+        <Route path="/logout" element={<Logout />} />
+
+        {/* ========== ADMIN ONLY ROUTES ========== */}
+        <Route 
+          path="/admin-dashboard" 
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } 
+        />
+        
+        <Route 
+          path="/view" 
+          element={
+            <AdminRoute>
+              <ViewBills />
+            </AdminRoute>
+          } 
+        />
+        
+        <Route 
+          path="/admin-analytics" 
+          element={
+            <AdminRoute>
+              <AdminAnalytics />
+            </AdminRoute>
+          } 
+        />
+        
+        <Route 
+          path="/top-sells" 
+          element={
+            <AdminRoute>
+              <Tables />
+            </AdminRoute>
+          } 
+        />
+        
+        <Route 
+          path="/users" 
+          element={
+            <AdminRoute>
+              <UserTable />
+            </AdminRoute>
+          } 
+        />
+        
+        <Route 
+          path="/each-bills/:userId" 
+          element={
+            <AdminRoute>
+              <EachUserBill />
+            </AdminRoute>
+          } 
+        />
+
+        {/* ========== USER ONLY ROUTES ========== */}
+        <Route 
+          path="/user-dashboard" 
+          element={
+            <UserRoute>
+              <UserDashboard />
+            </UserRoute>
+          } 
+        />
+        
+        <Route 
+          path="/analytics" 
+          element={
+            <UserRoute>
+              <Analytics />
+            </UserRoute>
+          } 
+        />
+        
+        <Route 
+          path="/user-bills" 
+          element={
+            <UserRoute>
+              <UserBill />
+            </UserRoute>
+          } 
+        />
+
+        {/* ========== SHARED ROUTES (Admin + User) ========== */}
+        <Route 
+          path="/bill" 
+          element={
+            <ProtectedRoute>
+              <BillForm />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/products" 
+          element={
+            <ProtectedRoute>
+              <ProductManager />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/occasion" 
+          element={
+            <ProtectedRoute>
+              <Occasion />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/invoice/:id" 
+          element={
+            <ProtectedRoute>
+              <Invoice />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* ========== CATCH ALL - REDIRECT ========== */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

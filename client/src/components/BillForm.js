@@ -10,8 +10,8 @@ const BillForm = () => {
   const [productData, setProductData] = useState([]);
   const [toast, setToast] = useState({ message: '', type: '' });
   const [activeOccasion, setActiveOccasion] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  
   // Product selection states
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -22,33 +22,79 @@ const BillForm = () => {
   
   const navigate = useNavigate();
 
-  // Fetch product data - FIXED API RESPONSE HANDLING
+  // Get auth token
+  const getAuthToken = () => {
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+  };
+
+  // Fetch product data with authentication
   useEffect(() => {
-    fetch("https://billing-app-server.vercel.app/api/products")
-      .then(res => res.json())
-      .then(data => {
-        // Handle different API response formats
-        if (data.data && Array.isArray(data.data)) {
-          setProductData(data.data);
-        } else if (Array.isArray(data)) {
-          setProductData(data);
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          showToast('Please login to access products', 'error');
+          return;
+        }
+
+        const response = await fetch("http://localhost:8080/api/products", {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Handle different API response formats
+          if (data.success && data.data && Array.isArray(data.data)) {
+            setProductData(data.data);
+          } else if (Array.isArray(data)) {
+            setProductData(data);
+          } else {
+            console.error('Unexpected API response format:', data);
+            setProductData([]);
+            showToast('Error loading products', 'error');
+          }
         } else {
-          console.error('Unexpected API response format:', data);
+          const errorData = await response.json();
+          console.error('Failed to fetch products:', errorData);
+          showToast(`Error: ${errorData.message || 'Failed to fetch products'}`, 'error');
           setProductData([]);
         }
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Error fetching product data:', err);
+        showToast('Error loading products. Please check your connection.', 'error');
         setProductData([]);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
-  // Fetch active occasion
+  // Fetch active occasion with authentication
   useEffect(() => {
-    fetch("https://billing-app-server.vercel.app/api/get-occasion")
-      .then(res => res.json())
-      .then(data => setActiveOccasion(data?.activeOccasion || ''))
-      .catch(err => console.error('Error fetching active occasion:', err));
+    const fetchOccasion = async () => {
+      try {
+        const token = getAuthToken();
+        const response = await fetch("http://localhost:8080/api/get-occasion", {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setActiveOccasion(data?.activeOccasion || '');
+        }
+      } catch (err) {
+        console.error('Error fetching active occasion:', err);
+      }
+    };
+
+    fetchOccasion();
   }, []);
 
   const showToast = (message, type = 'success') => {
@@ -156,12 +202,18 @@ const BillForm = () => {
   const getGrandTotal = () =>
     billItems.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0).toFixed(2);
 
-  // Submit handler - UPDATED FOR NEW SCHEMA
+  // Submit handler - UPDATED FOR NEW SCHEMA WITH AUTHENTICATION
   const handleSubmit = async () => {
     if (!customerName) return showToast('Enter customer name', 'error');
     if (mobileNumber && !/^\d{10}$/.test(mobileNumber))
       return showToast('Enter a valid 10-digit mobile number', 'error');
     if (billItems.length === 0) return showToast('Add at least one item to bill', 'error');
+
+    const token = getAuthToken();
+    if (!token) {
+      showToast('Please login to create bills', 'error');
+      return;
+    }
 
     const billData = {
       customerName,
@@ -182,12 +234,13 @@ const BillForm = () => {
       occasion: activeOccasion || "",
     };
 
+    setLoading(true);
     try {
-      const res = await fetch("https://billing-app-server.vercel.app/api/", { // Updated endpoint
+      const res = await fetch("http://localhost:8080/api/", { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(billData),
       });
@@ -206,13 +259,19 @@ const BillForm = () => {
       }
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   // Safe rendering of products
   const renderProducts = () => {
+    if (loading) {
+      return <div className="loading">Loading products...</div>;
+    }
+
     if (!Array.isArray(productData) || productData.length === 0) {
-      return <div>No products available</div>;
+      return <div className="no-products">No products available. Please add products first.</div>;
     }
 
     return productData.map((product) => (
@@ -222,8 +281,70 @@ const BillForm = () => {
         onClick={() => handleProductSelect(product._id)}
       >
         {product.product}
+        {product.totalStock > 0 && (
+          <span className="stock-badge">Stock: {product.totalStock}</span>
+        )}
       </button>
     ));
+  };
+
+  // Render categories for selected product
+  const renderCategories = () => {
+    const product = getCurrentProduct();
+    if (!product || !product.categories || product.categories.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="selection-group">
+        <label>Categories:</label>
+        <div className="button-group">
+          {product.categories.map((category) => (
+            <button
+              key={category._id || category.name}
+              className={`selection-btn ${selectedCategory === (category._id || category.name) ? 'active' : ''}`}
+              onClick={() => handleCategorySelect(category._id || category.name)}
+              disabled={category.stock <= 0}
+            >
+              {category.name} (₹{category.price})
+              {category.stock > 0 && (
+                <span className="stock-info">Stock: {category.stock}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Render subcategories for selected category
+  const renderSubcategories = () => {
+    const category = getCurrentCategory();
+    if (!category || !category.subcategories || category.subcategories.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="selection-group">
+        <label>Subcategories:</label>
+        <div className="button-group">
+          {category.subcategories.map((subcat) => (
+            <button
+              key={subcat.sku}
+              className={`selection-btn ${selectedSubcategory === subcat.sku ? 'active' : ''}`}
+              onClick={() => handleSubcategorySelect(subcat.sku)}
+              disabled={subcat.stock <= 0}
+            >
+              {subcat.design} {subcat.color} {subcat.size} 
+              <span className="sku">SKU: {subcat.sku}</span>
+              {subcat.stock > 0 && (
+                <span className="stock-info">Stock: {subcat.stock}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -277,40 +398,10 @@ const BillForm = () => {
         </div>
 
         {/* Categories */}
-        {selectedProduct && getCurrentProduct()?.categories && (
-          <div className="selection-group">
-            <label>Categories:</label>
-            <div className="button-group">
-              {getCurrentProduct().categories.map((category) => (
-                <button
-                  key={category._id || category.name}
-                  className={`selection-btn ${selectedCategory === (category._id || category.name) ? 'active' : ''}`}
-                  onClick={() => handleCategorySelect(category._id || category.name)}
-                >
-                  {category.name} (₹{category.price})
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {selectedProduct && renderCategories()}
 
         {/* Subcategories */}
-        {selectedCategory && getCurrentCategory()?.subcategories && (
-          <div className="selection-group">
-            <label>Subcategories:</label>
-            <div className="button-group">
-              {getCurrentCategory().subcategories.map((subcat) => (
-                <button
-                  key={subcat.sku}
-                  className={`selection-btn ${selectedSubcategory === subcat.sku ? 'active' : ''}`}
-                  onClick={() => handleSubcategorySelect(subcat.sku)}
-                >
-                  {subcat.design} {subcat.color} {subcat.size} (SKU: {subcat.sku})
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {selectedCategory && renderSubcategories()}
 
         {/* Price, Quantity, Discount */}
         <div className="price-quantity-section">
@@ -424,8 +515,12 @@ const BillForm = () => {
 
       {/* Action Buttons */}
       <div className="action-buttons">
-        <button className="save-btn" onClick={handleSubmit}>
-          Save Bill
+        <button 
+          className="save-btn" 
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? 'Saving Bill...' : 'Save Bill'}
         </button>
       </div>
 

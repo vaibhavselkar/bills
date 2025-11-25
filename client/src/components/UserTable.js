@@ -5,6 +5,15 @@ import Sidebar from "./Sidebar";
 const UserTable = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSidebarItemClick = () => {
+    setIsSidebarOpen(false);
+  };
   //const [role, setRole] = useState(null);
   const navigate = useNavigate();
 
@@ -12,7 +21,7 @@ const UserTable = () => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token"); // assume stored at login
-        const res = await fetch("https://billing-app-server.vercel.app/api/user/users", {
+        const res = await fetch("http://localhost:8080/api/user/users", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -42,7 +51,11 @@ const UserTable = () => {
 
   return (
     <div className="dashboard">
-      <Sidebar />
+       <Sidebar 
+        isOpen={isSidebarOpen} 
+        onToggle={toggleSidebar}
+        onItemClick={handleSidebarItemClick}
+       />
       <div style={{ padding: "20px" }}>
         <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Registered Users</h2>
         <table style={{ width: "100%", borderCollapse: "collapse", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>

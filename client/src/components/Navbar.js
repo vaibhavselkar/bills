@@ -16,7 +16,7 @@ const Navbar = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const response = await fetch("https://billing-app-server.vercel.app/api/user/me", {
+        const response = await fetch("http://localhost:8080/api/user/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

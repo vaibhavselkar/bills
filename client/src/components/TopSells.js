@@ -6,12 +6,20 @@ const TopProducts = () => {
   const [products, setProducts] = useState([]);
   const [showAllRevenue, setShowAllRevenue] = useState(false);
   const [showAllQuantity, setShowAllQuantity] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSidebarItemClick = () => {
+    setIsSidebarOpen(false);
+  };
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("https://billing-app-server.vercel.app/api/top-products");
+        const res = await fetch("http://localhost:8080/api/top-products");
         const data = await res.json();
         setProducts(data);
       } catch (err) {
@@ -29,7 +37,11 @@ const TopProducts = () => {
 
   return (
     <div className="dashboard" style={{ padding: "20px" }}>
-      <Sidebar />
+       <Sidebar 
+        isOpen={isSidebarOpen} 
+        onToggle={toggleSidebar}
+        onItemClick={handleSidebarItemClick}
+       />
 
       {/* Flex container for tables */}
       <div style={{ display: "flex", gap: "40px", flexWrap: "wrap", marginBottom: "50px" }}>

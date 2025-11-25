@@ -2,13 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../model/Product');
+const { auth } = require('../middleware/auth');
 
-// GET /api/products - Fetch all products with sorting and filtering
-router.get('/', async (req, res) => {
+// GET /api/products - Fetch all products with tenantId filtering
+router.get('/', auth, async (req, res) => {
   try {
     const { search, sortBy, sortOrder = 'asc' } = req.query;
     
-    let query = {};
+    let query = { tenantId: req.user.tenantId }; // 🔥 Filter by tenant
     
     // Search functionality
     if (search) {
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
     if (sortBy) {
       sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
     } else {
-      sortOptions.createdAt = -1; // Default sort by newest first
+      sortOptions.createdAt = -1;
     }
     
     const products = await Product.find(query)
@@ -77,7 +78,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/products - Create new product
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     const { product, categories } = req.body;
     
@@ -96,54 +97,10 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Validate categories
-    for (let i = 0; i < categories.length; i++) {
-      const category = categories[i];
-      
-      if (!category.name || !category.name.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: `Category name is required for category ${i + 1}`
-        });
-      }
-      
-      if (!category.price || category.price < 0) {
-        return res.status(400).json({
-          success: false,
-          message: `Valid price is required for category "${category.name}"`
-        });
-      }
-      
-      // Validate subcategories if they exist
-      if (category.subcategories && Array.isArray(category.subcategories)) {
-        for (let j = 0; j < category.subcategories.length; j++) {
-          const subcategory = category.subcategories[j];
-          
-          if (!subcategory.sku || !subcategory.sku.trim()) {
-            return res.status(400).json({
-              success: false,
-              message: `SKU is required for subcategory ${j + 1} in category "${category.name}"`
-            });
-          }
-          
-          // Check for duplicate SKUs within the same category
-          const skuSet = new Set();
-          for (const subcat of category.subcategories) {
-            if (skuSet.has(subcat.sku)) {
-              return res.status(400).json({
-                success: false,
-                message: `Duplicate SKU "${subcat.sku}" found in category "${category.name}"`
-              });
-            }
-            skuSet.add(subcat.sku);
-          }
-        }
-      }
-    }
-    
-    // Check if product already exists
+    // Check if product already exists within tenant
     const existingProduct = await Product.findOne({ 
-      product: { $regex: new RegExp(`^${product.trim()}$`, 'i') } 
+      product: { $regex: new RegExp(`^${product.trim()}$`, 'i') },
+      tenantId: req.user.tenantId // 🔥 Check within tenant
     });
     
     if (existingProduct) {
@@ -163,10 +120,16 @@ router.post('/', async (req, res) => {
           design: subcat.design?.trim() || '',
           color: subcat.color?.trim() || '',
           size: subcat.size?.trim() || '',
-          sku: subcat.sku.trim(),
+          sku: subcat.sku.trim().toUpperCase(),
           stock: parseInt(subcat.stock) || 0
         }))
-      }))
+      })),
+      tenantId: req.user.tenantId, // 🔥 Add tenantId from auth
+      createdBy: {
+        userId: req.user._id,
+        name: req.user.name,
+        email: req.user.email
+      }
     });
     
     const savedProduct = await newProduct.save();
@@ -205,7 +168,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/products/:id - Update product
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   try {
     const { product, categories } = req.body;
     
@@ -224,42 +187,10 @@ router.put('/:id', async (req, res) => {
       });
     }
     
-    // Validate categories (same as POST)
-    for (let i = 0; i < categories.length; i++) {
-      const category = categories[i];
-      
-      if (!category.name || !category.name.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: `Category name is required for category ${i + 1}`
-        });
-      }
-      
-      if (!category.price || category.price < 0) {
-        return res.status(400).json({
-          success: false,
-          message: `Valid price is required for category "${category.name}"`
-        });
-      }
-      
-      // Validate subcategories if they exist
-      if (category.subcategories && Array.isArray(category.subcategories)) {
-        for (let j = 0; j < category.subcategories.length; j++) {
-          const subcategory = category.subcategories[j];
-          
-          if (!subcategory.sku || !subcategory.sku.trim()) {
-            return res.status(400).json({
-              success: false,
-              message: `SKU is required for subcategory ${j + 1} in category "${category.name}"`
-            });
-          }
-        }
-      }
-    }
-    
-    // Check if product name already exists (excluding current product)
+    // Check if product exists within tenant
     const existingProduct = await Product.findOne({
       product: { $regex: new RegExp(`^${product.trim()}$`, 'i') },
+      tenantId: req.user.tenantId, // 🔥 Check within tenant
       _id: { $ne: req.params.id }
     });
     
@@ -270,8 +201,11 @@ router.put('/:id', async (req, res) => {
       });
     }
     
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
+    const updatedProduct = await Product.findOneAndUpdate(
+      { 
+        _id: req.params.id, 
+        tenantId: req.user.tenantId // 🔥 Ensure tenant match
+      },
       {
         product: product.trim(),
         categories: categories.map(cat => ({
@@ -282,10 +216,15 @@ router.put('/:id', async (req, res) => {
             design: subcat.design?.trim() || '',
             color: subcat.color?.trim() || '',
             size: subcat.size?.trim() || '',
-            sku: subcat.sku.trim(),
+            sku: subcat.sku.trim().toUpperCase(),
             stock: parseInt(subcat.stock) || 0
           }))
-        }))
+        })),
+        updatedBy: {
+          userId: req.user._id,
+          name: req.user.name,
+          email: req.user.email
+        }
       },
       { new: true, runValidators: true }
     );
@@ -338,9 +277,12 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/products/:id - Delete product
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+    const deletedProduct = await Product.findOneAndDelete({
+      _id: req.params.id,
+      tenantId: req.user.tenantId // 🔥 Ensure tenant match
+    });
     
     if (!deletedProduct) {
       return res.status(404).json({

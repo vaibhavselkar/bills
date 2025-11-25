@@ -1,5 +1,4 @@
 
-//https://billing-app-server.vercel.app/
 import React, { useState } from "react";
 import Navbar from "./Navbar";
 import BillForm from "./BillForm";

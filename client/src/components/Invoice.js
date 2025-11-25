@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Navbar from "./Navbar";
 
 const Invoice = () => {
   const [bill, setBill] = useState(null);
@@ -10,7 +9,7 @@ const Invoice = () => {
     const fetchBillById = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`https://billing-app-server.vercel.app/api/bill/${id}`, {
+        const res = await fetch(`http://localhost:8080/api/bill/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -35,22 +34,22 @@ const Invoice = () => {
     window.print();
   };
 
-  if (!bill) return <div>Loading invoice...</div>;
+  if (!bill) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading invoice...</div>;
 
   // Calculate totals
   const totalQty = bill.products.reduce((sum, p) => sum + (p.quantity || 0), 0);
   const totalItems = bill.products.length;
 
   return (
-    <div className="dashboard">
-      <Navbar />
-
+    <>
       <div className="invoice-page">
         <div className="invoice-container">
           
           {/* Print Button */}
           <div className="no-print" style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <button onClick={handlePrint} className="print-button">Print Invoice</button>
+            <button onClick={handlePrint} className="print-button">
+              🖨️ Print Invoice
+            </button>
           </div>
 
           {/* Thermal Invoice Content */}
@@ -86,7 +85,7 @@ const Invoice = () => {
               <div className="col-item">ITEM</div>
               <div className="col-qty">QTY</div>
               <div className="col-price">PRICE</div>
-              <div className="col-amount">AMOUNT</div>
+              <div className="col-amount">AMT</div>
             </div>
 
             <div className="divider thin"></div>
@@ -155,7 +154,6 @@ const Invoice = () => {
               <div className="return-policy">
                 Goods sold are not returnable
               </div>
-              
             </div>
           </div>
         </div>
@@ -167,7 +165,9 @@ const Invoice = () => {
           padding: 20px;
           display: flex;
           justify-content: center;
+          align-items: flex-start;
           background: #f5f5f5;
+          min-height: 100vh;
         }
 
         .invoice-container {
@@ -178,36 +178,39 @@ const Invoice = () => {
         .thermal-invoice {
           font-family: 'Courier New', monospace;
           font-size: 12px;
-          line-height: 1.1;
+          line-height: 1.2;
           color: #000;
           background: #fff;
-          padding: 10px;
+          padding: 12px;
           border: 1px solid #333;
           margin: 0 auto;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         /* Print Button */
         .print-button {
-          background: #333;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
           border: none;
-          padding: 10px 20px;
-          border-radius: 3px;
+          padding: 12px 24px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 13px;
-          font-weight: bold;
+          font-size: 14px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          transition: all 0.3s;
         }
 
         .print-button:hover {
-          background: #555;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
         }
 
         /* Header Styles */
         .invoice-header {
           text-align: center;
-          margin-bottom: 8px;
-          padding-bottom: 6px;
+          margin-bottom: 10px;
+          padding-bottom: 8px;
         }
 
         .company-logo {
@@ -215,9 +218,9 @@ const Invoice = () => {
         }
 
         .logo-text {
-          font-size: 16px;
+          font-size: 18px;
           font-weight: 900;
-          letter-spacing: 0.5px;
+          letter-spacing: 1px;
           text-transform: uppercase;
           margin-bottom: 2px;
           color: #000;
@@ -227,18 +230,18 @@ const Invoice = () => {
           font-size: 10px;
           font-weight: bold;
           color: #333;
-          margin-bottom: 3px;
+          margin-bottom: 4px;
         }
 
         .header-info {
-          margin-top: 4px;
+          margin-top: 6px;
         }
 
         .invoice-type {
           font-size: 14px;
           font-weight: 900;
           text-transform: uppercase;
-          margin-bottom: 2px;
+          margin-bottom: 3px;
           color: #000;
         }
 
@@ -250,13 +253,13 @@ const Invoice = () => {
 
         /* Section Styles */
         .section {
-          margin: 6px 0;
+          margin: 8px 0;
         }
 
         .section-row {
           display: flex;
           justify-content: space-between;
-          margin: 2px 0;
+          margin: 3px 0;
           font-weight: bold;
         }
 
@@ -271,7 +274,7 @@ const Invoice = () => {
 
         /* Divider Styles */
         .divider {
-          margin: 6px 0;
+          margin: 8px 0;
           border: none;
         }
 
@@ -286,12 +289,12 @@ const Invoice = () => {
         /* Table Styles */
         .table-header {
           display: grid;
-          grid-template-columns: 2fr 0.6fr 1fr 1fr;
-          gap: 3px;
+          grid-template-columns: 2fr 0.7fr 1fr 1fr;
+          gap: 4px;
           font-weight: 900;
           text-transform: uppercase;
           font-size: 10px;
-          margin-bottom: 3px;
+          margin-bottom: 4px;
         }
 
         .col-item { text-align: left; }
@@ -301,15 +304,15 @@ const Invoice = () => {
 
         /* Products List */
         .products-list {
-          margin: 4px 0;
+          margin: 6px 0;
         }
 
         .product-row {
           display: grid;
-          grid-template-columns: 2fr 0.6fr 1fr 1fr;
-          gap: 3px;
-          margin: 3px 0;
-          padding: 2px 0;
+          grid-template-columns: 2fr 0.7fr 1fr 1fr;
+          gap: 4px;
+          margin: 4px 0;
+          padding: 3px 0;
           border-bottom: 1px dotted #666;
           font-weight: bold;
         }
@@ -328,38 +331,17 @@ const Invoice = () => {
 
         /* Totals Section */
         .totals-section {
-          margin: 8px 0;
+          margin: 10px 0;
         }
 
         .total-row {
           display: flex;
           justify-content: space-between;
-          margin: 3px 0;
+          margin: 4px 0;
           font-weight: bold;
         }
 
         .main-total {
-          font-weight: 900;
-          font-size: 12px;
-          border-top: 1px solid #000;
-          border-bottom: 1px solid #000;
-          padding: 4px 0;
-          margin: 6px 0;
-        }
-
-        /* Payment Summary */
-        .payment-summary {
-          margin: 8px 0;
-        }
-
-        .summary-row {
-          display: flex;
-          justify-content: space-between;
-          margin: 3px 0;
-          font-weight: bold;
-        }
-
-        .grand-total {
           font-weight: 900;
           font-size: 13px;
           border-top: 1px solid #000;
@@ -368,25 +350,46 @@ const Invoice = () => {
           margin: 8px 0;
         }
 
+        /* Payment Summary */
+        .payment-summary {
+          margin: 10px 0;
+        }
+
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          margin: 4px 0;
+          font-weight: bold;
+        }
+
+        .grand-total {
+          font-weight: 900;
+          font-size: 14px;
+          border-top: 2px solid #000;
+          border-bottom: 2px solid #000;
+          padding: 6px 0;
+          margin: 10px 0;
+        }
+
         /* Footer */
         .invoice-footer {
           text-align: center;
           margin-top: 12px;
-          padding-top: 8px;
+          padding-top: 10px;
         }
 
         .thank-you {
           font-weight: 900;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
           font-style: italic;
-          font-size: 11px;
+          font-size: 12px;
         }
 
         .company-info {
           font-size: 9px;
-          line-height: 1.2;
+          line-height: 1.4;
           font-weight: bold;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
           color: #333;
         }
 
@@ -394,128 +397,167 @@ const Invoice = () => {
           font-size: 8px;
           font-weight: bold;
           color: #666;
-          margin-bottom: 8px;
+          margin-top: 8px;
           border: 1px solid #999;
-          padding: 2px;
+          padding: 4px;
         }
 
-        /* Thermal Printer Friendly Styles */
+        /* Thermal Printer Print Styles */
         @media print {
-          .no-print {
-            display: none !important;
-          }
-          
-          /* Hide everything except the invoice */
+          /* Hide everything except invoice */
           body * {
             visibility: hidden;
           }
-          
+
           .invoice-page,
           .invoice-page * {
             visibility: visible;
           }
-          
-          .invoice-page {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          .dashboard {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          /* Hide navbar and other elements */
-          .dashboard > :not(.invoice-page) {
+
+          .no-print {
             display: none !important;
           }
-          
+
+          /* Reset page margins and layout */
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+
+          html, body {
+            width: 58mm;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+
+          .invoice-page {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 58mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            display: block !important;
+          }
+
+          .invoice-container {
+            width: 58mm !important;
+            max-width: 58mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .thermal-invoice {
             width: 58mm !important;
             max-width: 58mm !important;
-            min-width: 58mm !important;
-            margin: 0 auto !important;
-            padding: 5px !important;
-            font-size: 10px !important;
-            line-height: 1 !important;
+            margin: 0 !important;
+            padding: 3mm !important;
             border: none !important;
             box-shadow: none !important;
             background: white !important;
-            color: black !important;
-            font-family: 'Courier New', monospace !important;
-            font-weight: bold !important;
+            font-size: 9px !important;
+            line-height: 1.1 !important;
           }
 
-          /* Reset all colors for print */
+          /* Force black text */
+          .thermal-invoice,
           .thermal-invoice * {
-            color: black !important;
+            color: #000 !important;
             background: transparent !important;
-            font-weight: bold !important;
-            box-shadow: none !important;
-            text-shadow: none !important;
           }
 
-          /* Optimize for thermal printer */
+          /* Adjust font sizes for print */
           .logo-text {
             font-size: 14px !important;
             font-weight: 900 !important;
           }
 
+          .tagline {
+            font-size: 8px !important;
+          }
+
           .invoice-type {
-            font-size: 12px !important;
+            font-size: 11px !important;
+          }
+
+          .date-time {
+            font-size: 8px !important;
+          }
+
+          .table-header {
+            font-size: 8px !important;
           }
 
           .product-name {
+            font-size: 9px !important;
+          }
+
+          .product-category {
+            font-size: 7px !important;
+          }
+
+          .col-qty,
+          .col-price,
+          .col-amount {
+            font-size: 8px !important;
+          }
+
+          .main-total {
             font-size: 10px !important;
           }
 
-          .main-total,
           .grand-total {
             font-size: 11px !important;
-            font-weight: 900 !important;
           }
 
-          /* Remove any spacing issues */
+          .thank-you {
+            font-size: 9px !important;
+          }
+
+          .company-info {
+            font-size: 7px !important;
+          }
+
+          .return-policy {
+            font-size: 6px !important;
+          }
+
+          /* Adjust spacing for print */
           .divider {
-            margin: 4px 0 !important;
+            margin: 2mm 0 !important;
           }
 
-          .divider.thick {
-            border-top: 2px solid #000 !important;
+          .section {
+            margin: 1.5mm 0 !important;
           }
 
-          .divider.thin {
-            border-top: 1px solid #000 !important;
+          .products-list {
+            margin: 2mm 0 !important;
           }
 
-          @page {
-            margin: 0;
-            size: 58mm auto;
-            padding: 0;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            color: black !important;
-            font-family: 'Courier New', monospace !important;
-            width: 58mm !important;
-            min-width: 58mm !important;
+          .product-row {
+            margin: 1mm 0 !important;
+            padding: 1mm 0 !important;
+            page-break-inside: avoid;
           }
 
-          html {
-            background: white !important;
+          .totals-section {
+            margin: 2mm 0 !important;
+          }
+
+          .payment-summary {
+            margin: 2mm 0 !important;
+          }
+
+          .invoice-footer {
+            margin-top: 3mm !important;
+            padding-top: 2mm !important;
           }
         }
       `}</style>
-    </div>
+    </>
   );
 };
 

@@ -1,5 +1,7 @@
+// components/AdminDashboard.js - Add organization name display in header
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
+import { Building2 } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -20,27 +22,46 @@ const Dashboard = () => {
   const [selected, setSelected] = useState("year");
   const [billData, setBillData] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [tenantId, setTenantId] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
+  const [copySuccess, setCopySuccess] = useState("");
 
-  // For custom date filter
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Toggle sidebar
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Close sidebar when an item is clicked
   const handleSidebarItemClick = () => {
     setIsSidebarOpen(false);
   };
 
-  // Fetch all data (for Today/Month/Year)
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:8080/api/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const userData = await res.json();
+        setTenantId(userData.tenantId);
+        setOrganizationName(userData.organizationName || "");
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   useEffect(() => {
     const fetchBills = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("https://billing-app-server.vercel.app/api/", {
+        const res = await fetch("http://localhost:8080/api/", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -55,7 +76,6 @@ const Dashboard = () => {
     fetchBills();
   }, []);
 
-  // Process Today/Month/Year data
   const processDefaultData = (data) => {
     setBillData(data);
     const now = new Date();
@@ -96,14 +116,13 @@ const Dashboard = () => {
     setCustomers(filtered.customers);
   };
 
-  // Fetch Custom Range
   const fetchCustomRange = () => {
     if (!startDate || !endDate) return;
 
-    fetch(`https://billing-app-server.vercel.app/api/?startDate=${startDate}&endDate=${endDate}`)
+    fetch(`http://localhost:8080/api/?startDate=${startDate}&endDate=${endDate}`)
       .then((res) => res.json())
       .then((data) => {
-        setBillData(data); // use only custom bills
+        setBillData(data);
         let customSales = data.length;
         let customRevenue = data.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
         let customCustomers = new Set(data.map((b) => b.customerName)).size;
@@ -117,7 +136,14 @@ const Dashboard = () => {
       .catch((err) => console.error("Error fetching custom range data:", err));
   };
 
-  // Bills to show in charts
+  const copyRegistrationLink = () => {
+    const registrationLink = `${window.location.origin}/register?tenantCode=${tenantId}`;
+    navigator.clipboard.writeText(registrationLink).then(() => {
+      setCopySuccess("Link copied!");
+      setTimeout(() => setCopySuccess(""), 3000);
+    });
+  };
+
   const now = new Date();
   let filteredBills = [];
   if (selected === "today") {
@@ -134,10 +160,9 @@ const Dashboard = () => {
       (b) => new Date(b.date || b.createdAt).getFullYear() === now.getFullYear()
     );
   } else if (selected === "custom") {
-    filteredBills = billData; // already filtered by API
+    filteredBills = billData;
   }
 
-  // Payment breakdown
   const paymentBreakdown = filteredBills.reduce(
     (acc, bill) => {
       if (bill.paymentMethod === "Cash") acc.cash += bill.totalAmount;
@@ -147,7 +172,6 @@ const Dashboard = () => {
     { cash: 0, online: 0 }
   );
 
-  // Revenue by product type
   const categoryTotals = {};
   filteredBills.forEach((bill) => {
     bill.products.forEach((p) => {
@@ -170,9 +194,8 @@ const Dashboard = () => {
     "#235d8fff",
   ];
 
-  // Main content styles that adjust based on sidebar state
   const mainContentStyles = {
-    marginTop: "70px", // Fixed navbar height
+    marginTop: "70px",
     marginLeft: isSidebarOpen ? "280px" : "0",
     transition: "margin-left 0.3s ease",
     padding: "30px",
@@ -180,7 +203,6 @@ const Dashboard = () => {
     background: "linear-gradient(135deg, #2E8B57 0%, #20B2AA 100%)",
   };
 
-  // Content container inside main
   const contentContainerStyles = {
     background: "rgba(255, 255, 255, 0.95)",
     borderRadius: "15px",
@@ -200,9 +222,108 @@ const Dashboard = () => {
       
       <main style={mainContentStyles}>
         <div style={contentContainerStyles}>
-          <h2 style={{ marginBottom: "20px", color: "#333" }}>Dashboard</h2>
+          {/* Organization Header */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '30px',
+            paddingBottom: '20px',
+            borderBottom: '2px solid #e5e7eb'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Building2 size={32} color="white" />
+              </div>
+              <div>
+                <h2 style={{ margin: '0 0 5px 0', color: '#1f2937', fontSize: '28px', fontWeight: '700' }}>
+                  {organizationName || 'Dashboard'}
+                </h2>
+                <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+                  Organization Analytics & Management
+                </p>
+              </div>
+            </div>
+          </div>
 
-          {/* Time Selector */}
+          {/* Registration Link Section */}
+          <div style={{ 
+            marginBottom: "30px", 
+            padding: "20px", 
+            background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)", 
+            borderRadius: "12px",
+            border: "2px solid #bae6fd"
+          }}>
+            <h3 style={{ marginBottom: "10px", color: '#0c4a6e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Building2 size={20} />
+              Employee Registration
+            </h3>
+            <p style={{ marginBottom: "12px", fontSize: "14px", color: "#075985" }}>
+              Share this link with employees to join <strong>{organizationName}</strong>:
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <input 
+                type="text" 
+                readOnly 
+                value={`${window.location.origin}/register?tenantCode=${tenantId}`}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  border: "2px solid #7dd3fc",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  background: "white",
+                  color: '#0c4a6e'
+                }}
+              />
+              <button 
+                onClick={copyRegistrationLink}
+                style={{
+                  padding: "12px 24px",
+                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+                  transition: 'all 0.3s'
+                }}
+                onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                Copy Link
+              </button>
+            </div>
+            {copySuccess && (
+              <p style={{ 
+                marginTop: "10px", 
+                color: "#15803d", 
+                fontSize: "14px",
+                fontWeight: "600" 
+              }}>
+                ✓ {copySuccess}
+              </p>
+            )}
+            <p style={{ marginTop: "12px", fontSize: "13px", color: "#0369a1" }}>
+              Organization Code: <strong style={{ 
+                padding: '4px 8px', 
+                background: 'white', 
+                borderRadius: '4px',
+                border: '1px solid #7dd3fc'
+              }}>{tenantId}</strong>
+            </p>
+          </div>
+
           <div className="time-selector" style={{ marginBottom: "20px" }}>
             <button onClick={() => setSelected("year")} className={selected === "year" ? "active" : ""}>
               This Year
@@ -218,7 +339,6 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Custom Date Picker */}
           {selected === "custom" && (
             <div className="custom-date-filter" style={{ marginBottom: "20px" }}>
               <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -229,7 +349,6 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Stats */}
           <div className="stats" style={{ marginBottom: "30px" }}>
             <div className="stat-card">
               <div className="icon">🛒</div>
@@ -248,7 +367,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Graphs */}
           <div className="analytics-container">
             <h2>Payment Method Distribution ({selected})</h2>
             <ResponsiveContainer width="100%" height={300}>

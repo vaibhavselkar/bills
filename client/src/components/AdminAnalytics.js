@@ -31,12 +31,22 @@ const BillingChart = () => {
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState("Bar");
   const [selectedRange, setSelectedRange] = useState("year"); // today, month, year
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const toggleSidebar = () => {
+      setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const handleSidebarItemClick = () => {
+      setIsSidebarOpen(false);
+    };
+
 
   useEffect(() => {
     const fetchBillingData = async () => {
       try {
         const token = localStorage.getItem("token"); // token saved on login
-        const response = await fetch("https://billing-app-server.vercel.app/api/", {
+        const response = await fetch("http://localhost:8080/api/", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -112,202 +122,209 @@ const BillingChart = () => {
   const renderCustomizedLabel = ({ percent }) =>
     `${(percent * 100).toFixed(1)}%`;
 
-  const renderChart = () => {
-    switch (chartType) {
-      case "Bar":
-        return (
-          <>
-            <h3>
-              Bar Chart: Total Amount and Quantity Sold ({selectedRange})
-            </h3>
-            <ResponsiveContainer height={300}>
-              <BarChart
-                data={productData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                barCategoryGap="20%"
-              >
-                <CartesianGrid stroke="#ccc" />
-                <XAxis dataKey="name" />
-                <YAxis yAxisId="left" orientation="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip
-                  labelFormatter={(label) => `Product: ${label}`}
-                  formatter={(value, key) => {
-                    if (key === "totalAmount")
-                      return [`₹${value}`, "Total Amount"];
-                    if (key === "quantitySold")
-                      return [value, "Quantity Sold"];
-                    return [value, key];
-                  }}
-                />
-                <Legend />
-                <Bar
-                  yAxisId="left"
-                  dataKey="quantitySold"
-                  fill="#38914dff"
-                  name="Quantity Sold"
-                />
-                <Bar
-                  yAxisId="right"
-                  dataKey="totalAmount"
-                  fill="#8884d8"
-                  name="Total Amount (₹)"
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </>
-        );
-
-      case "Pie":
-        return (
-          <>
-            <h3>
-              Pie Chart: Total Amount per Product ({selectedRange}) (%)
-            </h3>
-            <ResponsiveContainer height={300}>
-              <PieChart>
-                <Tooltip formatter={(v) => [`₹${v}`, "Total Amount"]} />
-                <Legend />
-                <Pie
+    const renderChart = () => {
+      switch (chartType) {
+        case "Bar":
+          return (
+            <>
+              <h3>Bar Chart: Total Amount and Quantity Sold ({selectedRange})</h3>
+              <ResponsiveContainer height={300}>
+                <BarChart
                   data={productData}
-                  dataKey="totalAmount"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label={renderCustomizedLabel}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  barCategoryGap="20%"
                 >
-                  {productData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </>
-        );
-
-      case "Doughnut":
-        return (
-          <>
-            <h3>
-              Doughnut Chart: Total Amount per Product ({selectedRange})
-            </h3>
-            <ResponsiveContainer height={300}>
-              <PieChart>
-                <Tooltip formatter={(v) => [`₹${v}`, "Total Amount"]} />
-                <Legend />
-                <Pie
-                  data={productData}
-                  dataKey="totalAmount"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  label={renderCustomizedLabel}
-                >
-                  {productData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </>
-        );
-
-      default:
-        return null;
-    }
-  };
+                  <CartesianGrid stroke="#ccc" />
+                  <XAxis dataKey="name" />
+                  <YAxis yAxisId="left" orientation="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip
+                    labelFormatter={(label) => `Product: ${label}`}
+                    formatter={(value, key) => {
+                      if (key === "totalAmount")
+                        return [`₹${value}`, "Total Amount"];
+                      if (key === "quantitySold")
+                        return [value, "Quantity Sold"];
+                      return [value, key];
+                    }}
+                  />
+                  <Legend />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="quantitySold"
+                    fill="#38914dff"
+                    name="Quantity Sold"
+                  />
+                  <Bar
+                    yAxisId="right"
+                    dataKey="totalAmount"
+                    fill="#8884d8"
+                    name="Total Amount (₹)"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </>
+          );
+    
+        case "Pie":
+          return (
+            <>
+              <h3>Pie Chart: Total Amount per Product ({selectedRange}) (%)</h3>
+              <ResponsiveContainer height={300}>
+                <PieChart>
+                  <Tooltip formatter={(v) => [`₹${v}`, "Total Amount"]} />
+                  <Legend />
+                  <Pie
+                    data={productData}
+                    dataKey="totalAmount"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={renderCustomizedLabel}
+                  >
+                    {productData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </>
+          );
+    
+        case "Doughnut":
+          return (
+            <>
+              <h3>Doughnut Chart: Total Amount per Product ({selectedRange})</h3>
+              <ResponsiveContainer height={300}>
+                <PieChart>
+                  <Tooltip formatter={(v) => [`₹${v}`, "Total Amount"]} />
+                  <Legend />
+                  <Pie
+                    data={productData}
+                    dataKey="totalAmount"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    label={renderCustomizedLabel}
+                  >
+                    {productData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </>
+          );
+    
+        default:
+          return null;
+      }
+    };
 
   if (loading) return <div>Loading chart...</div>;
 
-  return (
-    <div className="dashboard">
-       <Sidebar /> {/* Use Navbar component */}
+return (
+  <div style={{ minHeight: "100vh" }}>
+    <Sidebar 
+      isOpen={isSidebarOpen} 
+      onToggle={toggleSidebar}
+      onItemClick={handleSidebarItemClick}
+    />
+    
+    <main style={{
+      marginTop: "70px",
+      marginLeft: isSidebarOpen ? "280px" : "0",
+      transition: "margin-left 0.3s ease",
+      padding: "30px",
+      minHeight: "calc(100vh - 70px)"
+    }}>
+      <div style={{
+        width: "100%",
+        padding: "1rem",
+        maxWidth: "900px",
+        margin: "auto",
+      }}>
+        <h2>Billing Summary: Products Sold and Earnings</h2>
 
+        {/* Filter Buttons */}
+        <div style={{ marginBottom: "1rem" }}>
+          <button
+            onClick={() => setSelectedRange("year")}
+            style={{
+              padding: "0.4rem 1rem",
+              marginRight: "10px",
+              background: selectedRange === "year" ? "#475087" : "#ddd",
+              color: selectedRange === "year" ? "#fff" : "#000",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer"
+            }}
+          >
+            This Year
+          </button>
 
-        <div
-          style={{
-            width: "100%",
-            padding: "1rem",
-            maxWidth: "900px",
-            margin: "auto",
-          }}
-        >
-          <h2>Billing Summary: Products Sold and Earnings</h2>
-
-          {/* Filter Buttons */}
-          <div style={{ marginBottom: "1rem" }}>
-            <button
-              onClick={() => setSelectedRange("year")}
-              style={{
-                padding: "0.4rem 1rem",
-                marginRight: "10px",
-                background: selectedRange === "year" ? "#475087" : "#ddd",
-                color: selectedRange === "year" ? "#fff" : "#000",
-                border: "none",
-                borderRadius: "5px",
-              }}
-            >
-              This Year
-            </button>
-
-            <button
-              onClick={() => setSelectedRange("month")}
-              style={{
-                padding: "0.4rem 1rem",
-                marginRight: "10px",
-                background: selectedRange === "month" ? "#475087" : "#ddd",
-                color: selectedRange === "month" ? "#fff" : "#000",
-                border: "none",
-                borderRadius: "5px",
-              }}
-            >
-              This Month
-            </button>
-            <button
-              onClick={() => setSelectedRange("today")}
-              style={{
-                padding: "0.4rem 1rem",
-                background: selectedRange === "today" ? "#475087" : "#ddd",
-                color: selectedRange === "today" ? "#fff" : "#000",
-                border: "none",
-                borderRadius: "5px",
-              }}
-            >
-              Today
-            </button>
-          </div>
-
-          {/* Chart Type Selector */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="chartType">Choose Chart Type: </label>
-            <select
-              id="chartType"
-              value={chartType}
-              onChange={(e) => setChartType(e.target.value)}
-              style={{
-                padding: "0.4rem",
-                fontSize: "1rem",
-                marginLeft: "0.5rem",
-              }}
-            >
-              <option value="Bar">Bar Chart</option>
-              <option value="Pie">Pie Chart</option>
-              <option value="Doughnut">Doughnut Chart</option>
-            </select>
-          </div>
-
-          {renderChart()}
+          <button
+            onClick={() => setSelectedRange("month")}
+            style={{
+              padding: "0.4rem 1rem",
+              marginRight: "10px",
+              background: selectedRange === "month" ? "#475087" : "#ddd",
+              color: selectedRange === "month" ? "#fff" : "#000",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer"
+            }}
+          >
+            This Month
+          </button>
+          
+          <button
+            onClick={() => setSelectedRange("today")}
+            style={{
+              padding: "0.4rem 1rem",
+              background: selectedRange === "today" ? "#475087" : "#ddd",
+              color: selectedRange === "today" ? "#fff" : "#000",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer"
+            }}
+          >
+            Today
+          </button>
         </div>
+
+        {/* Chart Type Selector */}
+        <div style={{ marginBottom: "1rem" }}>
+          <label htmlFor="chartType">Choose Chart Type: </label>
+          <select
+            id="chartType"
+            value={chartType}
+            onChange={(e) => setChartType(e.target.value)}
+            style={{
+              padding: "0.4rem",
+              fontSize: "1rem",
+              marginLeft: "0.5rem",
+            }}
+          >
+            <option value="Bar">Bar Chart</option>
+            <option value="Pie">Pie Chart</option>
+            <option value="Doughnut">Doughnut Chart</option>
+          </select>
+        </div>
+
+        {renderChart()}
       </div>
+    </main>
+  </div>
   );
 };
 
