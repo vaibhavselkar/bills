@@ -9,7 +9,7 @@ const Invoice = () => {
     const fetchBillById = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`https://bills-weld.vercel.app/api/bill/${id}`, {
+        const res = await fetch(`https://bills-weld.vercel.app/api/bills/bill/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -53,109 +53,103 @@ const Invoice = () => {
 
           {/* Thermal Invoice Content */}
           <div className="thermal-invoice">
-            {/* Header Section - CENTERED */}
-            <div className="invoice-header">
-              <div className="logo-text">SANGHAMITRA</div>
-              <div className="tagline">Business Incubator</div>
-              <div className="invoice-type">TAX INVOICE</div>
-              <div className="date-time">
-                {new Date(bill.date).toLocaleDateString('en-GB')} {new Date(bill.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
-              </div>
+            {/* Header - CENTERED */}
+            <div className="header">SANGHAMITRA</div>
+            <div className="subheader">Business Incubator</div>
+            <div className="invoice-title">TAX INVOICE</div>
+            <div className="datetime">
+              {new Date(bill.date).toLocaleDateString('en-GB').replace(/\//g, '/')} {new Date(bill.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
             </div>
 
-            {/* Customer Info - LEFT ALIGNED */}
-            <div className="customer-section">
-              <div className="customer-label">Customer:</div>
-              <div className="customer-name">{bill.customerName}</div>
+            {/* Customer - LEFT ALIGNED */}
+            <div className="customer">
+              Customer: <span className="customer-name">{bill.customerName}</span>
             </div>
 
-            {/* Divider */}
-            <div className="divider-line">═══════════════════════════════════</div>
+            <div className="divider">════════════════════════════════════════════</div>
 
-            {/* Products Table Header - CENTERED */}
+            {/* Table Header */}
             <div className="table-header">
-              <div className="th-item">ITEM</div>
-              <div className="th-qty">QTY</div>
-              <div className="th-price">PRICE</div>
-              <div className="th-amt">AMT</div>
+              <div className="col-item">ITEM</div>
+              <div className="col-qty">QTY</div>
+              <div className="col-price">PRICE</div>
+              <div className="col-amt">AMT</div>
             </div>
 
-            <div className="divider-line">───────────────────────────────────</div>
+            <div className="divider-thin">────────────────────────────────────────────</div>
 
-            {/* Products List */}
-            <div className="products-list">
-              {bill.products.map((p, index) => (
-                <div key={index}>
-                  <div className="product-row">
-                    <div className="product-info">
-                      <div className="product-name">{p.product}</div>
-                      <div className="product-category">{p.category}</div>
-                    </div>
-                    <div className="product-qty">{p.quantity}</div>
-                    <div className="product-price">₹{p.price?.toFixed(2)}</div>
-                    <div className="product-total">₹{p.total?.toFixed(2)}</div>
+            {/* Products */}
+            {bill.products.map((p, index) => (
+              <div key={index}>
+                <div className="product-row">
+                  <div className="item-col">
+                    <div className="item-name">{p.product}</div>
+                    <div className="item-cat">{p.category}</div>
                   </div>
-                  <div className="product-divider">- - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+                  <div className="qty-col">{p.quantity}</div>
+                  <div className="price-col">₹{p.price?.toFixed(2)}</div>
+                  <div className="amt-col">₹{p.total?.toFixed(2)}</div>
                 </div>
-              ))}
+                <div className="item-divider">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+              </div>
+            ))}
+
+            <div className="divider">════════════════════════════════════════════</div>
+
+            {/* Summary - RIGHT ALIGNED */}
+            <div className="summary">
+              <div className="sum-row">
+                <span>Total Items:</span>
+                <span>{totalItems}</span>
+              </div>
+              <div className="sum-row">
+                <span>Total Qty:</span>
+                <span>{totalQty}</span>
+              </div>
             </div>
 
-            <div className="divider-line">═══════════════════════════════════</div>
+            <div className="divider-thin">────────────────────────────────────────────</div>
 
-            {/* Summary Section - RIGHT ALIGNED */}
-            <div className="summary-section">
-              <div className="summary-row">
-                <span className="summary-label">Total Items:</span>
-                <span className="summary-value">{totalItems}</span>
-              </div>
-              <div className="summary-row">
-                <span className="summary-label">Total Qty:</span>
-                <span className="summary-value">{totalQty}</span>
-              </div>
-            </div>
-
-            <div className="divider-line">───────────────────────────────────</div>
-
-            {/* Total Amount - CENTERED & BOLD */}
-            <div className="total-amount-section">
+            {/* Total - CENTERED & BOLD */}
+            <div className="total-section">
               <div className="total-label">TOTAL AMOUNT:</div>
               <div className="total-value">₹{bill.totalAmount?.toFixed(2)}</div>
             </div>
 
-            <div className="divider-line">═══════════════════════════════════</div>
+            <div className="divider">════════════════════════════════════════════</div>
 
-            {/* Payment Breakdown */}
-            <div className="payment-section">
-              <div className="payment-row">
-                <span className="payment-label">Sub Total:</span>
-                <span className="payment-value">₹{bill.totalAmount?.toFixed(2)}</span>
+            {/* Payment */}
+            <div className="payment">
+              <div className="pay-row">
+                <span>Sub Total:</span>
+                <span>₹{bill.totalAmount?.toFixed(2)}</span>
               </div>
-              <div className="payment-row">
-                <span className="payment-label">Tax:</span>
-                <span className="payment-value">₹0.00</span>
+              <div className="pay-row">
+                <span>Tax:</span>
+                <span>₹0.00</span>
               </div>
             </div>
 
-            <div className="divider-line">───────────────────────────────────</div>
+            <div className="divider-thin">────────────────────────────────────────────</div>
 
-            {/* Grand Total - CENTERED & EXTRA BOLD */}
-            <div className="grand-total-section">
+            {/* Grand Total - CENTERED */}
+            <div className="grand-total">
               <div className="grand-label">GRAND TOTAL:</div>
               <div className="grand-value">₹{bill.totalAmount?.toFixed(2)}</div>
             </div>
 
-            <div className="divider-line">═══════════════════════════════════</div>
+            <div className="divider">════════════════════════════════════════════</div>
 
             {/* Footer - CENTERED */}
-            <div className="invoice-footer">
-              <div className="thank-you">Thank you for your business!</div>
-              <div className="company-details">
+            <div className="footer">
+              <div className="thanks">Thank you for your business!</div>
+              <div className="company-info">
                 <div>Sanghamitra Business Incubator</div>
                 <div>Contact: +91 9234567890</div>
                 <div>sanghamitra.store</div>
               </div>
-              <div className="footer-note">Goods sold are not returnable</div>
-              <div className="footer-stars">★★★★★★★★★★★★★★★★★★★★★★★</div>
+              <div className="return-policy">Goods sold are not returnable</div>
+              <div className="stars">★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★</div>
             </div>
           </div>
         </div>
@@ -167,29 +161,26 @@ const Invoice = () => {
           padding: 20px;
           display: flex;
           justify-content: center;
-          align-items: flex-start;
           background: #f5f5f5;
           min-height: 100vh;
         }
 
         .invoice-container {
           width: 100%;
-          max-width: 380px;
+          max-width: 400px;
         }
 
         .thermal-invoice {
           font-family: 'Courier New', monospace;
-          font-size: 14px;
-          line-height: 1.3;
+          font-size: 15px;
+          line-height: 1.4;
           color: #000;
           background: #fff;
-          padding: 15px;
+          padding: 20px;
           border: 2px solid #333;
-          margin: 0 auto;
           box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        /* Print Button */
         .print-button {
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
@@ -205,58 +196,50 @@ const Invoice = () => {
 
         .print-button:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
         }
 
-        /* Header - CENTERED */
-        .invoice-header {
+        .header {
           text-align: center;
+          font-size: 24px;
+          font-weight: 900;
+          letter-spacing: 3px;
+          margin-bottom: 4px;
+        }
+
+        .subheader {
+          text-align: center;
+          font-size: 12px;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+
+        .invoice-title {
+          text-align: center;
+          font-size: 18px;
+          font-weight: 900;
+          margin: 10px 0 6px 0;
+        }
+
+        .datetime {
+          text-align: center;
+          font-size: 11px;
+          font-weight: 600;
           margin-bottom: 12px;
         }
 
-        .logo-text {
-          font-size: 22px;
-          font-weight: 900;
-          letter-spacing: 2px;
-          margin-bottom: 3px;
-        }
-
-        .tagline {
-          font-size: 11px;
-          font-weight: 600;
-          margin-bottom: 8px;
-        }
-
-        .invoice-type {
-          font-size: 16px;
-          font-weight: 900;
-          margin: 8px 0 5px 0;
-        }
-
-        .date-time {
-          font-size: 11px;
-          font-weight: 600;
-        }
-
-        /* Customer Section - LEFT ALIGNED */
-        .customer-section {
+        .customer {
           margin: 12px 0;
-          text-align: left;
-        }
-
-        .customer-label {
           font-size: 12px;
           font-weight: 600;
-          margin-bottom: 2px;
         }
 
         .customer-name {
           font-size: 16px;
           font-weight: 900;
+          margin-left: 10px;
         }
 
-        /* Divider Lines */
-        .divider-line {
+        .divider, .divider-thin, .item-divider {
           text-align: center;
           font-size: 10px;
           margin: 8px 0;
@@ -264,176 +247,129 @@ const Invoice = () => {
           white-space: nowrap;
         }
 
-        /* Table Header - CENTERED */
         .table-header {
           display: grid;
-          grid-template-columns: 2.5fr 0.8fr 1.2fr 1.2fr;
-          gap: 5px;
+          grid-template-columns: 2fr 0.7fr 1fr 1fr;
+          gap: 4px;
           font-weight: 900;
           font-size: 11px;
           text-align: center;
           margin: 8px 0;
         }
 
-        .th-item { text-align: left; }
-
-        /* Products List */
-        .products-list {
-          margin: 10px 0;
-        }
+        .col-item { text-align: left; }
 
         .product-row {
           display: grid;
-          grid-template-columns: 2.5fr 0.8fr 1.2fr 1.2fr;
-          gap: 5px;
-          margin: 6px 0;
+          grid-template-columns: 2fr 0.7fr 1fr 1fr;
+          gap: 4px;
+          margin: 8px 0;
           font-weight: 600;
           align-items: start;
         }
 
-        .product-info {
+        .item-col {
           text-align: left;
         }
 
-        .product-name {
-          font-size: 13px;
+        .item-name {
+          font-size: 14px;
           font-weight: 900;
           margin-bottom: 2px;
         }
 
-        .product-category {
+        .item-cat {
           font-size: 10px;
-          font-weight: 600;
           color: #666;
         }
 
-        .product-qty,
-        .product-price,
-        .product-total {
+        .qty-col, .price-col, .amt-col {
           text-align: center;
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 700;
         }
 
-        .product-divider {
-          font-size: 10px;
-          text-align: center;
-          margin: 4px 0;
-          color: #999;
-        }
-
-        /* Summary Section - RIGHT ALIGNED */
-        .summary-section {
+        .summary, .payment {
           margin: 10px 0;
         }
 
-        .summary-row {
+        .sum-row, .pay-row {
           display: flex;
           justify-content: space-between;
-          margin: 5px 0;
-          font-size: 13px;
-        }
-
-        .summary-label {
-          font-weight: 600;
-        }
-
-        .summary-value {
-          font-weight: 900;
-        }
-
-        /* Total Amount - CENTERED */
-        .total-amount-section {
-          text-align: center;
-          margin: 12px 0;
-          padding: 8px 0;
-        }
-
-        .total-label {
-          font-size: 15px;
-          font-weight: 900;
-          margin-bottom: 3px;
-        }
-
-        .total-value {
-          font-size: 18px;
-          font-weight: 900;
-        }
-
-        /* Payment Section - RIGHT ALIGNED */
-        .payment-section {
-          margin: 10px 0;
-        }
-
-        .payment-row {
-          display: flex;
-          justify-content: space-between;
-          margin: 5px 0;
-          font-size: 13px;
-        }
-
-        .payment-label {
-          font-weight: 600;
-        }
-
-        .payment-value {
+          margin: 6px 0;
+          font-size: 14px;
           font-weight: 700;
         }
 
-        /* Grand Total - CENTERED */
-        .grand-total-section {
+        .total-section {
           text-align: center;
-          margin: 12px 0;
+          margin: 14px 0;
           padding: 10px 0;
         }
 
-        .grand-label {
+        .total-label {
           font-size: 16px;
           font-weight: 900;
           margin-bottom: 4px;
         }
 
-        .grand-value {
+        .total-value {
           font-size: 20px;
           font-weight: 900;
         }
 
-        /* Footer - CENTERED */
-        .invoice-footer {
+        .grand-total {
           text-align: center;
-          margin-top: 15px;
+          margin: 14px 0;
+          padding: 12px 0;
         }
 
-        .thank-you {
-          font-size: 13px;
+        .grand-label {
+          font-size: 17px;
+          font-weight: 900;
+          margin-bottom: 5px;
+        }
+
+        .grand-value {
+          font-size: 22px;
+          font-weight: 900;
+        }
+
+        .footer {
+          text-align: center;
+          margin-top: 16px;
+        }
+
+        .thanks {
+          font-size: 14px;
           font-weight: 900;
           font-style: italic;
-          margin-bottom: 10px;
+          margin-bottom: 12px;
         }
 
-        .company-details {
+        .company-info {
+          font-size: 11px;
+          line-height: 1.6;
+          font-weight: 600;
+          margin-bottom: 12px;
+        }
+
+        .return-policy {
           font-size: 10px;
-          line-height: 1.5;
           font-weight: 600;
-          margin-bottom: 10px;
-        }
-
-        .footer-note {
-          font-size: 9px;
-          font-weight: 600;
-          margin: 8px 0;
+          margin: 10px 0;
           border: 1px solid #000;
-          padding: 5px;
+          padding: 6px;
           display: inline-block;
         }
 
-        .footer-stars {
-          font-size: 10px;
-          margin-top: 8px;
+        .stars {
+          font-size: 11px;
+          margin-top: 10px;
           letter-spacing: 1px;
         }
 
-        /* PRINT STYLES FOR THERMAL PRINTER */
+        /* PRINT STYLES FOR 78mm THERMAL PRINTER */
         @media print {
           body * {
             visibility: hidden;
@@ -449,12 +385,12 @@ const Invoice = () => {
           }
 
           @page {
-            size: 58mm auto;
+            size: 78mm auto;
             margin: 0;
           }
 
           html, body {
-            width: 58mm;
+            width: 78mm;
             margin: 0;
             padding: 0;
             background: white;
@@ -464,28 +400,28 @@ const Invoice = () => {
             position: fixed;
             left: 0;
             top: 0;
-            width: 58mm;
+            width: 78mm;
             margin: 0;
             padding: 0;
             background: white;
           }
 
           .invoice-container {
-            width: 58mm;
-            max-width: 58mm;
+            width: 78mm;
+            max-width: 78mm;
             margin: 0;
             padding: 0;
           }
 
           .thermal-invoice {
-            width: 58mm;
-            max-width: 58mm;
+            width: 78mm;
+            max-width: 78mm;
             margin: 0;
-            padding: 2mm;
+            padding: 3mm;
             border: none;
             box-shadow: none;
-            font-size: 10px;
-            line-height: 1.2;
+            font-size: 11px;
+            line-height: 1.3;
           }
 
           .thermal-invoice * {
@@ -493,104 +429,95 @@ const Invoice = () => {
             background: transparent !important;
           }
 
-          .logo-text {
-            font-size: 16px !important;
+          .header {
+            font-size: 18px !important;
+            letter-spacing: 2px !important;
           }
 
-          .tagline {
-            font-size: 8px !important;
+          .subheader {
+            font-size: 9px !important;
           }
 
-          .invoice-type {
-            font-size: 12px !important;
+          .invoice-title {
+            font-size: 14px !important;
           }
 
-          .date-time {
-            font-size: 8px !important;
+          .datetime {
+            font-size: 9px !important;
           }
 
-          .customer-label {
+          .customer {
             font-size: 9px !important;
           }
 
           .customer-name {
-            font-size: 12px !important;
+            font-size: 13px !important;
           }
 
-          .divider-line {
+          .divider, .divider-thin {
             font-size: 8px !important;
             margin: 1mm 0 !important;
           }
 
-          .table-header {
-            font-size: 8px !important;
-          }
-
-          .product-name {
-            font-size: 10px !important;
-          }
-
-          .product-category {
-            font-size: 7px !important;
-          }
-
-          .product-qty,
-          .product-price,
-          .product-total {
-            font-size: 9px !important;
-          }
-
-          .product-divider {
+          .item-divider {
             font-size: 8px !important;
             margin: 0.5mm 0 !important;
           }
 
-          .summary-row,
-          .payment-row {
+          .table-header {
             font-size: 9px !important;
           }
 
-          .total-label {
+          .item-name {
             font-size: 11px !important;
           }
 
-          .total-value {
-            font-size: 14px !important;
-          }
-
-          .grand-label {
-            font-size: 12px !important;
-          }
-
-          .grand-value {
-            font-size: 15px !important;
-          }
-
-          .thank-you {
-            font-size: 10px !important;
-          }
-
-          .company-details {
-            font-size: 7px !important;
-          }
-
-          .footer-note {
-            font-size: 6px !important;
-            padding: 1mm !important;
-          }
-
-          .footer-stars {
+          .item-cat {
             font-size: 8px !important;
           }
 
-          .product-row {
-            page-break-inside: avoid;
+          .qty-col, .price-col, .amt-col {
+            font-size: 10px !important;
           }
 
-          .summary-section,
-          .payment-section,
-          .total-amount-section,
-          .grand-total-section {
+          .sum-row, .pay-row {
+            font-size: 10px !important;
+          }
+
+          .total-label {
+            font-size: 12px !important;
+          }
+
+          .total-value {
+            font-size: 16px !important;
+          }
+
+          .grand-label {
+            font-size: 13px !important;
+          }
+
+          .grand-value {
+            font-size: 17px !important;
+          }
+
+          .thanks {
+            font-size: 11px !important;
+          }
+
+          .company-info {
+            font-size: 8px !important;
+          }
+
+          .return-policy {
+            font-size: 7px !important;
+            padding: 1mm !important;
+          }
+
+          .stars {
+            font-size: 9px !important;
+          }
+
+          .product-row {
             page-break-inside: avoid;
           }
         }
