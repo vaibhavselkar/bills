@@ -9,7 +9,7 @@ const Invoice = () => {
     const fetchBillById = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:8080/api/bill/${id}`, {
+        const res = await fetch(`https://bills-weld.vercel.app/api/bill/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
