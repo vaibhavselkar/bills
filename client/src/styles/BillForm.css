@@ -198,15 +198,16 @@
 }
 
 .selection-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: #667eea;
+  color: white !important;
+  border-color: #5a67d8;
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+  transform: none;
 }
 
-.selection-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.selection-btn.active:hover {
+  background: #5a67d8;
+  color: white !important;
 }
 
 .btn-text {
@@ -218,6 +219,18 @@
 .btn-price {
   font-size: 13px;
   font-weight: 700;
+}
+
+.payment-method select {
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+  padding: 10px 12px;
+}
+
+.payment-method select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
 .stock-badge,
