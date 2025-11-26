@@ -1,535 +1,602 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/BillForm.css';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-const BillForm = () => {
-  const [customerName, setCustomerName] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
-  const [billItems, setBillItems] = useState([]);
-  const [productData, setProductData] = useState([]);
-  const [toast, setToast] = useState({ message: '', type: '' });
-  const [activeOccasion, setActiveOccasion] = useState('');
-  const [loading, setLoading] = useState(false);
+const Invoice = () => {
+  const [bill, setBill] = useState(null);
+  const { id } = useParams();
 
-  const [selectedProduct, setSelectedProduct] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState('');
-  const [price, setPrice] = useState(0);
-  const [quantity, setQuantity] = useState(1);
-  const [discount, setDiscount] = useState(0);
-  
-  const navigate = useNavigate();
-
-  // Get auth token
-  const getAuthToken = () => {
-    return localStorage.getItem('token') || sessionStorage.getItem('token');
-  };
-
-  // Fetch product data with authentication
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
+    const fetchBillById = async () => {
       try {
-        const token = getAuthToken();
-        if (!token) {
-          showToast('Please login to access products', 'error');
-          return;
-        }
-
-        const response = await fetch("https://bills-weld.vercel.app/api/products", {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`https://bills-weld.vercel.app/api/bill/${id}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          // Handle different API response formats
-          if (data.success && data.data && Array.isArray(data.data)) {
-            setProductData(data.data);
-          } else if (Array.isArray(data)) {
-            setProductData(data);
-          } else {
-            console.error('Unexpected API response format:', data);
-            setProductData([]);
-            showToast('Error loading products', 'error');
-          }
-        } else {
-          const errorData = await response.json();
-          console.error('Failed to fetch products:', errorData);
-          showToast(`Error: ${errorData.message || 'Failed to fetch products'}`, 'error');
-          setProductData([]);
+        if (!res.ok) {
+          throw new Error("Unauthorized or failed to fetch bill");
         }
+
+        const data = await res.json();
+        setBill(data);
       } catch (err) {
-        console.error('Error fetching product data:', err);
-        showToast('Error loading products. Please check your connection.', 'error');
-        setProductData([]);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching bill:", err);
       }
     };
 
-    fetchProducts();
-  }, []);
+    fetchBillById();
+  }, [id]);
 
-  // Fetch active occasion with authentication
-  useEffect(() => {
-    const fetchOccasion = async () => {
-      try {
-        const token = getAuthToken();
-        const response = await fetch("https://bills-weld.vercel.app/api/get-occasion", {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setActiveOccasion(data?.activeOccasion || '');
-        }
-      } catch (err) {
-        console.error('Error fetching active occasion:', err);
-      }
-    };
-
-    fetchOccasion();
-  }, []);
-
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast({ message: '', type: '' }), 3000);
+  const handlePrint = () => {
+    window.print();
   };
 
-  // Get current product, category, and subcategory data
-  const getCurrentProduct = () => {
-    if (!Array.isArray(productData)) return null;
-    return productData.find(p => p._id === selectedProduct);
-  };
+  if (!bill) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading invoice...</div>;
 
-  const getCurrentCategory = () => {
-    const product = getCurrentProduct();
-    return product?.categories?.find(c => c._id === selectedCategory);
-  };
-
-  const getCurrentSubcategory = () => {
-    const category = getCurrentCategory();
-    return category?.subcategories?.find(s => s.sku === selectedSubcategory);
-  };
-
-  // Reset selection when product changes
-  const handleProductSelect = (productId) => {
-    setSelectedProduct(productId);
-    setSelectedCategory('');
-    setSelectedSubcategory('');
-    setPrice(0);
-  };
-
-  const handleCategorySelect = (categoryId) => {
-    setSelectedCategory(categoryId);
-    setSelectedSubcategory('');
-    
-    // Auto-set price if category has a fixed price
-    const category = getCurrentProduct()?.categories?.find(c => c._id === categoryId);
-    if (category?.price) {
-      setPrice(category.price);
-    }
-  };
-
-  const handleSubcategorySelect = (subcategorySku) => {
-    setSelectedSubcategory(subcategorySku);
-    
-    // Auto-set price if subcategory exists (category price is used)
-    const category = getCurrentCategory();
-    if (category?.price) {
-      setPrice(category.price);
-    }
-  };
-
-  // Add item to bill - UPDATED FOR NEW SCHEMA
-  const addItemToBill = () => {
-    if (!selectedProduct) {
-      showToast('Please select a product', 'error');
-      return;
-    }
-
-    const currentProduct = getCurrentProduct();
-    const currentCategory = getCurrentCategory();
-    const currentSubcategory = getCurrentSubcategory();
-
-    if (!currentProduct || !currentCategory) {
-      showToast('Please select a valid product and category', 'error');
-      return;
-    }
-
-    const totalAmount = (price * quantity) * (1 - discount / 100);
-
-    const newItem = {
-      productId: selectedProduct,
-      product: currentProduct.product,
-      category: currentCategory.name,
-      subcategory: {
-        design: currentSubcategory?.design || '',
-        color: currentSubcategory?.color || '',
-        size: currentSubcategory?.size || '',
-        sku: selectedSubcategory || ''
-      },
-      price: price,
-      quantity: quantity,
-      discount: discount,
-      total: totalAmount
-    };
-
-    setBillItems([...billItems, newItem]);
-    
-    // Reset selection form
-    setSelectedProduct('');
-    setSelectedCategory('');
-    setSelectedSubcategory('');
-    setPrice(0);
-    setQuantity(1);
-    setDiscount(0);
-    
-    showToast('Item added to bill successfully!');
-  };
-
-  const deleteBillItem = (index) => {
-    const updated = billItems.filter((_, i) => i !== index);
-    setBillItems(updated);
-  };
-
-  const getGrandTotal = () =>
-    billItems.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0).toFixed(2);
-
-  // Submit handler - UPDATED FOR NEW SCHEMA WITH AUTHENTICATION
-  const handleSubmit = async () => {
-    if (!customerName) return showToast('Enter customer name', 'error');
-    if (mobileNumber && !/^\d{10}$/.test(mobileNumber))
-      return showToast('Enter a valid 10-digit mobile number', 'error');
-    if (billItems.length === 0) return showToast('Add at least one item to bill', 'error');
-
-    const token = getAuthToken();
-    if (!token) {
-      showToast('Please login to create bills', 'error');
-      return;
-    }
-
-    const billData = {
-      customerName,
-      mobileNumber,
-      paymentMethod,
-      totalAmount: parseFloat(getGrandTotal()),
-      products: billItems.map(item => ({
-        productId: item.productId,
-        product: item.product,
-        category: item.category,
-        subcategory: item.subcategory,
-        price: item.price,
-        quantity: item.quantity,
-        discount: item.discount,
-        total: item.total
-      })),
-      billType: activeOccasion ? "special" : "daily",
-      occasion: activeOccasion || "",
-    };
-
-    setLoading(true);
-    try {
-      const res = await fetch("https://bills-weld.vercel.app/api/", { 
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(billData),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('lastBill', JSON.stringify(data));
-        navigate(`/invoice/${data.bill._id}`);
-        showToast('Bill saved successfully!');
-        setCustomerName('');
-        setMobileNumber('');
-        setBillItems([]);
-        setPaymentMethod('Cash');
-      } else {
-        throw new Error(data.message || 'Error saving bill');
-      }
-    } catch (err) {
-      showToast('Error: ' + err.message, 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Safe rendering of products
-  const renderProducts = () => {
-    if (loading) {
-      return <div className="loading">Loading products...</div>;
-    }
-
-    if (!Array.isArray(productData) || productData.length === 0) {
-      return <div className="no-products">No products available. Please add products first.</div>;
-    }
-
-    return productData.map((product) => (
-      <button
-        key={product._id}
-        className={`selection-btn ${selectedProduct === product._id ? 'active' : ''}`}
-        onClick={() => handleProductSelect(product._id)}
-      >
-        {product.product}
-        {product.totalStock > 0 && (
-          <span className="stock-badge">Stock: {product.totalStock}</span>
-        )}
-      </button>
-    ));
-  };
-
-  // Render categories for selected product
-  const renderCategories = () => {
-    const product = getCurrentProduct();
-    if (!product || !product.categories || product.categories.length === 0) {
-      return null;
-    }
-
-    return (
-      <div className="selection-group">
-        <label>Categories:</label>
-        <div className="button-group">
-          {product.categories.map((category) => (
-            <button
-              key={category._id || category.name}
-              className={`selection-btn ${selectedCategory === (category._id || category.name) ? 'active' : ''}`}
-              onClick={() => handleCategorySelect(category._id || category.name)}
-              disabled={category.stock <= 0}
-            >
-              {category.name} (₹{category.price})
-              {category.stock > 0 && (
-                <span className="stock-info">Stock: {category.stock}</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  // Render subcategories for selected category
-  const renderSubcategories = () => {
-    const category = getCurrentCategory();
-    if (!category || !category.subcategories || category.subcategories.length === 0) {
-      return null;
-    }
-
-    return (
-      <div className="selection-group">
-        <label>Subcategories:</label>
-        <div className="button-group">
-          {category.subcategories.map((subcat) => (
-            <button
-              key={subcat.sku}
-              className={`selection-btn ${selectedSubcategory === subcat.sku ? 'active' : ''}`}
-              onClick={() => handleSubcategorySelect(subcat.sku)}
-              disabled={subcat.stock <= 0}
-            >
-              {subcat.design} {subcat.color} {subcat.size} 
-              <span className="sku">SKU: {subcat.sku}</span>
-              {subcat.stock > 0 && (
-                <span className="stock-info">Stock: {subcat.stock}</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  const totalQty = bill.products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+  const totalItems = bill.products.length;
 
   return (
-    <div className="bill-container">
-      {toast.message && (
-        <div className={`toast ${toast.type === 'error' ? 'error' : ''}`}>{toast.message}</div>
-      )}
-
-      {activeOccasion && (
-        <div className="occasion-banner">
-          🎉 <strong>Active Occasion:</strong> {activeOccasion} (All bills will be marked as "Special")
-        </div>
-      )}
-
-      <div className="header">
-        <h1>SANGHAMITRA BUSINESS INCUBATORS</h1>
-      </div>
-
-      {/* Customer Information */}
-      <div className="customer-info">
-        <div className="input-group">
-          <label>Customer Name:</label>
-          <input 
-            type="text" 
-            value={customerName} 
-            onChange={e => setCustomerName(e.target.value)}
-            placeholder="Enter customer name"
-          />
-        </div>
-        <div className="input-group">
-          <label>Contact No:</label>
-          <input 
-            type="tel" 
-            value={mobileNumber} 
-            onChange={e => setMobileNumber(e.target.value)}
-            placeholder="Optional"
-          />
-        </div>
-      </div>
-
-      {/* Product Selection Section */}
-      <div className="product-selection-section">
-        <h3>Product Selection</h3>
-        
-        {/* Products */}
-        <div className="selection-group">
-          <label>Products:</label>
-          <div className="button-group">
-            {renderProducts()}
+    <>
+      <div className="invoice-page">
+        <div className="invoice-container">
+          
+          {/* Print Button */}
+          <div className="no-print" style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <button onClick={handlePrint} className="print-button">
+              🖨️ Print Invoice
+            </button>
           </div>
-        </div>
 
-        {/* Categories */}
-        {selectedProduct && renderCategories()}
-
-        {/* Subcategories */}
-        {selectedCategory && renderSubcategories()}
-
-        {/* Price, Quantity, Discount */}
-        <div className="price-quantity-section">
-          <div className="input-row">
-            <div className="input-group">
-              <label>Price (₹):</label>
-              <input
-                type="number"
-                value={price}
-                onChange={e => setPrice(parseFloat(e.target.value) || 0)}
-                min="0"
-                step="0.01"
-              />
+          {/* Thermal Invoice Content */}
+          <div className="thermal-invoice">
+            {/* Header Section - CENTERED */}
+            <div className="invoice-header">
+              <div className="logo-text">SANGHAMITRA</div>
+              <div className="tagline">Business Incubator</div>
+              <div className="invoice-type">TAX INVOICE</div>
+              <div className="date-time">
+                {new Date(bill.date).toLocaleDateString('en-GB')} {new Date(bill.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
+              </div>
             </div>
-            
-            <div className="input-group">
-              <label>Quantity:</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                min="1"
-              />
-            </div>
-            
-            <div className="input-group">
-              <label>Discount (%):</label>
-              <select value={discount} onChange={e => setDiscount(parseInt(e.target.value))}>
-                {[0, 10, 20, 30, 40, 50].map(d => (
-                  <option key={d} value={d}>{d}%</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
 
-        {/* Add Item Button */}
-        <button className="add-to-bill-btn" onClick={addItemToBill}>
-          Add Item to Bill
-        </button>
-      </div>
+            {/* Customer Info - LEFT ALIGNED */}
+            <div className="customer-section">
+              <div className="customer-label">Customer:</div>
+              <div className="customer-name">{bill.customerName}</div>
+            </div>
 
-      {/* Bill Items Table */}
-      {billItems.length > 0 && (
-        <div className="bill-items-section">
-          <h3>Bill Items</h3>
-          <table className="bill-items-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Design</th>
-                <th>Color</th>
-                <th>Size</th>
-                <th>SKU</th>
-                <th>Price</th>
-                <th>Qty</th>
-                <th>Discount</th>
-                <th>Total</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {billItems.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.product}</td>
-                  <td>{item.category}</td>
-                  <td>{item.subcategory.design}</td>
-                  <td>{item.subcategory.color}</td>
-                  <td>{item.subcategory.size}</td>
-                  <td>{item.subcategory.sku}</td>
-                  <td>₹{item.price}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.discount}%</td>
-                  <td>₹{item.total.toFixed(2)}</td>
-                  <td>
-                    <button className="delete-btn" onClick={() => deleteBillItem(index)}>
-                      ×
-                    </button>
-                  </td>
-                </tr>
+            {/* Divider */}
+            <div className="divider-line">═══════════════════════════════════</div>
+
+            {/* Products Table Header - CENTERED */}
+            <div className="table-header">
+              <div className="th-item">ITEM</div>
+              <div className="th-qty">QTY</div>
+              <div className="th-price">PRICE</div>
+              <div className="th-amt">AMT</div>
+            </div>
+
+            <div className="divider-line">───────────────────────────────────</div>
+
+            {/* Products List */}
+            <div className="products-list">
+              {bill.products.map((p, index) => (
+                <div key={index}>
+                  <div className="product-row">
+                    <div className="product-info">
+                      <div className="product-name">{p.product}</div>
+                      <div className="product-category">{p.category}</div>
+                    </div>
+                    <div className="product-qty">{p.quantity}</div>
+                    <div className="product-price">₹{p.price?.toFixed(2)}</div>
+                    <div className="product-total">₹{p.total?.toFixed(2)}</div>
+                  </div>
+                  <div className="product-divider">- - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </div>
 
-      {/* Payment Section */}
-      <div className="payment-section">
-        <div className="payment-method">
-          <label>Payment Method:</label>
-          <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
-            <option value="Cash">Cash</option>
-            <option value="Online">Online</option>
-            <option value="Card">Card</option>
-            <option value="UPI">UPI</option>
-          </select>
-        </div>
+            <div className="divider-line">═══════════════════════════════════</div>
 
-        {paymentMethod === 'Online' && (
-          <div className="qr-container">
-            <p>Scan QR Code to Pay:</p>
-            <img src="/qr-code.png" alt="QR Code" className="qr-code" />
+            {/* Summary Section - RIGHT ALIGNED */}
+            <div className="summary-section">
+              <div className="summary-row">
+                <span className="summary-label">Total Items:</span>
+                <span className="summary-value">{totalItems}</span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Total Qty:</span>
+                <span className="summary-value">{totalQty}</span>
+              </div>
+            </div>
+
+            <div className="divider-line">───────────────────────────────────</div>
+
+            {/* Total Amount - CENTERED & BOLD */}
+            <div className="total-amount-section">
+              <div className="total-label">TOTAL AMOUNT:</div>
+              <div className="total-value">₹{bill.totalAmount?.toFixed(2)}</div>
+            </div>
+
+            <div className="divider-line">═══════════════════════════════════</div>
+
+            {/* Payment Breakdown */}
+            <div className="payment-section">
+              <div className="payment-row">
+                <span className="payment-label">Sub Total:</span>
+                <span className="payment-value">₹{bill.totalAmount?.toFixed(2)}</span>
+              </div>
+              <div className="payment-row">
+                <span className="payment-label">Tax:</span>
+                <span className="payment-value">₹0.00</span>
+              </div>
+            </div>
+
+            <div className="divider-line">───────────────────────────────────</div>
+
+            {/* Grand Total - CENTERED & EXTRA BOLD */}
+            <div className="grand-total-section">
+              <div className="grand-label">GRAND TOTAL:</div>
+              <div className="grand-value">₹{bill.totalAmount?.toFixed(2)}</div>
+            </div>
+
+            <div className="divider-line">═══════════════════════════════════</div>
+
+            {/* Footer - CENTERED */}
+            <div className="invoice-footer">
+              <div className="thank-you">Thank you for your business!</div>
+              <div className="company-details">
+                <div>Sanghamitra Business Incubator</div>
+                <div>Contact: +91 9234567890</div>
+                <div>sanghamitra.store</div>
+              </div>
+              <div className="footer-note">Goods sold are not returnable</div>
+              <div className="footer-stars">★★★★★★★★★★★★★★★★★★★★★★★</div>
+            </div>
           </div>
-        )}
-
-        <div className="grand-total">
-           Total Amount: <strong>₹{getGrandTotal()}</strong>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="action-buttons">
-        <button 
-          className="save-btn" 
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? 'Saving Bill...' : 'Save Bill'}
-        </button>
-      </div>
+      <style jsx>{`
+        /* Screen Styles */
+        .invoice-page {
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          background: #f5f5f5;
+          min-height: 100vh;
+        }
 
-      <div className="footer">
-        Sanghamitra Business Incubator<br />
-        Website: <a href="https://sanghamitra.store" target="_blank" rel="noreferrer">sanghamitra.store</a><br />
-        Contact: +919234567890
-      </div>
-    </div>
+        .invoice-container {
+          width: 100%;
+          max-width: 380px;
+        }
+
+        .thermal-invoice {
+          font-family: 'Courier New', monospace;
+          font-size: 44px;
+          line-height: 1.3;
+          color: #000;
+          background: #fff;
+          padding: 15px;
+          border: 2px solid #333;
+          margin: 0 auto;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Print Button */
+        .print-button {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          padding: 14px 28px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          transition: all 0.3s;
+        }
+
+        .print-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Header - CENTERED */
+        .invoice-header {
+          text-align: center;
+          margin-bottom: 12px;
+        }
+
+        .logo-text {
+          font-size: 22px;
+          font-weight: 900;
+          letter-spacing: 2px;
+          margin-bottom: 3px;
+        }
+
+        .tagline {
+          font-size: 11px;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+
+        .invoice-type {
+          font-size: 16px;
+          font-weight: 900;
+          margin: 8px 0 5px 0;
+        }
+
+        .date-time {
+          font-size: 11px;
+          font-weight: 600;
+        }
+
+        /* Customer Section - LEFT ALIGNED */
+        .customer-section {
+          margin: 12px 0;
+          text-align: left;
+        }
+
+        .customer-label {
+          font-size: 12px;
+          font-weight: 600;
+          margin-bottom: 2px;
+        }
+
+        .customer-name {
+          font-size: 16px;
+          font-weight: 900;
+        }
+
+        /* Divider Lines */
+        .divider-line {
+          text-align: center;
+          font-size: 10px;
+          margin: 8px 0;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+
+        /* Table Header - CENTERED */
+        .table-header {
+          display: grid;
+          grid-template-columns: 2.5fr 0.8fr 1.2fr 1.2fr;
+          gap: 5px;
+          font-weight: 900;
+          font-size: 11px;
+          text-align: center;
+          margin: 8px 0;
+        }
+
+        .th-item { text-align: left; }
+
+        /* Products List */
+        .products-list {
+          margin: 10px 0;
+        }
+
+        .product-row {
+          display: grid;
+          grid-template-columns: 2.5fr 0.8fr 1.2fr 1.2fr;
+          gap: 5px;
+          margin: 6px 0;
+          font-weight: 600;
+          align-items: start;
+        }
+
+        .product-info {
+          text-align: left;
+        }
+
+        .product-name {
+          font-size: 13px;
+          font-weight: 900;
+          margin-bottom: 2px;
+        }
+
+        .product-category {
+          font-size: 10px;
+          font-weight: 600;
+          color: #666;
+        }
+
+        .product-qty,
+        .product-price,
+        .product-total {
+          text-align: center;
+          font-size: 12px;
+          font-weight: 700;
+        }
+
+        .product-divider {
+          font-size: 10px;
+          text-align: center;
+          margin: 4px 0;
+          color: #999;
+        }
+
+        /* Summary Section - RIGHT ALIGNED */
+        .summary-section {
+          margin: 10px 0;
+        }
+
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          margin: 5px 0;
+          font-size: 13px;
+        }
+
+        .summary-label {
+          font-weight: 600;
+        }
+
+        .summary-value {
+          font-weight: 900;
+        }
+
+        /* Total Amount - CENTERED */
+        .total-amount-section {
+          text-align: center;
+          margin: 12px 0;
+          padding: 8px 0;
+        }
+
+        .total-label {
+          font-size: 15px;
+          font-weight: 900;
+          margin-bottom: 3px;
+        }
+
+        .total-value {
+          font-size: 18px;
+          font-weight: 900;
+        }
+
+        /* Payment Section - RIGHT ALIGNED */
+        .payment-section {
+          margin: 10px 0;
+        }
+
+        .payment-row {
+          display: flex;
+          justify-content: space-between;
+          margin: 5px 0;
+          font-size: 13px;
+        }
+
+        .payment-label {
+          font-weight: 600;
+        }
+
+        .payment-value {
+          font-weight: 700;
+        }
+
+        /* Grand Total - CENTERED */
+        .grand-total-section {
+          text-align: center;
+          margin: 12px 0;
+          padding: 10px 0;
+        }
+
+        .grand-label {
+          font-size: 16px;
+          font-weight: 900;
+          margin-bottom: 4px;
+        }
+
+        .grand-value {
+          font-size: 20px;
+          font-weight: 900;
+        }
+
+        /* Footer - CENTERED */
+        .invoice-footer {
+          text-align: center;
+          margin-top: 15px;
+        }
+
+        .thank-you {
+          font-size: 13px;
+          font-weight: 900;
+          font-style: italic;
+          margin-bottom: 10px;
+        }
+
+        .company-details {
+          font-size: 10px;
+          line-height: 1.5;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+
+        .footer-note {
+          font-size: 9px;
+          font-weight: 600;
+          margin: 8px 0;
+          border: 1px solid #000;
+          padding: 5px;
+          display: inline-block;
+        }
+
+        .footer-stars {
+          font-size: 10px;
+          margin-top: 8px;
+          letter-spacing: 1px;
+        }
+
+        /* PRINT STYLES FOR THERMAL PRINTER */
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+
+          .invoice-page,
+          .invoice-page * {
+            visibility: visible;
+          }
+
+          .no-print {
+            display: none !important;
+          }
+
+          @page {
+            size: 80mm auto;
+            margin: 0;
+          }
+
+          html, body {
+            width: 80mm;
+            margin: 0;
+            padding: 0;
+            background: white;
+          }
+
+          .invoice-page {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80mm;
+            margin: 0;
+            padding: 0;
+            background: white;
+          }
+
+          .invoice-container {
+            width: 80mm;
+            max-width: 80mm;
+            margin: 0;
+            padding: 0;
+          }
+
+          .thermal-invoice {
+            width: 80mm;
+            max-width: 80mm;
+            margin: 0;
+            padding: 2mm;
+            border: none;
+            box-shadow: none;
+            font-size: 10px;
+            line-height: 1.2;
+          }
+
+          .thermal-invoice * {
+            color: #000 !important;
+            background: transparent !important;
+          }
+
+          .logo-text {
+            font-size: 16px !important;
+          }
+
+          .tagline {
+            font-size: 8px !important;
+          }
+
+          .invoice-type {
+            font-size: 12px !important;
+          }
+
+          .date-time {
+            font-size: 8px !important;
+          }
+
+          .customer-label {
+            font-size: 9px !important;
+          }
+
+          .customer-name {
+            font-size: 12px !important;
+          }
+
+          .divider-line {
+            font-size: 8px !important;
+            margin: 1mm 0 !important;
+          }
+
+          .table-header {
+            font-size: 8px !important;
+          }
+
+          .product-name {
+            font-size: 10px !important;
+          }
+
+          .product-category {
+            font-size: 7px !important;
+          }
+
+          .product-qty,
+          .product-price,
+          .product-total {
+            font-size: 9px !important;
+          }
+
+          .product-divider {
+            font-size: 8px !important;
+            margin: 0.5mm 0 !important;
+          }
+
+          .summary-row,
+          .payment-row {
+            font-size: 9px !important;
+          }
+
+          .total-label {
+            font-size: 11px !important;
+          }
+
+          .total-value {
+            font-size: 14px !important;
+          }
+
+          .grand-label {
+            font-size: 12px !important;
+          }
+
+          .grand-value {
+            font-size: 15px !important;
+          }
+
+          .thank-you {
+            font-size: 10px !important;
+          }
+
+          .company-details {
+            font-size: 7px !important;
+          }
+
+          .footer-note {
+            font-size: 6px !important;
+            padding: 1mm !important;
+          }
+
+          .footer-stars {
+            font-size: 8px !important;
+          }
+
+          .product-row {
+            page-break-inside: avoid;
+          }
+
+          .summary-section,
+          .payment-section,
+          .total-amount-section,
+          .grand-total-section {
+            page-break-inside: avoid;
+          }
+        }
+      `}</style>
+    </>
   );
 };
 
-export default BillForm;
+export default Invoice;
