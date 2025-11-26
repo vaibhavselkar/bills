@@ -5,6 +5,7 @@ const cors = require('cors');
 const workoutRoutes = require('./routes/db');
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/user');
+import printRouter from "./routes/print.js";
 
 
 dotenv.config();
@@ -23,7 +24,7 @@ app.get('/', (req, res) => {
 app.use('/api', workoutRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/user', userRoutes);
-
+app.use("/api/print", printRouter);
 
 // MongoDB connection
 mongoose.connect(process.env.DATABASE)
