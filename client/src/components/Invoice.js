@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { CatPrinter } from '@opuu/cat-printer';
 
 const Invoice = () => {
   const [bill, setBill] = useState(null);
@@ -30,6 +31,56 @@ const Invoice = () => {
 
   const handlePrint = () => window.print();
 
+  /** Thermal Print via Cat Printer */
+  const handleThermalPrint = async () => {
+    try {
+      const printer = new CatPrinter({ debug: true });
+      await printer.connect();
+
+      // Build formatted text receipt
+      let receipt = `
+SANGHAMITRA
+Business Incubator
+------------------------------
+Date: ${new Date(bill.date).toLocaleDateString('en-GB')} ${new Date(bill.date).toLocaleTimeString('en-IN')}
+Customer: ${bill.customerName}
+------------------------------
+ITEM               QTY     AMT
+------------------------------
+`;
+
+      bill.products.forEach((p) => {
+        const name = (p.product || '').slice(0, 14).padEnd(15);
+        const qty = String(p.quantity).padStart(3);
+        const total = `₹${p.total?.toFixed(2)}`.padStart(8);
+        receipt += `${name}${qty}${total}\n`;
+      });
+
+      const totalQty = bill.products.reduce((s, p) => s + (p.quantity || 0), 0);
+      const totalItems = bill.products.length;
+
+      receipt += `------------------------------
+Total Items: ${totalItems}   Qty: ${totalQty}
+TOTAL: ₹${bill.totalAmount?.toFixed(2)}
+------------------------------
+Thank you!
+Sanghamitra.store
+`;
+
+      await printer.printText(receipt, {
+        align: 'left',
+        fontSize: 24,
+        fontWeight: 'bold',
+      });
+
+      await printer.disconnect();
+      alert("✅ Printed successfully via Cat Printer!");
+    } catch (err) {
+      console.error("Thermal print failed:", err);
+      alert("⚠️ Unable to print — check Bluetooth or printer connection.");
+    }
+  };
+
   if (!bill)
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading invoice...</div>;
 
@@ -41,9 +92,10 @@ const Invoice = () => {
       <div className="invoice-page">
         <div className="invoice-container">
 
-          {/* Print Button */}
+          {/* Print Buttons */}
           <div className="no-print" style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <button onClick={handlePrint} className="print-button">🖨️ Print Invoice</button>
+            <button onClick={handlePrint} className="print-button">🖨️ Browser Print</button>
+            <button onClick={handleThermalPrint} className="print-button" style={{ marginLeft: '10px', background: '#4CAF50' }}>🔌 Thermal Print</button>
           </div>
 
           {/* Thermal Invoice */}
@@ -123,7 +175,7 @@ const Invoice = () => {
                   <div><b>sanghamitra.store</b></div>
                 </div>
                 <img
-                  src="/sanghamitra_qr.png" // path in public/qr.png
+                  src="/sanghamitra_qr.png"
                   alt="QR Code"
                   className="qr-code"
                 />
