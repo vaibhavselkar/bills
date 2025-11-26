@@ -207,6 +207,9 @@ const BillForm = () => {
     if (mobileNumber && !/^\d{10}$/.test(mobileNumber))
       return showToast('Enter a valid 10-digit mobile number', 'error');
     if (billItems.length === 0) return showToast('Add at least one item to bill', 'error');
+    if (!['Cash', 'UPI'].includes(paymentMethod)) {
+      return showToast('Select payment method (Cash or UPI required)', 'error');
+    }
 
     const token = getAuthToken();
     if (!token) {
@@ -490,22 +493,23 @@ const BillForm = () => {
 
       {/* Payment Section */}
       <div className="payment-section">
-        <div className="payment-method">
-          <label>Payment Method:</label>
-          <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
-            <option value="Cash">Cash</option>
-            <option value="Online">Online</option>
-            <option value="Card">Card</option>
-            <option value="UPI">UPI</option>
-          </select>
-        </div>
-
-        {paymentMethod === 'Online' && (
-          <div className="qr-container">
-            <p>Scan QR Code to Pay:</p>
-            <img src="/qr-code.png" alt="QR Code" className="qr-code" />
+        <h3>Payment Method</h3>
+          <div className="payment-buttons">
+            <button
+              type="button"
+              className={`payment-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
+              onClick={() => setPaymentMethod('Cash')}
+            >
+              💵 Cash
+            </button>
+            <button
+              type="button"
+              className={`payment-btn ${paymentMethod === 'UPI' ? 'active' : ''}`}
+              onClick={() => setPaymentMethod('UPI')}
+            >
+              📱 UPI
+            </button>
           </div>
-        )}
 
         <div className="grand-total">
            Total Amount: <strong>₹{getGrandTotal()}</strong>
