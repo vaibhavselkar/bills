@@ -1,5 +1,9 @@
 /* styles/BillForm.css */
 
+/* ============================================
+   GLOBAL STYLES
+   ============================================ */
+
 .bill-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -7,7 +11,10 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Toast Notifications */
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+
 .toast {
   position: fixed;
   top: 20px;
@@ -39,7 +46,10 @@
   background: #f44336;
 }
 
-/* Occasion Banner */
+/* ============================================
+   OCCASION BANNER
+   ============================================ */
+
 .occasion-banner {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border: 2px solid #7dd3fc;
@@ -52,7 +62,10 @@
   font-size: 15px;
 }
 
-/* Header */
+/* ============================================
+   HEADER
+   ============================================ */
+
 .header {
   text-align: center;
   margin-bottom: 25px;
@@ -65,7 +78,10 @@
   font-weight: 700;
 }
 
-/* Customer Info */
+/* ============================================
+   CUSTOMER INFORMATION
+   ============================================ */
+
 .customer-info {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -95,6 +111,7 @@
   font-size: 15px;
   transition: all 0.3s;
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 .input-group input:focus,
@@ -104,7 +121,14 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* Product Selection Section */
+.input-group input::placeholder {
+  color: #9ca3af;
+}
+
+/* ============================================
+   PRODUCT SELECTION SECTION
+   ============================================ */
+
 .product-selection-section {
   background: white;
   padding: 20px;
@@ -120,7 +144,10 @@
   font-weight: 700;
 }
 
-/* Selection Groups */
+/* ============================================
+   SELECTION GROUPS
+   ============================================ */
+
 .selection-group {
   margin-bottom: 20px;
 }
@@ -133,7 +160,10 @@
   font-size: 15px;
 }
 
-/* Button Groups */
+/* ============================================
+   BUTTON GROUPS & SELECTION BUTTONS
+   ============================================ */
+
 .button-group {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -157,6 +187,7 @@
   position: relative;
   min-height: 60px;
   justify-content: center;
+  font-family: inherit;
 }
 
 .selection-btn:hover:not(:disabled) {
@@ -181,6 +212,7 @@
 .btn-text {
   font-size: 14px;
   text-align: center;
+  line-height: 1.3;
 }
 
 .btn-price {
@@ -192,7 +224,7 @@
 .stock-info {
   font-size: 11px;
   padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(5, 150, 105, 0.15);
   color: #059669;
   border-radius: 12px;
   font-weight: 600;
@@ -204,12 +236,16 @@
   color: white;
 }
 
-/* Price Quantity Section */
+/* ============================================
+   PRICE QUANTITY SECTION
+   ============================================ */
+
 .price-quantity-section {
   background: #f9fafb;
   padding: 20px;
   border-radius: 12px;
   margin-top: 20px;
+  border: 1px solid #e5e7eb;
 }
 
 .input-row {
@@ -230,7 +266,10 @@
   font-size: 14px;
 }
 
-/* Add to Bill Button */
+/* ============================================
+   ADD TO BILL BUTTON
+   ============================================ */
+
 .add-to-bill-btn {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
@@ -243,6 +282,7 @@
   width: 100%;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  font-family: inherit;
 }
 
 .add-to-bill-btn:hover {
@@ -250,7 +290,14 @@
   box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
-/* Bill Items Section */
+.add-to-bill-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   BILL ITEMS SECTION
+   ============================================ */
+
 .bill-items-section {
   background: white;
   padding: 20px;
@@ -269,6 +316,8 @@
 .bill-items-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  margin: 0 -20px;
+  padding: 0 20px;
 }
 
 .bill-items-table {
@@ -287,10 +336,27 @@
   white-space: nowrap;
 }
 
+.bill-items-table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.bill-items-table th:last-child {
+  border-top-right-radius: 8px;
+}
+
 .bill-items-table td {
   padding: 12px 10px;
   border-bottom: 1px solid #f3f4f6;
   font-size: 13px;
+  vertical-align: top;
+}
+
+.bill-items-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bill-items-table tbody tr:hover {
+  background: #f9fafb;
 }
 
 .item-name {
@@ -313,6 +379,7 @@
 .total-cell {
   font-weight: 700;
   color: #059669;
+  font-size: 14px;
 }
 
 .delete-btn {
@@ -337,7 +404,14 @@
   transform: scale(1.1);
 }
 
-/* Payment Section */
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   PAYMENT SECTION
+   ============================================ */
+
 .payment-section {
   background: white;
   padding: 20px;
@@ -370,12 +444,14 @@
   font-weight: 600;
   transition: all 0.3s ease;
   color: #374151;
+  font-family: inherit;
 }
 
 .payment-btn:hover {
   border-color: #667eea;
   background: #f9fafb;
   transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
 }
 
 .payment-btn.active {
@@ -383,6 +459,10 @@
   color: white;
   border-color: #667eea;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.payment-btn:active {
+  transform: translateY(0);
 }
 
 .grand-total {
@@ -403,7 +483,10 @@
   font-size: 1.8rem;
 }
 
-/* Action Buttons */
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
+
 .action-buttons {
   display: flex;
   gap: 12px;
@@ -423,6 +506,7 @@
   min-width: 200px;
   transition: all 0.3s;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  font-family: inherit;
 }
 
 .save-btn:hover:not(:disabled) {
@@ -430,10 +514,19 @@
   box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
 }
 
+.save-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
+
+/* ============================================
+   LOADING & EMPTY STATES
+   ============================================ */
 
 .loading,
 .no-products {
@@ -441,9 +534,36 @@
   padding: 40px 20px;
   color: #6b7280;
   font-size: 15px;
+  font-weight: 500;
 }
 
-/* Mobile Responsive */
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   TABLET RESPONSIVE (768px - 1024px)
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .button-group {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE (max-width: 768px)
+   ============================================ */
+
 @media (max-width: 768px) {
   .bill-container {
     padding: 12px;
@@ -459,55 +579,222 @@
   }
   
   .button-group {
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
   }
+  
   .selection-btn {
-  padding: 12px;
-  font-size: 13px;
-  min-height: 55px;
+    padding: 12px;
+    font-size: 13px;
+    min-height: 55px;
   }
+  
+  .btn-text {
+    font-size: 13px;
+  }
+  
   .input-row {
-  grid-template-columns: 1fr;
-  gap: 10px;
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
+  
   .payment-methods {
-  grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
   }
+  
+  .payment-btn {
+    padding: 14px;
+    font-size: 15px;
+  }
+  
   .grand-total {
-  font-size: 1.3rem;
-  padding: 16px;
+    font-size: 1.3rem;
+    padding: 16px;
+    flex-direction: column;
+    gap: 8px;
   }
+  
   .grand-total strong {
-  font-size: 1.5rem;
+    font-size: 1.5rem;
   }
+  
   .action-buttons {
-  flex-direction: column;
+    flex-direction: column;
   }
+  
   .save-btn {
-  width: 100%;
-  min-width: unset;
+    width: 100%;
+    min-width: unset;
   }
+  
+  .bill-items-section,
+  .product-selection-section,
+  .payment-section {
+    padding: 16px;
   }
-  @media (max-width: 480px) {
+  
+  .toast {
+    left: 12px;
+    right: 12px;
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   SMALL MOBILE RESPONSIVE (max-width: 480px)
+   ============================================ */
+
+@media (max-width: 480px) {
+  .bill-container {
+    padding: 10px;
+  }
+  
+  .header h1 {
+    font-size: 1.3rem;
+  }
+  
   .product-selection-section,
   .bill-items-section,
   .payment-section {
-  padding: 15px;
+    padding: 15px;
   }
+  
   .button-group {
-  grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
+  
   .selection-btn {
-  font-size: 12px;
-  padding: 10px 8px;
+    font-size: 12px;
+    padding: 10px 8px;
+    min-height: 50px;
   }
+  
   .btn-text {
-  font-size: 12px;
+    font-size: 12px;
   }
+  
+  .btn-price {
+    font-size: 12px;
+  }
+  
   .stock-badge,
   .stock-info {
-  font-size: 10px;
-  padding: 2px 6px;
+    font-size: 10px;
+    padding: 2px 6px;
   }
+  
+  .input-group label {
+    font-size: 13px;
+  }
+  
+  .input-group input,
+  .input-group select {
+    font-size: 14px;
+    padding: 11px 12px;
+  }
+  
+  .add-to-bill-btn {
+    font-size: 15px;
+    padding: 13px 20px;
+  }
+  
+  .bill-items-table th,
+  .bill-items-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+  
+  .item-name {
+    font-size: 12px;
+  }
+  
+  .item-category,
+  .item-detail {
+    font-size: 10px;
+  }
+  
+  .delete-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+  
+  .payment-section h3,
+  .product-selection-section h3,
+  .bill-items-section h3 {
+    font-size: 1.2rem;
+  }
+  
+  .payment-btn {
+    font-size: 14px;
+    padding: 13px;
+  }
+  
+  .grand-total {
+    font-size: 1.2rem;
+    padding: 14px;
+  }
+  
+  .grand-total strong {
+    font-size: 1.4rem;
+  }
+  
+  .save-btn {
+    font-size: 16px;
+    padding: 14px 24px;
+  }
+  
+  .occasion-banner {
+    font-size: 13px;
+    padding: 12px;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .toast,
+  .action-buttons {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.selection-btn:focus,
+.payment-btn:focus,
+.add-to-bill-btn:focus,
+.save-btn:focus,
+.delete-btn:focus,
+.input-group input:focus,
+.input-group select:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   SCROLLBAR STYLING (WebKit browsers)
+   ============================================ */
+
+.bill-items-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.bill-items-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.bill-items-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.bill-items-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
