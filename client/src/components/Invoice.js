@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { CatPrinter } from '@opuu/cat-printer';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const Invoice = () => {
   const [bill, setBill] = useState(null);
@@ -29,60 +28,32 @@ const Invoice = () => {
     fetchBillById();
   }, [id]);
 
-  const handlePrint = () => window.print();
+  const handleBrowserPrint = () => window.print();
 
-  /** Thermal Print via Cat Printer */
   const handleThermalPrint = async () => {
     try {
-      const printer = new CatPrinter({ debug: true });
-      await printer.connect();
-
-      // Build formatted text receipt
-      let receipt = `
-SANGHAMITRA
-Business Incubator
-------------------------------
-Date: ${new Date(bill.date).toLocaleDateString('en-GB')} ${new Date(bill.date).toLocaleTimeString('en-IN')}
-Customer: ${bill.customerName}
-------------------------------
-ITEM               QTY     AMT
-------------------------------
-`;
-
-      bill.products.forEach((p) => {
-        const name = (p.product || '').slice(0, 14).padEnd(15);
-        const qty = String(p.quantity).padStart(3);
-        const total = `₹${p.total?.toFixed(2)}`.padStart(8);
-        receipt += `${name}${qty}${total}\n`;
+      const res = await fetch("/api/print", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bill }),
       });
 
-      const totalQty = bill.products.reduce((s, p) => s + (p.quantity || 0), 0);
-      const totalItems = bill.products.length;
-
-      receipt += `------------------------------
-Total Items: ${totalItems}   Qty: ${totalQty}
-TOTAL: ₹${bill.totalAmount?.toFixed(2)}
-------------------------------
-Thank you!
-Sanghamitra.store
-`;
-
-      await printer.printText(receipt, {
-        align: 'left',
-        fontSize: 24,
-        fontWeight: 'bold',
-      });
-
-      await printer.disconnect();
-      alert("✅ Printed successfully via Cat Printer!");
+      const result = await res.json();
+      if (result.success) {
+        alert("✅ Printed successfully on thermal printer!");
+      } else {
+        alert("⚠️ Print failed: " + result.error);
+      }
     } catch (err) {
-      console.error("Thermal print failed:", err);
-      alert("⚠️ Unable to print — check Bluetooth or printer connection.");
+      console.error(err);
+      alert("Failed to connect to printer endpoint.");
     }
   };
 
   if (!bill)
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading invoice...</div>;
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>Loading invoice...</div>
+    );
 
   const totalQty = bill.products.reduce((sum, p) => sum + (p.quantity || 0), 0);
   const totalItems = bill.products.length;
@@ -91,30 +62,35 @@ Sanghamitra.store
     <>
       <div className="invoice-page">
         <div className="invoice-container">
-
           {/* Print Buttons */}
-          <div className="no-print" style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <button onClick={handlePrint} className="print-button">🖨️ Browser Print</button>
-            <button onClick={handleThermalPrint} className="print-button" style={{ marginLeft: '10px', background: '#4CAF50' }}>🔌 Thermal Print</button>
+          <div className="no-print" style={{ textAlign: "center", marginBottom: "20px" }}>
+            <button onClick={handleBrowserPrint} className="print-button">
+              🖨️ Browser Print
+            </button>
+            <button
+              onClick={handleThermalPrint}
+              className="print-button"
+              style={{ marginLeft: "10px", background: "#4CAF50" }}
+            >
+              🔌 Thermal Print
+            </button>
           </div>
 
-          {/* Thermal Invoice */}
+          {/* Invoice */}
           <div className="thermal-invoice">
-            {/* Header */}
             <div className="invoice-header">
               <div className="logo-text">SANGHAMITRA</div>
               <div className="tagline">Business Incubator</div>
               <div className="date-time">
-                {new Date(bill.date).toLocaleDateString('en-GB')}{" "}
-                {new Date(bill.date).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
+                {new Date(bill.date).toLocaleDateString("en-GB")}{" "}
+                {new Date(bill.date).toLocaleTimeString("en-IN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
                   hour12: true,
                 })}
               </div>
             </div>
 
-            {/* Customer Info - same line */}
             <div className="customer-section">
               <span className="customer-label">Customer:</span>
               <span className="customer-name"> {bill.customerName}</span>
@@ -122,7 +98,6 @@ Sanghamitra.store
 
             <div className="divider-line">═══════════════════════════════════</div>
 
-            {/* Table Header */}
             <div className="table-header">
               <div className="th-item">ITEM</div>
               <div className="th-qty">QTY</div>
@@ -132,13 +107,14 @@ Sanghamitra.store
 
             <div className="divider-line">───────────────────────────────────</div>
 
-            {/* Products */}
             <div className="products-list">
               {bill.products.map((p, i) => (
                 <div key={i} className="product-row">
                   <div className="product-info">
                     <div className="product-name">{p.product}</div>
-                    <div className="product-category"><b>{p.category}</b></div>
+                    <div className="product-category">
+                      <b>{p.category}</b>
+                    </div>
                   </div>
                   <div className="product-qty">{p.quantity}</div>
                   <div className="product-price">₹{p.price?.toFixed(2)}</div>
@@ -149,7 +125,6 @@ Sanghamitra.store
 
             <div className="divider-line">═══════════════════════════════════</div>
 
-            {/* Totals in same line */}
             <div className="summary-row single-line">
               <span>Total Items: {totalItems}</span>
               <span>Total Qty: {totalQty}</span>
@@ -157,7 +132,6 @@ Sanghamitra.store
 
             <div className="divider-line">───────────────────────────────────</div>
 
-            {/* Total Amount */}
             <div className="total-amount-section">
               <div className="total-label">TOTAL AMOUNT:</div>
               <div className="total-value">₹{bill.totalAmount?.toFixed(2)}</div>
@@ -165,14 +139,19 @@ Sanghamitra.store
 
             <div className="divider-line">═══════════════════════════════════</div>
 
-            {/* Footer with QR beside contact */}
             <div className="invoice-footer">
               <div className="thank-you">Thank you for your business!</div>
               <div className="footer-row">
                 <div className="company-details">
-                  <div><b>Sanghamitra Business Incubator</b></div>
-                  <div><b>Contact:</b> +91 9234567890</div>
-                  <div><b>sanghamitra.store</b></div>
+                  <div>
+                    <b>Sanghamitra Business Incubator</b>
+                  </div>
+                  <div>
+                    <b>Contact:</b> +91 9234567890
+                  </div>
+                  <div>
+                    <b>sanghamitra.store</b>
+                  </div>
                 </div>
                 <img
                   src="/sanghamitra_qr.png"
