@@ -5,7 +5,7 @@ import '../styles/BillForm.css';
 const BillForm = () => {
   const [customerName, setCustomerName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [billItems, setBillItems] = useState([]);
   const [productData, setProductData] = useState([]);
   const [toast, setToast] = useState({ message: '', type: '' });
@@ -494,25 +494,26 @@ const BillForm = () => {
       {/* Payment Section */}
       <div className="payment-section">
         <h3>Payment Method</h3>
-          <div className="payment-buttons">
-            <button
-              type="button"
-              className={`payment-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
-              onClick={() => setPaymentMethod('Cash')}
-            >
-              💵 Cash
-            </button>
-            <button
-              type="button"
-              className={`payment-btn ${paymentMethod === 'UPI' ? 'active' : ''}`}
-              onClick={() => setPaymentMethod('UPI')}
-            >
-              📱 UPI
-            </button>
-          </div>
-
+      
+        <div className="payment-buttons">
+          <button
+            type="button"
+            className={`payment-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('Cash')}
+          >
+            💵 Cash
+          </button>
+          <button
+            type="button"
+            className={`payment-btn ${paymentMethod === 'UPI' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('UPI')}
+          >
+            📱 UPI
+          </button>
+        </div>
+      
         <div className="grand-total">
-           Total Amount: <strong>₹{getGrandTotal()}</strong>
+          Total Amount: <strong>₹{getGrandTotal()}</strong>
         </div>
       </div>
 
