@@ -1,11 +1,13 @@
+// components/BillForm.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Layout from './Layout';
 import '../styles/BillForm.css';
 
-const BillForm = () => {
+const BillForm = ({ embedded = false }) => {
   const [customerName, setCustomerName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [billItems, setBillItems] = useState([]);
   const [productData, setProductData] = useState([]);
   const [toast, setToast] = useState({ message: '', type: '' });
@@ -22,12 +24,10 @@ const BillForm = () => {
   
   const navigate = useNavigate();
 
-  // Get auth token
   const getAuthToken = () => {
-    return localStorage.getItem('token') || sessionStorage.getItem('token');
+    return localStorage.getItem('token');
   };
 
-  // Fetch product data with authentication
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -46,7 +46,6 @@ const BillForm = () => {
 
         if (response.ok) {
           const data = await response.json();
-          // Handle different API response formats
           if (data.success && data.data && Array.isArray(data.data)) {
             setProductData(data.data);
           } else if (Array.isArray(data)) {
@@ -74,7 +73,6 @@ const BillForm = () => {
     fetchProducts();
   }, []);
 
-  // Fetch active occasion with authentication
   useEffect(() => {
     const fetchOccasion = async () => {
       try {
@@ -102,7 +100,6 @@ const BillForm = () => {
     setTimeout(() => setToast({ message: '', type: '' }), 3000);
   };
 
-  // Get current product, category, and subcategory data
   const getCurrentProduct = () => {
     if (!Array.isArray(productData)) return null;
     return productData.find(p => p._id === selectedProduct);
@@ -118,7 +115,6 @@ const BillForm = () => {
     return category?.subcategories?.find(s => s.sku === selectedSubcategory);
   };
 
-  // Reset selection when product changes
   const handleProductSelect = (productId) => {
     setSelectedProduct(productId);
     setSelectedCategory('');
@@ -130,7 +126,6 @@ const BillForm = () => {
     setSelectedCategory(categoryId);
     setSelectedSubcategory('');
     
-    // Auto-set price if category has a fixed price
     const category = getCurrentProduct()?.categories?.find(c => c._id === categoryId);
     if (category?.price) {
       setPrice(category.price);
@@ -140,14 +135,12 @@ const BillForm = () => {
   const handleSubcategorySelect = (subcategorySku) => {
     setSelectedSubcategory(subcategorySku);
     
-    // Auto-set price if subcategory exists (category price is used)
     const category = getCurrentCategory();
     if (category?.price) {
       setPrice(category.price);
     }
   };
 
-  // Add item to bill - UPDATED FOR NEW SCHEMA
   const addItemToBill = () => {
     if (!selectedProduct) {
       showToast('Please select a product', 'error');
@@ -183,7 +176,6 @@ const BillForm = () => {
 
     setBillItems([...billItems, newItem]);
     
-    // Reset selection form
     setSelectedProduct('');
     setSelectedCategory('');
     setSelectedSubcategory('');
@@ -202,12 +194,12 @@ const BillForm = () => {
   const getGrandTotal = () =>
     billItems.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0).toFixed(2);
 
-  // Submit handler - UPDATED FOR NEW SCHEMA WITH AUTHENTICATION
   const handleSubmit = async () => {
     if (!customerName) return showToast('Enter customer name', 'error');
     if (mobileNumber && !/^\d{10}$/.test(mobileNumber))
       return showToast('Enter a valid 10-digit mobile number', 'error');
     if (billItems.length === 0) return showToast('Add at least one item to bill', 'error');
+    if (!paymentMethod) return showToast('Please select a payment method', 'error');
 
     const token = getAuthToken();
     if (!token) {
@@ -253,7 +245,7 @@ const BillForm = () => {
         setCustomerName('');
         setMobileNumber('');
         setBillItems([]);
-        setPaymentMethod('Cash');
+        setPaymentMethod('');
       } else {
         throw new Error(data.message || 'Error saving bill');
       }
@@ -264,7 +256,6 @@ const BillForm = () => {
     }
   };
 
-  // Safe rendering of products
   const renderProducts = () => {
     if (loading) {
       return <div className="loading">Loading products...</div>;
@@ -280,15 +271,14 @@ const BillForm = () => {
         className={`selection-btn ${selectedProduct === product._id ? 'active' : ''}`}
         onClick={() => handleProductSelect(product._id)}
       >
-        {product.product}
+        <span className="btn-text">{product.product}</span>
         {product.totalStock > 0 && (
-          <span className="stock-badge">Stock: {product.totalStock}</span>
+          <span className="stock-badge">{product.totalStock}</span>
         )}
       </button>
     ));
   };
 
-  // Render categories for selected product
   const renderCategories = () => {
     const product = getCurrentProduct();
     if (!product || !product.categories || product.categories.length === 0) {
@@ -306,9 +296,10 @@ const BillForm = () => {
               onClick={() => handleCategorySelect(category._id || category.name)}
               disabled={category.stock <= 0}
             >
-              {category.name} (₹{category.price})
+              <span className="btn-text">{category.name}</span>
+              <span className="btn-price">₹{category.price}</span>
               {category.stock > 0 && (
-                <span className="stock-info">Stock: {category.stock}</span>
+                <span className="stock-info">{category.stock}</span>
               )}
             </button>
           ))}
@@ -317,7 +308,6 @@ const BillForm = () => {
     );
   };
 
-  // Render subcategories for selected category
   const renderSubcategories = () => {
     const category = getCurrentCategory();
     if (!category || !category.subcategories || category.subcategories.length === 0) {
@@ -326,7 +316,7 @@ const BillForm = () => {
 
     return (
       <div className="selection-group">
-        <label>Subcategories:</label>
+        <label>Variants:</label>
         <div className="button-group">
           {category.subcategories.map((subcat) => (
             <button
@@ -335,11 +325,10 @@ const BillForm = () => {
               onClick={() => handleSubcategorySelect(subcat.sku)}
               disabled={subcat.stock <= 0}
             >
-              {subcat.design} {subcat.color} {subcat.size} 
-              <span className="sku">SKU: {subcat.sku}</span>
-              {subcat.stock > 0 && (
-                <span className="stock-info">Stock: {subcat.stock}</span>
-              )}
+              <span className="btn-text">
+                {subcat.design} {subcat.color} {subcat.size}
+              </span>
+              <span className="stock-info">{subcat.stock}</span>
             </button>
           ))}
         </div>
@@ -347,7 +336,7 @@ const BillForm = () => {
     );
   };
 
-  return (
+  const content = (
     <div className="bill-container">
       {toast.message && (
         <div className={`toast ${toast.type === 'error' ? 'error' : ''}`}>{toast.message}</div>
@@ -355,18 +344,18 @@ const BillForm = () => {
 
       {activeOccasion && (
         <div className="occasion-banner">
-          🎉 <strong>Active Occasion:</strong> {activeOccasion} (All bills will be marked as "Special")
+          🎉 <strong>Active Occasion:</strong> {activeOccasion}
         </div>
       )}
 
       <div className="header">
-        <h1>SANGHAMITRA BUSINESS INCUBATORS</h1>
+        <h1>Create Bill</h1>
       </div>
 
       {/* Customer Information */}
       <div className="customer-info">
         <div className="input-group">
-          <label>Customer Name:</label>
+          <label>Customer Name *</label>
           <input 
             type="text" 
             value={customerName} 
@@ -375,19 +364,20 @@ const BillForm = () => {
           />
         </div>
         <div className="input-group">
-          <label>Contact No:</label>
+          <label>Contact No</label>
           <input 
             type="tel" 
             value={mobileNumber} 
             onChange={e => setMobileNumber(e.target.value)}
-            placeholder="Optional"
+            placeholder="10-digit mobile (optional)"
+            maxLength="10"
           />
         </div>
       </div>
 
       {/* Product Selection Section */}
       <div className="product-selection-section">
-        <h3>Product Selection</h3>
+        <h3>Select Products</h3>
         
         {/* Products */}
         <div className="selection-group">
@@ -404,133 +394,142 @@ const BillForm = () => {
         {selectedCategory && renderSubcategories()}
 
         {/* Price, Quantity, Discount */}
-        <div className="price-quantity-section">
-          <div className="input-row">
-            <div className="input-group">
-              <label>Price (₹):</label>
-              <input
-                type="number"
-                value={price}
-                onChange={e => setPrice(parseFloat(e.target.value) || 0)}
-                min="0"
-                step="0.01"
-              />
+        {selectedProduct && selectedCategory && (
+          <div className="price-quantity-section">
+            <div className="input-row">
+              <div className="input-group">
+                <label>Price (₹)</label>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={e => setPrice(parseFloat(e.target.value) || 0)}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              
+              <div className="input-group">
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={e => setQuantity(parseInt(e.target.value) || 1)}
+                  min="1"
+                />
+              </div>
+              
+              <div className="input-group">
+                <label>Discount (%)</label>
+                <select value={discount} onChange={e => setDiscount(parseInt(e.target.value))}>
+                  <option value={0}>0%</option>
+                  <option value={10}>10%</option>
+                  <option value={20}>20%</option>
+                  <option value={30}>30%</option>
+                  <option value={40}>40%</option>
+                  <option value={50}>50%</option>
+                </select>
+              </div>
             </div>
-            
-            <div className="input-group">
-              <label>Quantity:</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                min="1"
-              />
-            </div>
-            
-            <div className="input-group">
-              <label>Discount (%):</label>
-              <select value={discount} onChange={e => setDiscount(parseInt(e.target.value))}>
-                {[0, 10, 20, 30, 40, 50].map(d => (
-                  <option key={d} value={d}>{d}%</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
 
-        {/* Add Item Button */}
-        <button className="add-to-bill-btn" onClick={addItemToBill}>
-          Add Item to Bill
-        </button>
+            <button className="add-to-bill-btn" onClick={addItemToBill}>
+              + Add Item to Bill
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Bill Items Table */}
       {billItems.length > 0 && (
         <div className="bill-items-section">
-          <h3>Bill Items</h3>
-          <table className="bill-items-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Design</th>
-                <th>Color</th>
-                <th>Size</th>
-                <th>SKU</th>
-                <th>Price</th>
-                <th>Qty</th>
-                <th>Discount</th>
-                <th>Total</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {billItems.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.product}</td>
-                  <td>{item.category}</td>
-                  <td>{item.subcategory.design}</td>
-                  <td>{item.subcategory.color}</td>
-                  <td>{item.subcategory.size}</td>
-                  <td>{item.subcategory.sku}</td>
-                  <td>₹{item.price}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.discount}%</td>
-                  <td>₹{item.total.toFixed(2)}</td>
-                  <td>
-                    <button className="delete-btn" onClick={() => deleteBillItem(index)}>
-                      ×
-                    </button>
-                  </td>
+          <h3>Bill Items ({billItems.length})</h3>
+          <div className="bill-items-scroll">
+            <table className="bill-items-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Details</th>
+                  <th>Price</th>
+                  <th>Qty</th>
+                  <th>Total</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {billItems.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className="item-name">{item.product}</div>
+                      <div className="item-category">{item.category}</div>
+                    </td>
+                    <td>
+                      {item.subcategory.design && (
+                        <div className="item-detail">{item.subcategory.design}</div>
+                      )}
+                      {item.subcategory.color && (
+                        <div className="item-detail">{item.subcategory.color}</div>
+                      )}
+                      {item.subcategory.size && (
+                        <div className="item-detail">{item.subcategory.size}</div>
+                      )}
+                    </td>
+                    <td>₹{item.price}</td>
+                    <td>{item.quantity}</td>
+                    <td className="total-cell">₹{item.total.toFixed(2)}</td>
+                    <td>
+                      <button className="delete-btn" onClick={() => deleteBillItem(index)}>
+                        ×
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Payment Section */}
       <div className="payment-section">
-        <div className="payment-method">
-          <label>Payment Method:</label>
-          <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
-            <option value="Cash">Cash</option>
-            <option value="Online">Online</option>
-            <option value="Card">Card</option>
-            <option value="UPI">UPI</option>
-          </select>
+        <h3>Payment Method *</h3>
+        <div className="payment-methods">
+          <button
+            className={`payment-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('Cash')}
+          >
+            💵 Cash
+          </button>
+          <button
+            className={`payment-btn ${paymentMethod === 'UPI' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('UPI')}
+          >
+            📱 UPI
+          </button>
         </div>
 
-        {paymentMethod === 'Online' && (
-          <div className="qr-container">
-            <p>Scan QR Code to Pay:</p>
-            <img src="/qr-code.png" alt="QR Code" className="qr-code" />
+        {billItems.length > 0 && (
+          <div className="grand-total">
+            <span>Grand Total:</span>
+            <strong>₹{getGrandTotal()}</strong>
           </div>
         )}
-
-        <div className="grand-total">
-           Total Amount: <strong>₹{getGrandTotal()}</strong>
-        </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="action-buttons">
-        <button 
-          className="save-btn" 
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? 'Saving Bill...' : 'Save Bill'}
-        </button>
-      </div>
-
-      <div className="footer">
-        Sanghamitra Business Incubator<br />
-        Website: <a href="https://sanghamitra.store" target="_blank" rel="noreferrer">sanghamitra.store</a><br />
-        Contact: +919234567890
-      </div>
+      {billItems.length > 0 && (
+        <div className="action-buttons">
+          <button 
+            className="save-btn" 
+            onClick={handleSubmit}
+            disabled={loading || !paymentMethod}
+          >
+            {loading ? 'Saving...' : '💾 Save & Print Bill'}
+          </button>
+        </div>
+      )}
     </div>
   );
+
+  return embedded ? content : <Layout>{content}</Layout>;
 };
 
 export default BillForm;
