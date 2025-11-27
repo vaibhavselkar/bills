@@ -12,28 +12,37 @@ const dbConnect = require('../lib/dbConnect');
 router.post('/login', async (req, res) => {
   await dbConnect();
   const { email, password } = req.body;
-
+  
   try {
     const user = await User.findOne({ email });
-
     if (!user)
       return res.status(404).json({ message: 'User not found' });
-
+    
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch)
       return res.status(400).json({ message: 'Invalid credentials' });
-
-   const token = jwt.sign(
+   
+    // Create token that expires in 1 week
+    const token = jwt.sign(
       { 
         id: user._id, 
         role: user.role,
         tenantId: user.tenantId 
       },
       process.env.JWT_SECRET || 'mysecret',
-      { expiresIn: '2h' }
+      { expiresIn: '7d' } // Changed from '2h' to '7d' (7 days)
     );
-
+    
+    // Set HTTP-only cookie that expires in 1 week
+    res.cookie('token', token, {
+      httpOnly: true,        // Prevents JavaScript access (XSS protection)
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: 'strict',    // CSRF protection
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week in milliseconds
+      path: '/'              // Available across entire site
+    });
+    
+    // Also send token in response for flexibility
     res.json({
       token,
       user: {
@@ -45,6 +54,7 @@ router.post('/login', async (req, res) => {
       },
     });
   } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
