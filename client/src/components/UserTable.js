@@ -21,7 +21,7 @@ const UserTable = () => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token"); // assume stored at login
-        const res = await fetch("https://bills-weld.vercel.app/api/user/users", {
+        const res = await fetch("https://bills-welding.vercel.app/api/user/users", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
