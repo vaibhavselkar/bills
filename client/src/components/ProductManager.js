@@ -91,7 +91,7 @@ const ProductManagement = () => {
         return;
       }
 
-      const response = await fetch('https://bills-weld.vercel.app/api/auth/me', {
+      const response = await fetch('https://bills-welding.vercel.app/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -118,7 +118,7 @@ const ProductManagement = () => {
         return;
       }
 
-      const response = await fetch('https://bills-weld.vercel.app/api/products', {
+      const response = await fetch('https://bills-welding.vercel.app/api/products', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -452,7 +452,7 @@ const ProductManagement = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('https://bills-weld.vercel.app/api/products', {
+      const response = await fetch('https://bills-welding.vercel.app/api/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -495,7 +495,7 @@ const ProductManagement = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`https://bills-weld.vercel.app/api/products/${editingProduct._id}`, {
+      const response = await fetch(`https://bills-welding.vercel.app/api/products/${editingProduct._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -541,7 +541,7 @@ const ProductManagement = () => {
     }
 
     try {
-      const response = await fetch(`https://bills-weld.vercel.app/api/products/${productId}`, {
+      const response = await fetch(`https://bills-welding.vercel.app/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
