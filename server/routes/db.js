@@ -11,6 +11,8 @@ router.get("/", auth, async (req, res) => {
     let { startDate, endDate } = req.query;
 
     let filter = {};
+    
+    // 🔥 DATE FILTER
     if (startDate && endDate) {
       filter.date = {
         $gte: new Date(startDate),
@@ -18,12 +20,24 @@ router.get("/", auth, async (req, res) => {
       };
     }
 
-    // If user is not admin → show only their own bills
-    if (req.user.role !== "admin") {
+    // 🔥 MULTI-TENANT FILTER - CRITICAL FIX
+    if (req.user.role === "admin") {
+      // Admin sees all bills from users in their organization
+      // First, get all user IDs from this tenant
+      const usersInTenant = await User.find({ tenantId: req.user.tenantId }).select('_id');
+      const userIds = usersInTenant.map(u => u._id);
+      
+      // Filter bills by these user IDs
+      filter.user = { $in: userIds };
+    } else {
+      // Regular user sees only their own bills
       filter.user = req.user._id;
     }
 
-    const bills = await Bill.find(filter).populate("user", "name email role");
+    const bills = await Bill.find(filter)
+      .populate("user", "name email role tenantId")
+      .sort({ date: -1 });
+    
     res.json(bills);
   } catch (err) {
     console.error("Error fetching bills:", err);
@@ -31,35 +45,48 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-
-
-// GET: Fetch bill by ID
+// GET: Fetch bill by ID (with tenant check)
 router.get("/bill/:id", auth, async (req, res) => {
   try {
-    const bill = await Bill.findById(req.params.id);
+    const bill = await Bill.findById(req.params.id).populate("user", "tenantId");
+    
     if (!bill) {
       return res.status(404).json({ message: "Bill not found" });
     }
+
+    // 🔥 Security: Verify tenant access
+    if (bill.user.tenantId !== req.user.tenantId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
     res.status(200).json(bill);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 });
 
-// DELETE: Delete a bill
-router.delete("/:id", async (req, res) => {
-    try {
-        const deletedBill = await Bill.findByIdAndDelete(req.params.id);
-        if (!deletedBill) {
-            return res.status(404).json({ success: false, message: "Bill not found" });
-        }
-        res.json({ success: true, message: "Bill deleted successfully", bill: deletedBill });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+// DELETE: Delete a bill (with tenant check)
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const bill = await Bill.findById(req.params.id).populate("user", "tenantId");
+    
+    if (!bill) {
+      return res.status(404).json({ success: false, message: "Bill not found" });
     }
+
+    // 🔥 Security: Verify tenant access
+    if (bill.user.tenantId !== req.user.tenantId) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    await Bill.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: "Bill deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
 });
 
-// POST: Create a new bill (linked to logged-in user) with stock management
+// POST: Create a new bill (tenant is inherited from user)
 router.post("/", auth, async (req, res) => {
   try {
     const { customerName, mobileNumber, products, totalAmount, paymentMethod } = req.body;
@@ -69,7 +96,7 @@ router.post("/", auth, async (req, res) => {
     }
 
     // 🟣 Fetch current active occasion
-    const occasionDoc = await Occasion.findOne();
+    const occasionDoc = await Occasion.findOne({ tenantId: req.user.tenantId });
     let billType = "daily";
     let occasion = "";
 
@@ -82,8 +109,12 @@ router.post("/", auth, async (req, res) => {
     const processedProducts = [];
     
     for (const item of products) {
-      // Find the original product
-      const originalProduct = await Product.findById(item.productId);
+      // 🔥 Find product within tenant's inventory
+      const originalProduct = await Product.findOne({
+        _id: item.productId,
+        tenantId: req.user.tenantId // Ensure product belongs to same tenant
+      });
+      
       if (!originalProduct) {
         return res.status(404).json({ 
           message: `Product not found with ID: ${item.productId}` 
@@ -159,34 +190,33 @@ router.post("/", auth, async (req, res) => {
       processedProducts.push(billProduct);
     }
 
-    // 🆕 Create the new bill with processed products
+    // 🔥 Create new bill (user field automatically associates with tenant)
     const newBill = new Bill({
       customerName,
       mobileNumber,
       products: processedProducts,
       totalAmount,
       paymentMethod,
-      user: req.user._id, // link bill to user
       billType,
       occasion,
+      user: req.user._id // This user has tenantId
     });
 
     await newBill.save();
     
-    res.status(201).json({ 
-      message: "Bill added successfully", 
-      bill: newBill 
-    });
+    // Populate user data for response
+    await newBill.populate("user", "name email role tenantId");
     
-  } catch (error) {
-    console.error("Error creating bill:", error);
-    res.status(500).json({ 
-      message: "Server Error", 
-      error: error.message 
+    res.status(201).json({
+      message: "Bill created successfully",
+      bill: newBill
     });
+
+  } catch (err) {
+    console.error("Error creating bill:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
-
 // Get top selling products by revenue and quantity
 router.get("/top-products", async (req, res) => {
   try {
@@ -366,4 +396,5 @@ router.get("/occasion-summary", auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
