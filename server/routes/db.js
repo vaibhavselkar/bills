@@ -12,7 +12,7 @@ router.get("/", auth, async (req, res) => {
 
     let filter = {};
     
-    // 🔥 DATE FILTER
+    // DATE FILTER
     if (startDate && endDate) {
       filter.date = {
         $gte: new Date(startDate),
@@ -23,20 +23,29 @@ router.get("/", auth, async (req, res) => {
     // 🔥 MULTI-TENANT FILTER - CRITICAL FIX
     if (req.user.role === "admin") {
       // Admin sees all bills from users in their organization
-      // First, get all user IDs from this tenant
-      const usersInTenant = await User.find({ tenantId: req.user.tenantId }).select('_id');
+      // Get all user IDs from this tenant
+      const usersInTenant = await User.find({ 
+        tenantId: req.user.tenantId 
+      }).select('_id');
+      
       const userIds = usersInTenant.map(u => u._id);
       
       // Filter bills by these user IDs
       filter.user = { $in: userIds };
+      
+      console.log(`Admin (tenant: ${req.user.tenantId}) fetching bills for ${userIds.length} users`);
     } else {
       // Regular user sees only their own bills
       filter.user = req.user._id;
+      
+      console.log(`User ${req.user._id} fetching their own bills`);
     }
 
     const bills = await Bill.find(filter)
       .populate("user", "name email role tenantId")
       .sort({ date: -1 });
+    
+    console.log(`Returning ${bills.length} bills`);
     
     res.json(bills);
   } catch (err) {
@@ -396,5 +405,6 @@ router.get("/occasion-summary", auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
