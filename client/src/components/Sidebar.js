@@ -12,7 +12,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("https://bills-weld.vercel.app/api/user/me", {
+        const response = await fetch("https://bills-welding.vercel.app/api/user/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
