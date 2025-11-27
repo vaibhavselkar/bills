@@ -34,7 +34,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('https://bills-weld.vercel.app/api/user/register', {
+      const res = await fetch('https://bills-welding.vercel.app/api/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
