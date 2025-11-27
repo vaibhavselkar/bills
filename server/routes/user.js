@@ -7,8 +7,10 @@ const User = require('../model/User');
 const Bill = require('../model/bill_schema');
 const { auth } = require("../middleware/auth");
 const crypto = require('crypto');
+const dbConnect = require('../lib/dbConnect');
 
 router.post('/login', async (req, res) => {
+  await dbConnect();
   const { email, password } = req.body;
 
   try {
@@ -50,6 +52,7 @@ router.post('/login', async (req, res) => {
 router.post('/register', async (req, res) => {
   const { name, email, password, role, tenantCode, organizationName } = req.body;
   try {
+    await dbConnect();
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'Email already registered' });
 
@@ -94,6 +97,7 @@ router.post('/register', async (req, res) => {
 
 router.get("/me", auth, async (req, res) => {
   try {
+    await dbConnect();
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -106,6 +110,7 @@ router.get("/me", auth, async (req, res) => {
 // routes/userRoutes.js - Add endpoint to get user details with role
 router.get("/users", auth, async (req, res) => {
   try {
+    await dbConnect();
     const currentUser = await User.findById(req.user.id);
     const users = await User.find({ tenantId: currentUser.tenantId }).select("name email role createdAt");
     res.json(users);
@@ -116,6 +121,7 @@ router.get("/users", auth, async (req, res) => {
 
 router.get("/:userId", auth, async (req, res) => {
   try {
+    await dbConnect();
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Access denied" });
     }
@@ -137,6 +143,7 @@ router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   
   try {
+    await dbConnect();
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -159,6 +166,7 @@ router.post('/reset-password', async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
+    await dbConnect();
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mysecret');
     const user = await User.findById(decoded.id);
 
