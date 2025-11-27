@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Bill = require('../model/bill_schema');
+const User = require('../model/User');
 const {auth}  = require("../middleware/auth");
 const Occasion = require('../model/Occasion');
 const Product = require('../model/Product');
@@ -405,6 +406,7 @@ router.get("/occasion-summary", auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 
