@@ -21,7 +21,7 @@ const ViewBills = () => {
 
   const fetchBills = async () => {
     try {
-      const response = await fetch('https://bills-weld.vercel.app/api/', {
+      const response = await fetch('https://bills-welding.vercel.app/api/', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
