@@ -8,7 +8,7 @@ const Occasion = () => {
   
   // 🟣 Fetch current active occasion
   useEffect(() => {
-    fetch("https://bills-weld.vercel.app/api/get-occasion")
+    fetch("https://bills-welding.vercel.app/api/get-occasion")
       .then((res) => res.json())
       .then((data) => setCurrentOccasion(data?.activeOccasion || ""))
       .catch((err) => console.error("Error fetching current occasion:", err));
@@ -18,7 +18,7 @@ const Occasion = () => {
 
   const fetchOccasionSummary = async () => {
     try {
-      const res = await fetch("https://bills-weld.vercel.app/api/occasion-summary");
+      const res = await fetch("https://bills-welding.vercel.app/api/occasion-summary");
       const data = await res.json();
       setOccasionSummary(data);
     } catch (err) {
@@ -28,7 +28,7 @@ const Occasion = () => {
 
   const handleSetOccasion = async () => {
     try {
-      const res = await fetch("https://bills-weld.vercel.app/api/set-occasion", {
+      const res = await fetch("https://bills-welding.vercel.app/api/set-occasion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ occasion }),
@@ -49,7 +49,7 @@ const Occasion = () => {
 
   const handleClearOccasion = async () => {
     try {
-      const res = await fetch("https://bills-weld.vercel.app/api/clear-occasion", {
+      const res = await fetch("https://bills-welding.vercel.app/api/clear-occasion", {
         method: "POST",
       });
       if (res.ok) {
