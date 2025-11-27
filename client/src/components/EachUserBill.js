@@ -14,7 +14,7 @@ const ViewBills = () => {
   const fetchBills = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`https://bills-weldinging.vercel.app/api/user/${userId}`, {
+      const response = await fetch(`https://bills-welding.vercel.app/api/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`, // 👈 send token
         },
