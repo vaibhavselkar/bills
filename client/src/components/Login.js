@@ -18,6 +18,7 @@ const Login = () => {
 
     try {
       const response = await fetch('https://bills-welding.vercel.app/api/user/login', {
+        credentials: 'include',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
