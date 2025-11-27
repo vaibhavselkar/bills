@@ -5,6 +5,7 @@ const dbConnect = require('./lib/dbConnect');
 const workoutRoutes = require('./routes/db');
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/user');
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 const app = express();
@@ -12,7 +13,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+app.use(cookieParser());
 // Root route
 app.get('/', (req, res) => {
   res.send('Welcome to Sanghamitra Billing App - Multi-Tenant Edition');
