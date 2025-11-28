@@ -7,7 +7,7 @@ const User = require('../model/User');
 const Bill = require('../model/bill_schema');
 const { auth } = require("../middleware/auth");
 const crypto = require('crypto');
-const dbConnect = require('../lib/dbConnect');
+const dbConnect = require('../lib/dbConnect'); 
 
 router.post('/login', async (req, res) => { 
   await dbConnect();
