@@ -9,7 +9,7 @@ const { auth } = require("../middleware/auth");
 const crypto = require('crypto');
 const dbConnect = require('../lib/dbConnect');
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => { 
   await dbConnect();
   const { email, password } = req.body;
   
