@@ -5,7 +5,7 @@ const User = require('../model/User');
 const {auth}  = require("../middleware/auth");
 const Occasion = require('../model/Occasion');
 const Product = require('../model/Product');
-
+  
 // GET: Fetch bills (user sees their bills, admin sees all)
 router.get("/", auth, async (req, res) => {
   try {
@@ -406,6 +406,7 @@ router.get("/occasion-summary", auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 
