@@ -11,7 +11,15 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://sanghamitra-billing.vercel.app' // ADD YOUR ACTUAL FRONTEND URL HERE
+  ],
+  credentials: true, // CRITICAL: Allows cookies to be sent
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(cookieParser());
 // Root route
