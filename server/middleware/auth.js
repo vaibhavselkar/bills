@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../model/User");
-const dbConnect = require("../lib/dbConnect");
+const dbConnect = require("../lib/dbConnect"); 
 
 const auth = async (req, res, next) => {
   await dbConnect(); // Ensure DB connection
