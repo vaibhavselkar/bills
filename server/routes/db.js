@@ -7,7 +7,7 @@ const Occasion = require('../model/Occasion');
 const Product = require('../model/Product');
   
 // GET: Fetch bills (user sees their bills, admin sees all)
-router.get("/", auth, async (req, res) => {
+router.get("/", auth, async (req, res) => { 
   try {
     let { startDate, endDate } = req.query;
 
@@ -406,6 +406,7 @@ router.get("/occasion-summary", auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 
