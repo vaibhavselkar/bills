@@ -5,10 +5,12 @@ const User = require('../model/User');
 const {auth}  = require("../middleware/auth");
 const Occasion = require('../model/Occasion');
 const Product = require('../model/Product');
+const dbConnect = require('../lib/dbConnect'); 
   
 // GET: Fetch bills (user sees their bills, admin sees all)
 router.get("/", auth, async (req, res) => { 
   try {
+    await dbConnect();
     let { startDate, endDate } = req.query;
 
     let filter = {};
@@ -58,6 +60,7 @@ router.get("/", auth, async (req, res) => {
 // GET: Fetch bill by ID (with tenant check)
 router.get("/bill/:id", auth, async (req, res) => {
   try {
+    await dbConnect();
     const bill = await Bill.findById(req.params.id).populate("user", "tenantId");
     
     if (!bill) {
@@ -78,6 +81,7 @@ router.get("/bill/:id", auth, async (req, res) => {
 // DELETE: Delete a bill (with tenant check)
 router.delete("/:id", auth, async (req, res) => {
   try {
+    await dbConnect();
     const bill = await Bill.findById(req.params.id).populate("user", "tenantId");
     
     if (!bill) {
@@ -99,6 +103,7 @@ router.delete("/:id", auth, async (req, res) => {
 // POST: Create a new bill (tenant is inherited from user)
 router.post("/", auth, async (req, res) => {
   try {
+    await dbConnect();
     const { customerName, mobileNumber, products, totalAmount, paymentMethod } = req.body;
 
     if (!customerName || !products || !totalAmount || !paymentMethod) {
@@ -230,6 +235,7 @@ router.post("/", auth, async (req, res) => {
 // Get top selling products by revenue and quantity
 router.get("/top-products", async (req, res) => {
   try {
+    await dbConnect();
     const bills = await Bill.find();
 
     const productStats = {}; // key: product+category, value: { revenue, totalSold }
@@ -260,6 +266,7 @@ router.get("/top-products", async (req, res) => {
 // 🟢 Set or update current active occasion (with auth and tenantId)
 router.post("/set-occasion", auth, async (req, res) => {
   try {
+    await dbConnect();
     const { occasion } = req.body;
 
     if (!occasion || !occasion.trim()) {
@@ -302,6 +309,7 @@ router.post("/set-occasion", auth, async (req, res) => {
 // 🟣 Get current active occasion (with auth and tenantId)
 router.get("/get-occasion", auth, async (req, res) => {
   try {
+    await dbConnect();
     const occasion = await Occasion.findOne({ 
       tenantId: req.user.tenantId // 🔥 Get for user's tenant
     });
@@ -316,6 +324,7 @@ router.get("/get-occasion", auth, async (req, res) => {
 // 🔴 Clear occasion (with auth and tenantId)
 router.post("/clear-occasion", auth, async (req, res) => {
   try {
+    await dbConnect();
     let occasionDoc = await Occasion.findOne({ 
       tenantId: req.user.tenantId // 🔥 Find by tenant
     });
@@ -348,6 +357,7 @@ router.post("/clear-occasion", auth, async (req, res) => {
 // 🟢 Get all occasions with their bill counts and users (tenant-specific)
 router.get("/occasion-summary", auth, async (req, res) => {
   try {
+    await dbConnect();
     // Build base filter for bills with occasions
     let matchFilter = { 
       occasion: { $ne: "" } 
@@ -406,6 +416,7 @@ router.get("/occasion-summary", auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 
