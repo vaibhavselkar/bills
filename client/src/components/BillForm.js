@@ -282,6 +282,7 @@ const BillForm = () => {
         className={`selection-btn ${selectedProduct === product._id ? 'active' : ''}`}
         onClick={() => handleProductSelect(product._id)}
       >
+        {product.product}
       </button>
     ));
   };
