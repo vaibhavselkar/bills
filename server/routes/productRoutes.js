@@ -104,7 +104,7 @@ router.post('/', auth, async (req, res) => {
     // Check if product already exists within tenant
     const existingProduct = await Product.findOne({ 
       product: { $regex: new RegExp(`^${product.trim()}$`, 'i') },
-      tenantId: req.user.tenantId // 🔥 Check within tenant
+      tenantId: req.tenantId // 🔥 Check within tenant
     });
     
     if (existingProduct) {
@@ -128,7 +128,7 @@ router.post('/', auth, async (req, res) => {
           stock: parseInt(subcat.stock) || 0
         }))
       })),
-      tenantId: req.user.tenantId, // 🔥 Add tenantId from auth
+      tenantId: req.tenantId, // 🔥 Add tenantId from auth
       createdBy: {
         userId: req.user._id,
         name: req.user.name,
