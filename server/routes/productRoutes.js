@@ -3,10 +3,12 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../model/Product');
 const { auth } = require('../middleware/auth');
+const dbConnect = require('../lib/dbConnect'); 
 
 // GET /api/products - Fetch all products with tenantId filtering
 router.get('/', auth, async (req, res) => {
   try {
+    await dbConnect();
     const { search, sortBy, sortOrder = 'asc' } = req.query;
     
     let query = { tenantId: req.user.tenantId }; // 🔥 Filter by tenant
@@ -46,6 +48,7 @@ router.get('/', auth, async (req, res) => {
 // GET /api/products/:id - Get single product by ID
 router.get('/:id', async (req, res) => {
   try {
+    await dbConnect();
     const product = await Product.findById(req.params.id).lean();
     
     if (!product) {
@@ -80,6 +83,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/products - Create new product
 router.post('/', auth, async (req, res) => {
   try {
+    await dbConnect();
     const { product, categories } = req.body;
     
     // Validation
@@ -170,6 +174,7 @@ router.post('/', auth, async (req, res) => {
 // PUT /api/products/:id - Update product
 router.put('/:id', auth, async (req, res) => {
   try {
+    await dbConnect();
     const { product, categories } = req.body;
     
     // Validation
@@ -279,6 +284,7 @@ router.put('/:id', auth, async (req, res) => {
 // DELETE /api/products/:id - Delete product
 router.delete('/:id', auth, async (req, res) => {
   try {
+    await dbConnect();
     const deletedProduct = await Product.findOneAndDelete({
       _id: req.params.id,
       tenantId: req.user.tenantId // 🔥 Ensure tenant match
@@ -318,6 +324,7 @@ router.delete('/:id', auth, async (req, res) => {
 // PATCH /api/products/:id/categories - Add category to existing product
 router.patch('/:id/categories', async (req, res) => {
   try {
+    await dbConnect();
     const { category } = req.body;
     
     if (!category || !category.name || !category.price) {
