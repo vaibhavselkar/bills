@@ -282,10 +282,6 @@ const BillForm = () => {
         className={`selection-btn ${selectedProduct === product._id ? 'active' : ''}`}
         onClick={() => handleProductSelect(product._id)}
       >
-        {product.product}
-        {product.totalStock > 0 && (
-          <span className="stock-badge">Stock: {product.totalStock}</span>
-        )}
       </button>
     ));
   };
