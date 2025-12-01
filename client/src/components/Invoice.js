@@ -5,7 +5,7 @@ const Invoice = () => {
   const [bill, setBill] = useState(null);
   const { id } = useParams();
 
-  useEffect(() => {
+  useEffect(() => { 
     const fetchBillById = async () => {
       try {
         const token = localStorage.getItem("token");
