@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 
 const Invoice = () => {
   const [bill, setBill] = useState(null);
-  const { id } = useParams();
+  const { id } = useParams(); 
 
   useEffect(() => { 
     const fetchBillById = async () => {
