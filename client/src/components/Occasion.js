@@ -5,7 +5,7 @@ const Occasion = () => {
   const [currentOccasion, setCurrentOccasion] = useState("");
   const [occasionSummary, setOccasionSummary] = useState([]);
 
-  
+   
   // 🟣 Fetch current active occasion
   useEffect(() => {
     fetch("https://bills-welding.vercel.app/api/get-occasion")
