@@ -4,68 +4,171 @@ const Occasion = () => {
   const [occasion, setOccasion] = useState("");
   const [currentOccasion, setCurrentOccasion] = useState("");
   const [occasionSummary, setOccasionSummary] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-   
+  // 🔥 Helper function to get auth token
+  const getAuthToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   // 🟣 Fetch current active occasion
   useEffect(() => {
-    fetch("https://bills-welding.vercel.app/api/get-occasion")
-      .then((res) => res.json())
-      .then((data) => setCurrentOccasion(data?.activeOccasion || ""))
-      .catch((err) => console.error("Error fetching current occasion:", err));
+    const fetchCurrentOccasion = async () => {
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          setError("Please login to view occasions");
+          return;
+        }
 
-    fetchOccasionSummary(); // fetch all occasions summary
+        const res = await fetch("https://bills-weld.vercel.app/api/get-occasion", {
+          headers: {
+            Authorization: `Bearer ${token}` // 🔥 ADD AUTH HEADER
+          }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentOccasion(data?.activeOccasion || "");
+        } else {
+          console.error("Failed to fetch occasion");
+        }
+      } catch (err) {
+        console.error("Error fetching current occasion:", err);
+        setError("Failed to load occasion data");
+      }
+    };
+
+    fetchCurrentOccasion();
+    fetchOccasionSummary();
   }, []);
 
   const fetchOccasionSummary = async () => {
     try {
-      const res = await fetch("https://bills-welding.vercel.app/api/occasion-summary");
-      const data = await res.json();
-      setOccasionSummary(data);
+      const token = getAuthToken();
+      if (!token) return;
+
+      const res = await fetch("https://bills-weld.vercel.app/api/occasion-summary", {
+        headers: {
+          Authorization: `Bearer ${token}` // 🔥 ADD AUTH HEADER
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setOccasionSummary(data);
+      }
     } catch (err) {
       console.error("Error fetching occasion summary:", err);
     }
   };
 
   const handleSetOccasion = async () => {
+    if (!occasion.trim()) {
+      alert("Please enter an occasion name");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const res = await fetch("https://bills-welding.vercel.app/api/set-occasion", {
+      const token = getAuthToken();
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
+
+      const res = await fetch("https://bills-weld.vercel.app/api/set-occasion", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` // 🔥 ADD AUTH HEADER
+        },
         body: JSON.stringify({ occasion }),
       });
+
       const data = await res.json();
+      
       if (res.ok) {
         alert("Occasion set successfully!");
         setCurrentOccasion(data.activeOccasion);
         setOccasion("");
-        fetchOccasionSummary(); // refresh
+        fetchOccasionSummary();
       } else {
         alert(data.message || "Error setting occasion");
       }
     } catch (err) {
       alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleClearOccasion = async () => {
+    if (!window.confirm("Are you sure you want to clear the current occasion?")) {
+      return;
+    }
+
+    setLoading(true);
     try {
-      const res = await fetch("https://bills-welding.vercel.app/api/clear-occasion", {
+      const token = getAuthToken();
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
+
+      const res = await fetch("https://bills-weld.vercel.app/api/clear-occasion", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}` // 🔥 ADD AUTH HEADER
+        }
       });
+
       if (res.ok) {
         alert("Occasion cleared!");
         setCurrentOccasion("");
         fetchOccasionSummary();
+      } else {
+        alert("Failed to clear occasion");
       }
     } catch (err) {
       alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "auto" }}>
       <h2>🎉 Occasion Management Dashboard</h2>
-      <p><strong>Current Active Occasion:</strong> {currentOccasion || "None"}</p>
+
+      {error && (
+        <div style={{
+          padding: "10px",
+          marginBottom: "20px",
+          background: "#fee",
+          border: "1px solid #fcc",
+          borderRadius: "4px",
+          color: "#c33"
+        }}>
+          {error}
+        </div>
+      )}
+
+      <div style={{
+        padding: "15px",
+        marginBottom: "20px",
+        background: "#f0f9ff",
+        borderRadius: "8px",
+        border: "2px solid #bae6fd"
+      }}>
+        <p style={{ margin: "0 0 5px 0", fontSize: "14px", color: "#0369a1" }}>
+          <strong>Current Active Occasion:</strong>
+        </p>
+        <p style={{ margin: 0, fontSize: "18px", fontWeight: "600", color: "#0c4a6e" }}>
+          {currentOccasion || "None"}
+        </p>
+      </div>
 
       <div style={{ marginBottom: "20px" }}>
         <input
@@ -73,33 +176,75 @@ const Occasion = () => {
           placeholder="Enter occasion (e.g. Diwali Sale)"
           value={occasion}
           onChange={(e) => setOccasion(e.target.value)}
+          style={{
+            padding: "10px",
+            width: "60%",
+            marginRight: "10px",
+            border: "2px solid #ddd",
+            borderRadius: "4px",
+            fontSize: "14px"
+          }}
+          disabled={loading}
         />
-        <button onClick={handleSetOccasion}>Set Occasion</button>
-        <button onClick={handleClearOccasion} style={{ marginLeft: "10px" }}>
-          Clear Occasion
+        <button
+          onClick={handleSetOccasion}
+          disabled={loading || !occasion.trim()}
+          style={{
+            padding: "10px 20px",
+            background: loading ? "#ccc" : "#667eea",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: loading ? "not-allowed" : "pointer",
+            fontSize: "14px",
+            fontWeight: "600"
+          }}
+        >
+          {loading ? "Setting..." : "Set Occasion"}
+        </button>
+        <button
+          onClick={handleClearOccasion}
+          disabled={loading || !currentOccasion}
+          style={{
+            padding: "10px 20px",
+            marginLeft: "10px",
+            background: loading ? "#ccc" : "#ef4444",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: loading ? "not-allowed" : "pointer",
+            fontSize: "14px",
+            fontWeight: "600"
+          }}
+        >
+          {loading ? "Clearing..." : "Clear Occasion"}
         </button>
       </div>
 
-      <hr />
+      <hr style={{ margin: "30px 0", border: "none", borderTop: "2px solid #e5e7eb" }} />
 
       <h3>📊 Occasion Summary</h3>
       {occasionSummary.length === 0 ? (
-        <p>No occasions found yet.</p>
+        <p style={{ color: "#6b7280", fontStyle: "italic" }}>No occasions found yet.</p>
       ) : (
-        <table border="1" cellPadding="8" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table border="1" cellPadding="10" style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginTop: "15px"
+        }}>
           <thead>
-            <tr style={{ backgroundColor: "#f3f3f3" }}>
-              <th>Occasion</th>
-              <th>Total Bills</th>
-              <th>Users</th>
+            <tr style={{ backgroundColor: "#f3f4f6" }}>
+              <th style={{ textAlign: "left", padding: "12px" }}>Occasion</th>
+              <th style={{ textAlign: "center", padding: "12px" }}>Total Bills</th>
+              <th style={{ textAlign: "left", padding: "12px" }}>Users</th>
             </tr>
           </thead>
           <tbody>
             {occasionSummary.map((o, index) => (
-              <tr key={index}>
-                <td>{o._id}</td>
-                <td>{o.totalBills}</td>
-                <td>
+              <tr key={index} style={{ borderBottom: "1px solid #e5e7eb" }}>
+                <td style={{ padding: "12px", fontWeight: "600" }}>{o._id}</td>
+                <td style={{ padding: "12px", textAlign: "center" }}>{o.totalBills}</td>
+                <td style={{ padding: "12px" }}>
                   {o.users && o.users.length > 0 ? (
                     <ul style={{ margin: 0, paddingLeft: "20px" }}>
                       {o.users.map((u) => (
@@ -107,7 +252,9 @@ const Occasion = () => {
                       ))}
                     </ul>
                   ) : (
-                    "No user data"
+                    <span style={{ color: "#9ca3af", fontStyle: "italic" }}>
+                      No user data
+                    </span>
                   )}
                 </td>
               </tr>
