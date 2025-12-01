@@ -6,7 +6,7 @@ import { Eye, EyeOff, User, Mail, Lock, UserPlus, Shield, Building2 } from 'luci
 const Register = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const tenantCodeFromUrl = searchParams.get('tenantCode');
+  const tenantCodeFromUrl = searchParams.get('tenantCode'); 
 
   const [formData, setFormData] = useState({
     name: '',
