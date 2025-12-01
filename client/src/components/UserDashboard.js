@@ -4,7 +4,6 @@ import Navbar from "./Navbar";
 import BillForm from "./BillForm";
 import UserBill from "./UserBill";  
 import Analytics from "./Analytics";  
-import Occasion from "./Occasion";  
 
 const UserDashboard = () => {
   // ✅ Show BillForm by default
