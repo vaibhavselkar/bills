@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import Sidebar from "./Sidebar";
 
-const TopProducts = () => {
+const TopProducts = () => { 
   const [products, setProducts] = useState([]);
   const [showAllRevenue, setShowAllRevenue] = useState(false);
   const [showAllQuantity, setShowAllQuantity] = useState(false);
