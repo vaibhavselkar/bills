@@ -163,7 +163,7 @@ const ViewBills = () => {
     totalBills: filteredBills.length,
     totalAmount: filteredBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0),
     cashAmount: filteredBills.filter(b => b.paymentMethod === 'Cash').reduce((sum, b) => sum + (b.totalAmount || 0), 0),
-    onlineAmount: filteredBills.filter(b => b.paymentMethod === 'Online').reduce((sum, b) => sum + (b.totalAmount || 0), 0)
+    onlineAmount: filteredBills.filter(b => b.paymentMethod === 'UPI').reduce((sum, b) => sum + (b.totalAmount || 0), 0)
   };
 
   const downloadCSV = () => {
