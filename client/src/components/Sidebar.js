@@ -9,7 +9,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
   const [username, setUsername] = useState("Loading...");
     
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUser = async () => { 
       try {
         const token = localStorage.getItem("token");
         const response = await fetch("https://bills-welding.vercel.app/api/user/me", {
