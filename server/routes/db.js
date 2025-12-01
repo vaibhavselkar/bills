@@ -57,6 +57,52 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
+// PUT: Update a bill (with tenant check)
+router.put("/bill/:id", auth, async (req, res) => {
+  try {
+    const { customerName, mobileNumber, paymentMethod, totalAmount } = req.body;
+
+    // Validation
+    if (!customerName || !paymentMethod || !totalAmount) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Find the bill
+    const bill = await Bill.findById(req.params.id).populate("user", "tenantId");
+    
+    if (!bill) {
+      return res.status(404).json({ message: "Bill not found" });
+    }
+
+    // 🔥 Security: Verify tenant access
+    if (bill.user.tenantId !== req.user.tenantId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Update only allowed fields
+    bill.customerName = customerName;
+    bill.mobileNumber = mobileNumber || '';
+    bill.paymentMethod = paymentMethod;
+    bill.totalAmount = totalAmount;
+
+    await bill.save();
+
+    res.json({
+      success: true,
+      message: "Bill updated successfully",
+      bill
+    });
+
+  } catch (error) {
+    console.error("Error updating bill:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server Error", 
+      error: error.message 
+    });
+  }
+});
+
 // GET: Fetch bill by ID (with tenant check)
 router.get("/bill/:id", auth, async (req, res) => {
   try {
@@ -416,6 +462,7 @@ router.get("/occasion-summary", auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 
