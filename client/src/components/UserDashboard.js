@@ -131,15 +131,6 @@ const UserDashboard = () => {
           <p style={cardDescStyles}>View sales analytics & insights</p>
         </div>
 
-        <div
-          style={getCardStyles("occasion")}
-          onClick={() => setActiveSection("occasion")}
-          onMouseEnter={() => setHoveredCard("occasion")}
-          onMouseLeave={() => setHoveredCard(null)}
-        >
-          <h3 style={cardTitleStyles}>Set occasian</h3>
-          <p style={cardDescStyles}>Set Occasion first</p>
-        </div>
       </div>
 
       <div style={sectionStyles}>
