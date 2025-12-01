@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Sidebar from "./Sidebar";
 
 const Occasion = () => {
   const [occasion, setOccasion] = useState("");
@@ -6,6 +7,15 @@ const Occasion = () => {
   const [occasionSummary, setOccasionSummary] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSidebarItemClick = () => {
+    setIsSidebarOpen(false);
+  };
 
   // 🔥 Helper function to get auth token
   const getAuthToken = () => {
@@ -139,8 +149,33 @@ const Occasion = () => {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "auto" }}>
-      <h2>🎉 Occasion Management Dashboard</h2>
+    <div style={{ minHeight: "100vh" }}>
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onToggle={toggleSidebar}
+        onItemClick={handleSidebarItemClick}
+      />
+      
+      <main style={{
+        marginTop: "70px",
+        marginLeft: isSidebarOpen ? "280px" : "0",
+        transition: "margin-left 0.3s ease",
+        padding: "30px",
+        minHeight: "calc(100vh - 70px)",
+        background: "linear-gradient(135deg, #2E8B57 0%, #20B2AA 100%)",
+      }}>
+        <div style={{
+          background: "rgba(255, 255, 255, 0.95)",
+          borderRadius: "15px",
+          padding: "30px",
+          boxShadow: "0 8px 25px rgba(0, 0, 0, 0.1)",
+          backdropFilter: "blur(10px)",
+          maxWidth: "900px",
+          margin: "0 auto"
+        }}>
+          <h2 style={{ margin: "0 0 20px 0", color: "#1f2937", fontSize: "28px", fontWeight: "700" }}>
+            🎉 Occasion Management Dashboard
+          </h2>
 
       {error && (
         <div style={{
@@ -262,6 +297,8 @@ const Occasion = () => {
           </tbody>
         </table>
       )}
+        </div>
+      </main>
     </div>
   );
 };
