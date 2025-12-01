@@ -6,7 +6,7 @@ import {
   BarChart,
   Bar,
   PieChart,
-  Pie,
+  Pie, 
   Cell,
   CartesianGrid,
   XAxis,
