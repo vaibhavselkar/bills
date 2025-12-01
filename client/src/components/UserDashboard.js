@@ -19,8 +19,6 @@ const UserDashboard = () => {
         return <UserBill embedded={true} />;
       case "analytics":
         return <Analytics embedded={true} />;
-      case "occasion":
-        return <Occasion embedded={true} />;
       default:
         return null;
     }
