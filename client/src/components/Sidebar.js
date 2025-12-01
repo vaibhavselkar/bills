@@ -5,7 +5,7 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  const [openTables, setOpenTables] = useState(false);
+  const [openTables, setOpenTables] = useState(false); 
   const [username, setUsername] = useState("Loading...");
     
   useEffect(() => {
