@@ -14,6 +14,8 @@ const BillForm = () => {
 
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedDesign, setSelectedDesign] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [price, setPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -45,7 +47,6 @@ const BillForm = () => {
 
         if (response.ok) {
           const data = await response.json();
-          // Handle different API response formats
           if (data.success && data.data && Array.isArray(data.data)) {
             setProductData(data.data);
           } else if (Array.isArray(data)) {
@@ -117,36 +118,48 @@ const BillForm = () => {
     return category?.subcategories?.find(s => s.sku === selectedSubcategory);
   };
 
+  // Group subcategories by color, then design
+  const groupSubcategories = (subcategories) => {
+    if (!subcategories || subcategories.length === 0) return null;
+
+    const grouped = {};
+    
+    subcategories.forEach(sub => {
+      const color = sub.color || 'default';
+      const design = sub.design || 'default';
+      
+      if (!grouped[color]) grouped[color] = {};
+      if (!grouped[color][design]) grouped[color][design] = [];
+      
+      grouped[color][design].push(sub);
+    });
+    
+    return grouped;
+  };
+
   // Reset selection when product changes
   const handleProductSelect = (productId) => {
     setSelectedProduct(productId);
     setSelectedCategory('');
+    setSelectedColor('');
+    setSelectedDesign('');
     setSelectedSubcategory('');
     setPrice(0);
   };
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategory(categoryId);
+    setSelectedColor('');
+    setSelectedDesign('');
     setSelectedSubcategory('');
     
-    // Auto-set price if category has a fixed price
     const category = getCurrentProduct()?.categories?.find(c => c._id === categoryId);
     if (category?.price) {
       setPrice(category.price);
     }
   };
 
-  const handleSubcategorySelect = (subcategorySku) => {
-    setSelectedSubcategory(subcategorySku);
-    
-    // Auto-set price if subcategory exists (category price is used)
-    const category = getCurrentCategory();
-    if (category?.price) {
-      setPrice(category.price);
-    }
-  };
-
-  // Add item to bill - UPDATED FOR NEW SCHEMA
+  // Add item to bill
   const addItemToBill = () => {
     if (!selectedProduct) {
       showToast('Please select a product', 'error');
@@ -162,18 +175,31 @@ const BillForm = () => {
       return;
     }
 
+    // Check if subcategories exist and if selection is complete
+    if (currentCategory.subcategories?.length > 0 && !selectedSubcategory) {
+      showToast('Please complete your selection (color, design, and size)', 'error');
+      return;
+    }
+
     const totalAmount = (price * quantity) * (1 - discount / 100);
 
     const newItem = {
       productId: selectedProduct,
       product: currentProduct.product,
       category: currentCategory.name,
-      subcategory: {
-        design: currentSubcategory?.design || '',
-        color: currentSubcategory?.color || '',
-        size: currentSubcategory?.size || '',
-        sku: selectedSubcategory || ''
-      },
+      subcategory: currentCategory.subcategories?.length > 0 
+        ? {
+            design: currentSubcategory?.design || '',
+            color: currentSubcategory?.color || '',
+            size: currentSubcategory?.size || '',
+            sku: selectedSubcategory || ''
+          }
+        : {
+            design: '',
+            color: '',
+            size: '',
+            sku: `${currentProduct.product}-${currentCategory.name}`.toUpperCase()
+          },
       price: price,
       quantity: quantity,
       discount: discount,
@@ -185,6 +211,8 @@ const BillForm = () => {
     // Reset selection form
     setSelectedProduct('');
     setSelectedCategory('');
+    setSelectedColor('');
+    setSelectedDesign('');
     setSelectedSubcategory('');
     setPrice(0);
     setQuantity(1);
@@ -201,7 +229,7 @@ const BillForm = () => {
   const getGrandTotal = () =>
     billItems.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0).toFixed(2);
 
-  // Submit handler - UPDATED FOR NEW SCHEMA WITH AUTHENTICATION
+  // Submit handler
   const handleSubmit = async () => {
     if (!customerName) return showToast('Enter customer name', 'error');
     if (mobileNumber && !/^\d{10}$/.test(mobileNumber))
@@ -266,7 +294,7 @@ const BillForm = () => {
     }
   };
 
-  // Safe rendering of products
+  // Render products
   const renderProducts = () => {
     if (loading) {
       return <div className="loading">Loading products...</div>;
@@ -287,7 +315,7 @@ const BillForm = () => {
     ));
   };
 
-  // Render categories for selected product
+  // Render categories
   const renderCategories = () => {
     const product = getCurrentProduct();
     if (!product || !product.categories || product.categories.length === 0) {
@@ -316,25 +344,94 @@ const BillForm = () => {
     );
   };
 
-  // Render subcategories for selected category
-  const renderSubcategories = () => {
+  // Render Colors
+  const renderColors = () => {
     const category = getCurrentCategory();
-    if (!category || !category.subcategories || category.subcategories.length === 0) {
-      return null;
-    }
-
+    if (!category?.subcategories || category.subcategories.length === 0) return null;
+    
+    const grouped = groupSubcategories(category.subcategories);
+    if (!grouped) return null;
+    
+    const colors = Object.keys(grouped);
+    
     return (
       <div className="selection-group">
-        <label>Subcategories:</label>
+        <label>Colors:</label>
         <div className="button-group">
-          {category.subcategories.map((subcat) => (
+          {colors.map((color) => (
+            <button
+              key={color}
+              className={`selection-btn ${selectedColor === color ? 'active' : ''}`}
+              onClick={() => {
+                setSelectedColor(color);
+                setSelectedDesign('');
+                setSelectedSubcategory('');
+              }}
+            >
+              {color}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Designs
+  const renderDesigns = () => {
+    const category = getCurrentCategory();
+    if (!selectedColor || !category?.subcategories) return null;
+    
+    const grouped = groupSubcategories(category.subcategories);
+    if (!grouped || !grouped[selectedColor]) return null;
+    
+    const designs = Object.keys(grouped[selectedColor]);
+    
+    return (
+      <div className="selection-group">
+        <label>Designs:</label>
+        <div className="button-group">
+          {designs.map((design) => (
+            <button
+              key={design}
+              className={`selection-btn ${selectedDesign === design ? 'active' : ''}`}
+              onClick={() => {
+                setSelectedDesign(design);
+                setSelectedSubcategory('');
+              }}
+            >
+              {design}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Sizes
+  const renderSizes = () => {
+    const category = getCurrentCategory();
+    if (!selectedColor || !selectedDesign || !category?.subcategories) return null;
+    
+    const grouped = groupSubcategories(category.subcategories);
+    if (!grouped || !grouped[selectedColor] || !grouped[selectedColor][selectedDesign]) return null;
+    
+    const sizes = grouped[selectedColor][selectedDesign];
+    
+    return (
+      <div className="selection-group">
+        <label>Sizes:</label>
+        <div className="button-group">
+          {sizes.map((subcat) => (
             <button
               key={subcat.sku}
               className={`selection-btn ${selectedSubcategory === subcat.sku ? 'active' : ''}`}
-              onClick={() => handleSubcategorySelect(subcat.sku)}
+              onClick={() => {
+                setSelectedSubcategory(subcat.sku);
+                if (category.price) setPrice(category.price);
+              }}
               disabled={subcat.stock <= 0}
             >
-              {subcat.design} {subcat.color} {subcat.size} 
+              {subcat.size}
               <span className="sku">SKU: {subcat.sku}</span>
               {subcat.stock > 0 && (
                 <span className="stock-info">Stock: {subcat.stock}</span>
@@ -399,48 +496,58 @@ const BillForm = () => {
         {/* Categories */}
         {selectedProduct && renderCategories()}
 
-        {/* Subcategories */}
-        {selectedCategory && renderSubcategories()}
+        {/* Colors - Only show if subcategories exist */}
+        {selectedCategory && getCurrentCategory()?.subcategories?.length > 0 && renderColors()}
 
-        {/* Price, Quantity, Discount */}
-        <div className="price-quantity-section">
-          <div className="input-row">
-            <div className="input-group">
-              <label>Price (₹):</label>
-              <input
-                type="number"
-                value={price}
-                onChange={e => setPrice(parseFloat(e.target.value) || 0)}
-                min="0"
-                step="0.01"
-              />
-            </div>
-            
-            <div className="input-group">
-              <label>Quantity:</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                min="1"
-              />
-            </div>
-            
-            <div className="input-group">
-              <label>Discount (%):</label>
-              <select value={discount} onChange={e => setDiscount(parseInt(e.target.value))}>
-                {[0, 10, 20, 30, 40, 50].map(d => (
-                  <option key={d} value={d}>{d}%</option>
-                ))}
-              </select>
+        {/* Designs - Only show after color selected */}
+        {selectedColor && renderDesigns()}
+
+        {/* Sizes - Only show after design selected */}
+        {selectedDesign && renderSizes()}
+
+        {/* Price, Quantity, Discount - Show after category selection */}
+        {selectedCategory && (
+          <div className="price-quantity-section">
+            <div className="input-row">
+              <div className="input-group">
+                <label>Price (₹):</label>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={e => setPrice(parseFloat(e.target.value) || 0)}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              
+              <div className="input-group">
+                <label>Quantity:</label>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={e => setQuantity(parseInt(e.target.value) || 1)}
+                  min="1"
+                />
+              </div>
+              
+              <div className="input-group">
+                <label>Discount (%):</label>
+                <select value={discount} onChange={e => setDiscount(parseInt(e.target.value))}>
+                  {[0, 10, 20, 30, 40, 50].map(d => (
+                    <option key={d} value={d}>{d}%</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Add Item Button */}
-        <button className="add-to-bill-btn" onClick={addItemToBill}>
-          Add Item to Bill
-        </button>
+        {selectedCategory && (
+          <button className="add-to-bill-btn" onClick={addItemToBill}>
+            Add Item to Bill
+          </button>
+        )}
       </div>
 
       {/* Bill Items Table */}
@@ -468,10 +575,10 @@ const BillForm = () => {
                 <tr key={index}>
                   <td>{item.product}</td>
                   <td>{item.category}</td>
-                  <td>{item.subcategory.design}</td>
-                  <td>{item.subcategory.color}</td>
-                  <td>{item.subcategory.size}</td>
-                  <td>{item.subcategory.sku}</td>
+                  <td>{item.subcategory.design || '-'}</td>
+                  <td>{item.subcategory.color || '-'}</td>
+                  <td>{item.subcategory.size || '-'}</td>
+                  <td>{item.subcategory.sku || '-'}</td>
                   <td>₹{item.price}</td>
                   <td>{item.quantity}</td>
                   <td>{item.discount}%</td>
