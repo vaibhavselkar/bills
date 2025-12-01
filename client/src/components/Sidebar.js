@@ -314,18 +314,6 @@ const Sidebar = ({ isOpen, onToggle, onItemClick }) => {
             </a>
 
             <a
-              href="/bill"
-              style={getLinkStyles("/bill")}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigation("/bill");
-              }}
-            >
-              <span>🧾</span>
-              <span>Create Bill</span>
-            </a>
-
-            <a
               href="/products"
               style={getLinkStyles("/products")}
               onClick={(e) => {
