@@ -7,7 +7,7 @@ const ProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false); 
   const [editingProduct, setEditingProduct] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [currentUser, setCurrentUser] = useState(null);
 
   const toggleSidebar = () => {
