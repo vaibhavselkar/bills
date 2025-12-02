@@ -166,7 +166,7 @@ const Dashboard = () => {
   const paymentBreakdown = filteredBills.reduce(
     (acc, bill) => {
       if (bill.paymentMethod === "Cash") acc.cash += bill.totalAmount;
-      else if (bill.paymentMethod === "Online") acc.online += bill.totalAmount;
+      else if (bill.paymentMethod === "UPI") acc.online += bill.totalAmount;
       return acc;
     },
     { cash: 0, online: 0 }
