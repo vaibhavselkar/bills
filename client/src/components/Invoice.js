@@ -119,7 +119,7 @@ const Invoice = () => {
               <div className="footer-row">
                 <div className="company-details">
                   <div><b>Sanghamitra Business Incubator</b></div>
-                  <div><b>Contact:</b> +91 9234567890</div>
+                  <div><b>Contact:</b> +91 8625969689</div>
                   <div><b>sanghamitra.store</b></div>
                 </div>
                 <img
