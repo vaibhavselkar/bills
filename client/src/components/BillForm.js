@@ -183,10 +183,12 @@ const BillForm = () => {
 
     const totalAmount = (price * quantity) * (1 - discount / 100);
 
+    // FIXED: Send null for products without subcategories instead of fake SKU
     const newItem = {
       productId: selectedProduct,
       product: currentProduct.product,
       category: currentCategory.name,
+      categoryId: currentCategory._id,
       subcategory: currentCategory.subcategories?.length > 0 
         ? {
             design: currentSubcategory?.design || '',
@@ -194,12 +196,7 @@ const BillForm = () => {
             size: currentSubcategory?.size || '',
             sku: selectedSubcategory || ''
           }
-        : {
-            design: '',
-            color: '',
-            size: '',
-            sku: `${currentProduct.product}-${currentCategory.name}`.toUpperCase()
-          },
+        : null, // Send null instead of fake object for items without subcategories
       price: price,
       quantity: quantity,
       discount: discount,
@@ -254,7 +251,8 @@ const BillForm = () => {
         productId: item.productId,
         product: item.product,
         category: item.category,
-        subcategory: item.subcategory,
+        categoryId: item.categoryId,
+        subcategory: item.subcategory, // Now properly null for items without subcategories
         price: item.price,
         quantity: item.quantity,
         discount: item.discount,
@@ -575,10 +573,10 @@ const BillForm = () => {
                 <tr key={index}>
                   <td>{item.product}</td>
                   <td>{item.category}</td>
-                  <td>{item.subcategory.design || '-'}</td>
-                  <td>{item.subcategory.color || '-'}</td>
-                  <td>{item.subcategory.size || '-'}</td>
-                  <td>{item.subcategory.sku || '-'}</td>
+                  <td>{item.subcategory?.design || '-'}</td>
+                  <td>{item.subcategory?.color || '-'}</td>
+                  <td>{item.subcategory?.size || '-'}</td>
+                  <td>{item.subcategory?.sku || '-'}</td>
                   <td>₹{item.price}</td>
                   <td>{item.quantity}</td>
                   <td>{item.discount}%</td>
@@ -635,7 +633,7 @@ const BillForm = () => {
       <div className="footer">
         Sanghamitra Business Incubator<br />
         Website: <a href="https://sanghamitra.store" target="_blank" rel="noreferrer">sanghamitra.store</a><br />
-        Contact: +919234567890
+        Contact: +918625969689
       </div>
     </div>
   );
