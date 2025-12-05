@@ -635,7 +635,7 @@ const BillForm = () => {
       <div className="footer">
         Sanghamitra Business Incubator<br />
         Website: <a href="https://sanghamitra.store" target="_blank" rel="noreferrer">sanghamitra.store</a><br />
-        Contact: +918625969689
+        Contact: +919234567890
       </div>
     </div>
   );
