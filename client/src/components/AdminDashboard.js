@@ -1,4 +1,3 @@
-// components/AdminDashboard.js - Add organization name display in header
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import { Building2 } from 'lucide-react';
@@ -172,17 +171,25 @@ const Dashboard = () => {
     { cash: 0, online: 0 }
   );
 
+  // Calculate product revenue totals
   const categoryTotals = {};
   filteredBills.forEach((bill) => {
-    bill.products.forEach((p) => {
-      categoryTotals[p.product] = (categoryTotals[p.product] || 0) + p.total;
-    });
+    if (bill.products && Array.isArray(bill.products)) {
+      bill.products.forEach((p) => {
+        const productName = p.product || 'Unknown';
+        const productTotal = Number(p.total) || 0;
+        categoryTotals[productName] = (categoryTotals[productName] || 0) + productTotal;
+      });
+    }
   });
 
   const categoryChartData = Object.entries(categoryTotals).map(([key, value]) => ({
     name: key,
     value: parseFloat(value.toFixed(2)),
   }));
+
+  // Calculate the sum of all product totals
+  const productRevenueSum = categoryChartData.reduce((sum, item) => sum + item.value, 0);
 
   const COLORS = [
     "#45722dff",
@@ -269,13 +276,14 @@ const Dashboard = () => {
             <p style={{ marginBottom: "12px", fontSize: "14px", color: "#075985" }}>
               Share this link with employees to join <strong>{organizationName}</strong>:
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
               <input 
                 type="text" 
                 readOnly 
                 value={`${window.location.origin}/register?tenantCode=${tenantId}`}
                 style={{
                   flex: 1,
+                  minWidth: "200px",
                   padding: "12px",
                   border: "2px solid #7dd3fc",
                   borderRadius: "8px",
@@ -300,7 +308,7 @@ const Dashboard = () => {
                 }}
                 onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
                 onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                >
+              >
                 Copy Link
               </button>
             </div>
@@ -324,51 +332,180 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className="time-selector" style={{ marginBottom: "20px" }}>
-            <button onClick={() => setSelected("year")} className={selected === "year" ? "active" : ""}>
+          <div className="time-selector" style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <button 
+              onClick={() => setSelected("year")} 
+              style={{
+                padding: "10px 20px",
+                background: selected === "year" ? "#475087" : "#e5e7eb",
+                color: selected === "year" ? "white" : "#374151",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: selected === "year" ? "600" : "400",
+                transition: "all 0.2s"
+              }}
+            >
               This Year
             </button>
-            <button onClick={() => setSelected("month")} className={selected === "month" ? "active" : ""}>
+            <button 
+              onClick={() => setSelected("month")} 
+              style={{
+                padding: "10px 20px",
+                background: selected === "month" ? "#475087" : "#e5e7eb",
+                color: selected === "month" ? "white" : "#374151",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: selected === "month" ? "600" : "400",
+                transition: "all 0.2s"
+              }}
+            >
               This Month
             </button>
-            <button onClick={() => setSelected("today")} className={selected === "today" ? "active" : ""}>
+            <button 
+              onClick={() => setSelected("today")} 
+              style={{
+                padding: "10px 20px",
+                background: selected === "today" ? "#475087" : "#e5e7eb",
+                color: selected === "today" ? "white" : "#374151",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: selected === "today" ? "600" : "400",
+                transition: "all 0.2s"
+              }}
+            >
               Today
             </button>
-            <button onClick={() => setSelected("custom")} className={selected === "custom" ? "active" : ""}>
+            <button 
+              onClick={() => setSelected("custom")} 
+              style={{
+                padding: "10px 20px",
+                background: selected === "custom" ? "#475087" : "#e5e7eb",
+                color: selected === "custom" ? "white" : "#374151",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: selected === "custom" ? "600" : "400",
+                transition: "all 0.2s"
+              }}
+            >
               Custom
             </button>
           </div>
 
           {selected === "custom" && (
-            <div className="custom-date-filter" style={{ marginBottom: "20px" }}>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-              <button onClick={fetchCustomRange} disabled={!startDate || !endDate}>
+            <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+              <input 
+                type="date" 
+                value={startDate} 
+                onChange={(e) => setStartDate(e.target.value)}
+                style={{
+                  padding: "10px",
+                  border: "2px solid #ddd",
+                  borderRadius: "8px",
+                  fontSize: "14px"
+                }}
+              />
+              <input 
+                type="date" 
+                value={endDate} 
+                onChange={(e) => setEndDate(e.target.value)}
+                style={{
+                  padding: "10px",
+                  border: "2px solid #ddd",
+                  borderRadius: "8px",
+                  fontSize: "14px"
+                }}
+              />
+              <button 
+                onClick={fetchCustomRange} 
+                disabled={!startDate || !endDate}
+                style={{
+                  padding: "10px 20px",
+                  background: (!startDate || !endDate) ? "#9ca3af" : "#475087",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: (!startDate || !endDate) ? "not-allowed" : "pointer",
+                  fontWeight: "600"
+                }}
+              >
                 Apply
               </button>
             </div>
           )}
 
-          <div className="stats" style={{ marginBottom: "30px" }}>
-            <div className="stat-card">
-              <div className="icon">🛒</div>
-              <div className="stat-value">{sales[selected]}</div>
-              <div className="stat-label">Sales</div>
+          <div style={{ 
+            marginBottom: "30px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "20px"
+          }}>
+            <div style={{
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              borderRadius: "12px",
+              padding: "20px",
+              color: "white",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+            }}>
+              <div style={{ fontSize: "36px", marginBottom: "5px" }}>🛒</div>
+              <div style={{ fontSize: "32px", fontWeight: "700", marginBottom: "5px" }}>{sales[selected]}</div>
+              <div style={{ fontSize: "14px", opacity: 0.9 }}>Sales</div>
             </div>
-            <div className="stat-card">
-              <div className="icon">₹</div>
-              <div className="stat-value">₹{revenue[selected].toFixed(2)}</div>
-              <div className="stat-label">Revenue</div>
+            <div style={{
+              background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+              borderRadius: "12px",
+              padding: "20px",
+              color: "white",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+            }}>
+              <div style={{ fontSize: "36px", marginBottom: "5px" }}>₹</div>
+              <div style={{ fontSize: "32px", fontWeight: "700", marginBottom: "5px" }}>₹{revenue[selected].toFixed(2)}</div>
+              <div style={{ fontSize: "14px", opacity: 0.9 }}>Revenue (Bill Total)</div>
             </div>
-            <div className="stat-card">
-              <div className="icon">👥</div>
-              <div className="stat-value">{customers[selected]}</div>
-              <div className="stat-label">Customers</div>
+            <div style={{
+              background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+              borderRadius: "12px",
+              padding: "20px",
+              color: "white",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+            }}>
+              <div style={{ fontSize: "36px", marginBottom: "5px" }}>👥</div>
+              <div style={{ fontSize: "32px", fontWeight: "700", marginBottom: "5px" }}>{customers[selected]}</div>
+              <div style={{ fontSize: "14px", opacity: 0.9 }}>Customers</div>
             </div>
           </div>
 
-          <div className="analytics-container">
-            <h2>Payment Method Distribution ({selected})</h2>
+          {/* Discrepancy Warning */}
+          {Math.abs(revenue[selected] - productRevenueSum) > 0.01 && (
+            <div style={{
+              marginBottom: "20px",
+              padding: "15px",
+              background: "#fef3c7",
+              border: "2px solid #fbbf24",
+              borderRadius: "8px",
+              color: "#92400e"
+            }}>
+              <strong>⚠️ Revenue Discrepancy Detected:</strong>
+              <div style={{ marginTop: "8px", fontSize: "14px" }}>
+                • Total Bill Revenue: ₹{revenue[selected].toFixed(2)}
+              </div>
+              <div style={{ fontSize: "14px" }}>
+                • Sum of Product Totals: ₹{productRevenueSum.toFixed(2)}
+              </div>
+              <div style={{ fontSize: "14px", marginTop: "5px" }}>
+                • Difference: ₹{Math.abs(revenue[selected] - productRevenueSum).toFixed(2)}
+              </div>
+              <div style={{ marginTop: "8px", fontSize: "13px", fontStyle: "italic" }}>
+                This can occur due to discounts, taxes, or rounding applied at the bill level.
+              </div>
+            </div>
+          )}
+
+          <div style={{ marginBottom: "40px" }}>
+            <h2 style={{ marginBottom: "20px", color: "#1f2937" }}>Payment Method Distribution ({selected})</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -389,19 +526,33 @@ const Dashboard = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+          </div>
 
-            <h2>Revenue by Product Type ({selected})</h2>
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h2 style={{ margin: 0, color: "#1f2937" }}>Revenue by Product Type ({selected})</h2>
+              <div style={{
+                padding: "8px 16px",
+                background: "#f3f4f6",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#374151"
+              }}>
+                Total: ₹{productRevenueSum.toFixed(2)}
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={categoryChartData}>
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
                 <Legend />
-                <Bar dataKey="value" fill="#352261ff" />
+                <Bar dataKey="value" fill="#352261ff" name="Revenue (₹)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
