@@ -29,8 +29,8 @@ const BillingChart = () => {
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState("Bar");
   const [selectedRange, setSelectedRange] = useState("year");
-  const [occasionFilter, setOccasionFilter] = useState(""); // 🔥 NEW: Occasion filter
-  const [uniqueOccasions, setUniqueOccasions] = useState([]); // 🔥 NEW: List of occasions
+  const [occasionFilter, setOccasionFilter] = useState("");
+  const [uniqueOccasions, setUniqueOccasions] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -59,7 +59,7 @@ const BillingChart = () => {
         const data = await response.json();
         setBillingData(Array.isArray(data) ? data : []);
         
-        // 🔥 Extract unique occasions
+        // Extract unique occasions
         const occasions = [...new Set(data.map(bill => bill.occasion).filter(o => o && o.trim() !== ''))];
         setUniqueOccasions(occasions);
       } catch (err) {
@@ -73,7 +73,7 @@ const BillingChart = () => {
     fetchBillingData();
   }, []);
 
-  // 🔥 Filter bills by selected date range AND occasion
+  // Filter bills by selected date range AND occasion
   const filterByDateRange = (data) => {
     const now = new Date();
 
@@ -91,7 +91,7 @@ const BillingChart = () => {
         dateMatch = billDate.getFullYear() === now.getFullYear();
       }
 
-      // 🔥 Occasion filter
+      // Occasion filter
       let occasionMatch = true;
       if (occasionFilter === 'no-occasion') {
         occasionMatch = !bill.occasion || bill.occasion.trim() === '';
@@ -132,7 +132,7 @@ const BillingChart = () => {
     `${(percent * 100).toFixed(1)}%`;
 
   const renderChart = () => {
-    // 🔥 Show filter description
+    // Show filter description
     const filterDescription = occasionFilter 
       ? (occasionFilter === 'no-occasion' ? 'Daily Bills' : `🎉 ${occasionFilter}`)
       : 'All Bills';
@@ -338,7 +338,7 @@ const BillingChart = () => {
             </button>
           </div>
 
-          {/* 🔥 NEW: Occasion Filter Dropdown */}
+          {/* Occasion Filter Dropdown */}
           <div style={{ marginBottom: "1.5rem" }}>
             <label htmlFor="occasionFilter" style={{ marginRight: '10px', fontWeight: '500' }}>
               Filter by Occasion:
@@ -403,7 +403,75 @@ const BillingChart = () => {
               </p>
             </div>
           ) : (
-            renderChart()
+            <>
+              {renderChart()}
+              
+              {/* Product Sales Table */}
+              <div style={{ marginTop: '40px' }}>
+                <h3 style={{ marginBottom: '15px', color: '#1f2937' }}>
+                  Product Sales Summary
+                </h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    background: 'white',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    borderRadius: '8px',
+                    overflow: 'hidden'
+                  }}>
+                    <thead>
+                      <tr style={{ background: '#475087', color: 'white' }}>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600' }}>
+                          Product Name
+                        </th>
+                        <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: '600' }}>
+                          Quantity Sold
+                        </th>
+                        <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600' }}>
+                          Total Amount
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productData.map((product, index) => (
+                        <tr 
+                          key={index}
+                          style={{
+                            borderBottom: '1px solid #e5e7eb',
+                            transition: 'background 0.2s',
+                            background: index % 2 === 0 ? '#f9fafb' : 'white'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = index % 2 === 0 ? '#f9fafb' : 'white'}
+                        >
+                          <td style={{ padding: '12px 16px', fontWeight: '500', color: '#374151' }}>
+                            {product.name}
+                          </td>
+                          <td style={{ padding: '12px 16px', textAlign: 'center', color: '#059669', fontWeight: '600' }}>
+                            {product.quantitySold}
+                          </td>
+                          <td style={{ padding: '12px 16px', textAlign: 'right', color: '#1f2937', fontWeight: '600' }}>
+                            ₹{product.totalAmount.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr style={{ background: '#e5e7eb', fontWeight: 'bold' }}>
+                        <td style={{ padding: '14px 16px', color: '#111827' }}>
+                          TOTAL
+                        </td>
+                        <td style={{ padding: '14px 16px', textAlign: 'center', color: '#059669' }}>
+                          {productData.reduce((sum, p) => sum + p.quantitySold, 0)}
+                        </td>
+                        <td style={{ padding: '14px 16px', textAlign: 'right', color: '#111827' }}>
+                          ₹{productData.reduce((sum, p) => sum + p.totalAmount, 0).toFixed(2)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </main>
